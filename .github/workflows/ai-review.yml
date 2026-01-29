@@ -1,0 +1,29 @@
+# AI Code Reviewer - PR 생성 시 AI가 자동으로 코드 리뷰
+
+name: AI Code Review
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  ai-review:
+    name: AI Code Review
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: AI Code Review
+        uses: k1my3ch4n/ai-code-reviewer@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          ai-provider: "gemini"
+          gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
+          language: "ko"
+          model: "gemini-2.5-flash"
