@@ -1,7 +1,9 @@
 "use client";
 
-import { VIEWPORT_PRESETS } from "@/entities/viewport";
 import { useState } from "react";
+import { VIEWPORT_PRESETS, ViewportFrame } from "@entities/viewport";
+
+const url = "https://example.com";
 
 export function HomePage() {
   const [selectedIds, setSelectedIds] = useState([
@@ -9,8 +11,6 @@ export function HomePage() {
     "tablet",
     "mobile",
   ]);
-  const url = "https://example.com";
-  const scale = 0.3;
 
   const toggleViewport = (id: string) => {
     setSelectedIds((prev) =>
@@ -48,30 +48,15 @@ export function HomePage() {
         })}
       </div>
 
-      {/* 뷰포트 그리드 */}
       <div className="flex gap-6 p-6 overflow-x-auto items-start justify-center">
         {selectedViewports.map((viewport) => (
-          <div key={viewport.id} className="flex flex-col items-center gap-2">
-            <span className="text-sm font-medium text-gray-600">
-              {viewport.label} ({viewport.width}x{viewport.height})
-            </span>
-            <div
-              className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white"
-              style={{
-                width: `${viewport.width * scale}px`,
-                height: `${viewport.height * scale}px`,
-              }}
-            >
-              <iframe
-                src={url}
-                width={viewport.width}
-                height={viewport.height}
-                className="border-0 origin-top-left"
-                style={{ transform: `scale(${scale})` }}
-                title={viewport.label}
-              />
-            </div>
-          </div>
+          <ViewportFrame
+            key={viewport.id}
+            url={url}
+            width={viewport.width}
+            height={viewport.height}
+            label={viewport.label}
+          />
         ))}
       </div>
     </main>
