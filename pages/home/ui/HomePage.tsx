@@ -5,8 +5,9 @@ import { VIEWPORT_PRESETS } from "@entities/viewport";
 import { ViewportSelector } from "@features/viewport";
 import { ViewportGrid } from "@widgets/viewport";
 import { Header } from "@widgets/header";
+import { UrlInput } from "@/features/url-input";
 
-const url = "https://example.com";
+const EXAMPLE_URL = "https://www.google.com/";
 
 export function HomePage() {
   const [selectedIds, setSelectedIds] = useState([
@@ -14,6 +15,7 @@ export function HomePage() {
     "tablet",
     "mobile",
   ]);
+  const [url, setUrl] = useState(EXAMPLE_URL);
 
   const toggleViewport = (id: string) => {
     setSelectedIds((prev) =>
@@ -30,6 +32,8 @@ export function HomePage() {
   return (
     <main className="min-h-screen bg-gray-100">
       <Header title="Synchronized Grid" />
+
+      <UrlInput initialUrl={url} onSubmit={setUrl} />
 
       <ViewportSelector selectedIds={selectedIds} onToggle={toggleViewport} />
 
