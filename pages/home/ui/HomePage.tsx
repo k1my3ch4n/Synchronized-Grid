@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { VIEWPORT_PRESETS, ViewportFrame } from "@entities/viewport";
+import { VIEWPORT_PRESETS } from "@entities/viewport";
 import { ViewportSelector } from "@features/viewport";
+import { ViewportGrid } from "@widgets/viewport";
 
 const url = "https://example.com";
 
@@ -31,17 +32,7 @@ export function HomePage() {
 
       <ViewportSelector selectedIds={selectedIds} onToggle={toggleViewport} />
 
-      <div className="flex gap-6 p-6 overflow-x-auto items-start justify-center">
-        {selectedViewports.map((viewport) => (
-          <ViewportFrame
-            key={viewport.id}
-            url={url}
-            width={viewport.width}
-            height={viewport.height}
-            label={viewport.label}
-          />
-        ))}
-      </div>
+      <ViewportGrid url={url} viewports={selectedViewports} />
     </main>
   );
 }
