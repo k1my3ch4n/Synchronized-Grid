@@ -1,18 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useUrlStore } from "../model/store";
 
-interface UrlInputProps {
-  initialUrl: string;
-  onSubmit: (url: string) => void;
-}
-
-export function UrlInput({ initialUrl, onSubmit }: UrlInputProps) {
-  const [inputUrl, setInputUrl] = useState(initialUrl);
+export function UrlInput() {
+  const { url, setUrl } = useUrlStore();
+  const [inputUrl, setInputUrl] = useState(url);
 
   const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
-    onSubmit(inputUrl);
+    setUrl(inputUrl);
   };
 
   return (

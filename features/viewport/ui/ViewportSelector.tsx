@@ -1,16 +1,11 @@
 "use client";
 
 import { VIEWPORT_PRESETS } from "@entities/viewport";
+import { useViewportStore } from "../model/store";
 
-interface ViewportSelectorProps {
-  selectedIds: string[];
-  onToggle: (id: string) => void;
-}
+export function ViewportSelector({}) {
+  const { selectedIds, toggleViewport } = useViewportStore();
 
-export function ViewportSelector({
-  selectedIds,
-  onToggle,
-}: ViewportSelectorProps) {
   return (
     <div className="flex gap-2 p-4">
       {VIEWPORT_PRESETS.map((viewport) => {
@@ -18,7 +13,7 @@ export function ViewportSelector({
         return (
           <button
             key={viewport.id}
-            onClick={() => onToggle(viewport.id)}
+            onClick={() => toggleViewport(viewport.id)}
             className={`px-4 py-2 rounded-lg border-2 transition-colors ${
               isSelected
                 ? "border-blue-500 bg-blue-50 text-blue-700"

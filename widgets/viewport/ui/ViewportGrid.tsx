@@ -1,17 +1,20 @@
 "use client";
 
-import { ViewportFrame } from "@entities/viewport";
-import type { Viewport } from "@shared/types";
+import { VIEWPORT_PRESETS, ViewportFrame } from "@entities/viewport";
+import { useViewportStore } from "@features/viewport";
+import { useUrlStore } from "@features/url-input";
 
-interface ViewportGridProps {
-  url: string;
-  viewports: Viewport[];
-}
+export function ViewportGrid() {
+  const { url } = useUrlStore();
+  const { selectedIds } = useViewportStore();
 
-export function ViewportGrid({ url, viewports }: ViewportGridProps) {
+  const selectedViewports = VIEWPORT_PRESETS.filter((viewport) =>
+    selectedIds.includes(viewport.id),
+  );
+
   return (
     <div className="flex gap-6 p-6 overflow-x-auto items-start justify-center">
-      {viewports.map((viewport) => (
+      {selectedViewports.map((viewport) => (
         <ViewportFrame
           key={viewport.id}
           url={url}
