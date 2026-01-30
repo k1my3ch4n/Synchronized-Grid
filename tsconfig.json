@@ -22,7 +22,8 @@
       "@/*": ["./*"],
       "@pages/*": ["./pages/*"],
       "@entities/*": ["./entities/*"],
-      "@shared/*": ["./shared/*"]
+      "@shared/*": ["./shared/*"],
+      "@features/*": ["./features/*"]
     }
   },
   "include": [
