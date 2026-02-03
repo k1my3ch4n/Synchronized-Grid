@@ -21,3 +21,4 @@ jobs:
           ai-provider: "gemini"
           gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
           language: "ko"
+          model: "gemini-2.5-flash"
