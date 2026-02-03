@@ -6,7 +6,7 @@ interface ViewportSelectorState {
   setSelectedIds: (ids: string[]) => void;
 }
 
-// todo : ids 변경 예정
+// todo : ids 변경 예정입니다.
 export const useViewportStore = create<ViewportSelectorState>((set) => ({
   selectedIds: ["desktop", "tablet", "mobile"],
 
