@@ -1,0 +1,29 @@
+# AI Test Helper - PR 생성 시 AI가 자동으로 테스트 코드 제안
+
+name: AI Test Helper
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  ai-test-helper:
+    name: AI Test Helper
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: AI Test Helper
+        uses: k1my3ch4n/ai-test-helper@v1
+        with:
+          ai_provider: "gemini"
+          ai_api_key: ${{ secrets.GEMINI_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          ai_model: "gemini-2.5-flash"
+          test_framework: "jest"
