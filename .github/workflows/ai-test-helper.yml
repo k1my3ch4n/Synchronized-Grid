@@ -4,9 +4,7 @@ name: AI Test Helper
 
 on:
   pull_request:
-    types:
-      - opened
-      - synchronize
+    types: [opened, reopened]
 
 jobs:
   ai-test-helper:
