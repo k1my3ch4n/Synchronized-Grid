@@ -1,7 +1,6 @@
 "use client";
 
 import { useDraggable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
 import { Viewport } from "@shared/types";
 
 interface PaletteItemProps {
@@ -9,23 +8,19 @@ interface PaletteItemProps {
 }
 
 export function PaletteItem({ viewport }: PaletteItemProps) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({
-      id: `palette-${viewport.id}`,
-      data: { viewport, fromPalette: true },
-    });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    opacity: isDragging ? 0.5 : 1,
-  };
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `palette-${viewport.id}`,
+    data: { viewport, fromPalette: true },
+  });
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
       {...listeners}
       {...attributes}
+      style={{
+        opacity: isDragging ? 0.3 : 1,
+      }}
       className="p-3 bg-white border border-gray-200 rounded-lg cursor-grab hover:border-blue-400 hover:shadow-sm   transition-all"
     >
       <div className="font-medium text-sm">{viewport.label}</div>
