@@ -1,21 +1,33 @@
 "use client";
 
+import { forwardRef } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { useCanvasStore } from "../model/store";
 import { CanvasItem } from "./CanvasItem";
 
-export function Canvas() {
+export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
   const { viewport } = useCanvasStore();
 
   const { setNodeRef, isOver } = useDroppable({
     id: "canvas",
   });
 
+  const setRefs = (node: HTMLDivElement) => {
+    setNodeRef(node);
+
+    if (typeof ref === "function") {
+      ref(node);
+    } else if (ref) {
+      ref.current = node;
+    }
+  };
+
   return (
     <div
-      ref={setNodeRef}
-      className={`flex-1 relative bg-gray-200 overflow-auto ${isOver ? "bg-blue-50" : ""}`}
-      style={{ minHeight: "100vh" }}
+      ref={setRefs}
+      className={`flex-1 relative overflow-auto transition-colors ${
+        isOver ? "bg-blue-50" : "bg-gray-100"
+      }`}
     >
       {viewport.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center text-gray-400">
@@ -27,4 +39,4 @@ export function Canvas() {
       ))}
     </div>
   );
-}
+});
