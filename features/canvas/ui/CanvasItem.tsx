@@ -4,11 +4,11 @@ import { ViewportFrame } from "@entities/viewport";
 import { useCanvasStore } from "../model/store";
 import { useUrlStore } from "@features/url-input";
 
+import { CANVAS_SCALE } from "@shared/constants";
+
 interface CanvasItemProps {
   item: CanvasViewport;
 }
-
-const SCALE = 0.3;
 
 export function CanvasItem({ item }: CanvasItemProps) {
   const { url } = useUrlStore();
@@ -33,7 +33,7 @@ export function CanvasItem({ item }: CanvasItemProps) {
         {...attributes}
         className="flex items-center justify-between px-2 py-1 bg-gray-700 text-white text-xs rounded-t 
   cursor-grab"
-        style={{ width: item.width * SCALE }}
+        style={{ width: item.width * CANVAS_SCALE }}
       >
         <span>{item.label}</span>
         <button
@@ -50,7 +50,7 @@ export function CanvasItem({ item }: CanvasItemProps) {
         width={item.width}
         height={item.height}
         label=""
-        scale={SCALE}
+        scale={CANVAS_SCALE}
       />
     </div>
   );

@@ -10,7 +10,8 @@ import {
 import { Palette, Canvas, useCanvasStore } from "@features/canvas";
 import { Viewport, CanvasViewport } from "@shared/types";
 
-const SCALE = 0.3;
+import { ViewportCard } from "@shared/ui/ViewportCard";
+import { CANVAS_SCALE } from "@shared/constants";
 
 export function CanvasEditor() {
   const { addViewport, updatePosition } = useCanvasStore();
@@ -69,25 +70,18 @@ export function CanvasEditor() {
 
       <DragOverlay dropAnimation={null}>
         {activePalette && (
-          <div className="p-3 bg-white border-2 border-blue-400 rounded-lg shadow-lg">
-            <div className="font-medium text-sm">{activePalette.label}</div>
-            <div className="text-xs text-gray-500">
-              {activePalette.width} × {activePalette.height}
-            </div>
-          </div>
+          <ViewportCard viewport={activePalette} variant="overlay" />
         )}
 
         {activeCanvas && (
           <div
             className="bg-white border-2 border-blue-400 rounded shadow-lg"
-            style={{ width: activeCanvas.width * SCALE }}
+            style={{ width: activeCanvas.width * CANVAS_SCALE }}
           >
-            <div className="px-2 py-1 bg-gray-700 text-white text-xs rounded-t">
-              {activeCanvas.label}
-            </div>
+            <ViewportCard viewport={activeCanvas} variant="header" />
             <div
               className="bg-gray-100 flex items-center justify-center text-xs text-gray-400"
-              style={{ height: activeCanvas.height * SCALE }}
+              style={{ height: activeCanvas.height * CANVAS_SCALE }}
             >
               {activeCanvas.width} × {activeCanvas.height}
             </div>
