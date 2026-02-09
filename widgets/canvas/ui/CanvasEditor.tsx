@@ -7,11 +7,20 @@ import {
   DragStartEvent,
   DragOverlay,
   DragMoveEvent,
+  Modifier,
 } from "@dnd-kit/core";
 import { Palette, Canvas, useCanvasStore } from "@features/canvas";
 import { Viewport, CanvasViewport } from "@shared/types";
 import { ViewportCard } from "@shared/ui/ViewportCard";
-import { CANVAS_SCALE } from "@shared/constants";
+import { CANVAS_SCALE, GRID_SIZE } from "@shared/constants";
+
+const snapToGridModifier: Modifier = ({ transform }) => {
+  return {
+    ...transform,
+    x: Math.round(transform.x / GRID_SIZE) * GRID_SIZE,
+    y: Math.round(transform.y / GRID_SIZE) * GRID_SIZE,
+  };
+};
 
 export function CanvasEditor() {
   const { addViewport, updatePosition } = useCanvasStore();
@@ -51,6 +60,11 @@ export function CanvasEditor() {
 
     const data = event.active.data.current;
 
+    const snappedDelta = {
+      x: Math.round(delta.x / GRID_SIZE) * GRID_SIZE,
+      y: Math.round(delta.y / GRID_SIZE) * GRID_SIZE,
+    };
+
     if (data?.fromPalette && over?.id === "canvas") {
       const viewport = data.viewport;
 
@@ -65,8 +79,8 @@ export function CanvasEditor() {
           label: viewport.label,
           width: viewport.width,
           height: viewport.height,
-          x: Math.max(0, x),
-          y: Math.max(0, y),
+          x: Math.round(Math.max(0, x) / GRID_SIZE) * GRID_SIZE,
+          y: Math.round(Math.max(0, y) / GRID_SIZE) * GRID_SIZE,
         });
       }
     }
@@ -75,8 +89,8 @@ export function CanvasEditor() {
       const item = data.item;
       updatePosition(
         item.id,
-        Math.max(0, item.x + delta.x),
-        Math.max(0, item.y + delta.y),
+        Math.max(0, item.x + snappedDelta.x),
+        Math.max(0, item.y + snappedDelta.y),
       );
     }
 
@@ -89,6 +103,7 @@ export function CanvasEditor() {
       onDragStart={handleDragStart}
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
+      modifiers={[snapToGridModifier]}
     >
       <div className="flex h-[calc(100vh-120px)]">
         <Palette />
