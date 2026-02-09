@@ -17,9 +17,6 @@ export function ViewportFrame({
 }: ViewportFrameProps) {
   return (
     <div className="flex flex-col items-center gap-2">
-      <span className="text-sm font-medium text-gray-600">
-        {label} ({width}x{height})
-      </span>
       <div
         className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white"
         style={{
@@ -36,6 +33,9 @@ export function ViewportFrame({
           title={label}
         />
       </div>
+      <span className="text-sm font-medium text-gray-600">
+        {label} ({width}x{height})
+      </span>
     </div>
   );
 }
