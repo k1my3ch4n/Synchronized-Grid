@@ -18,7 +18,7 @@ export function ViewportFrame({
   return (
     <div className="flex flex-col items-center gap-2">
       <div
-        className="border-2 border-gray-300 rounded-lg overflow-hidden bg-white"
+        className="border-2 border-gray-300 rounded-b-lg overflow-hidden bg-white"
         style={{
           width: `${width * scale}px`,
           height: `${height * scale}px`,

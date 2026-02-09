@@ -1,1 +1,1 @@
-export const CANVAS_SCALE = 0.3;
+export const CANVAS_SCALE = 0.45;
