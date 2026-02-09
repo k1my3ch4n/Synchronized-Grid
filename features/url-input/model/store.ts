@@ -6,6 +6,6 @@ interface UrlState {
 }
 
 export const useUrlStore = create<UrlState>((set) => ({
-  url: "https://example.com",
+  url: "",
   setUrl: (url) => set({ url }),
 }));

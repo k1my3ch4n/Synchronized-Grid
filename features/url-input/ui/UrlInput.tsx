@@ -13,7 +13,7 @@ export function UrlInput() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 p-4">
+    <form onSubmit={handleSubmit} className="flex gap-2 p-4 w-1/3">
       <input
         type="url"
         value={inputUrl}
