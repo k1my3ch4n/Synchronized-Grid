@@ -4,3 +4,9 @@ export interface Viewport {
   width: number;
   height: number;
 }
+
+export interface CanvasViewport extends Viewport {
+  presetId: string;
+  x: number;
+  y: number;
+}
