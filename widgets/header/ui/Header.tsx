@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUrlStore } from "@features/url-input";
 
 interface HeaderProps {
@@ -18,8 +18,10 @@ export function Header({ title }: HeaderProps) {
   };
 
   const handleSubmit = () => {
-    if (inputUrl.trim()) {
-      setUrl(inputUrl);
+    const trimmedUrl = inputUrl.trim();
+
+    if (trimmedUrl) {
+      setUrl(trimmedUrl);
     }
 
     setIsEditing(false);
@@ -35,6 +37,10 @@ export function Header({ title }: HeaderProps) {
       setIsEditing(false);
     }
   };
+
+  useEffect(() => {
+    setInputUrl(url);
+  }, [url]);
 
   return (
     <header className="h-16 px-4 bg-white shadow flex items-center relative">
