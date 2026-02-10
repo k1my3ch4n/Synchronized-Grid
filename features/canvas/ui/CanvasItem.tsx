@@ -4,7 +4,7 @@ import { ViewportFrame } from "@entities/viewport";
 import { useCanvasStore } from "../model/store";
 import { useUrlStore } from "@features/url-input";
 
-import { CANVAS_SCALE } from "@shared/constants";
+import { CANVAS_SCALE, GRID_SIZE } from "@shared/constants";
 
 interface CanvasItemProps {
   item: CanvasViewport;
@@ -33,7 +33,7 @@ export function CanvasItem({ item }: CanvasItemProps) {
         {...attributes}
         className="flex items-center justify-between px-2 py-1 bg-gray-700 text-white text-xs rounded-t 
   cursor-grab"
-        style={{ width: item.width * CANVAS_SCALE }}
+        style={{ width: item.width * CANVAS_SCALE, height: GRID_SIZE }}
       >
         <span>{item.label}</span>
         <button
