@@ -6,6 +6,7 @@ interface CanvasState {
   addViewport: (viewport: Omit<CanvasViewport, "id">) => void;
   updatePosition: (id: string, x: number, y: number) => void;
   removeViewport: (id: string) => void;
+  updateSize: (id: string, width: number, height: number) => void;
 }
 
 export const useCanvasStore = create<CanvasState>((set) => ({
@@ -24,5 +25,12 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   removeViewport: (id) =>
     set((state) => ({
       viewport: state.viewport.filter((v) => v.id !== id),
+    })),
+
+  updateSize: (id, width, height) =>
+    set((state) => ({
+      viewport: state.viewport.map((v) =>
+        v.id === id ? { ...v, width, height } : v,
+      ),
     })),
 }));
