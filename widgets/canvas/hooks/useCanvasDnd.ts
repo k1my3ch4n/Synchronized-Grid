@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { DragEndEvent, DragStartEvent, DragMoveEvent } from "@dnd-kit/core";
 import { useCanvasStore } from "@features/canvas";
 import { Viewport, CanvasViewport } from "@shared/types";
-import { snapToGrid } from "../lib/snapToGrid";
+import { snapToGrid } from "@shared/lib/grid";
 
 export function useCanvasDnd() {
   const { addViewport, updatePosition } = useCanvasStore();
