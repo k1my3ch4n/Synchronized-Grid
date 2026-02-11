@@ -22,6 +22,8 @@
 }
 
 @utility win98-btn {
+  cursor: pointer;
+
   box-shadow:
     inset -1px -1px #0a0a0a,
     inset 1px 1px #dfdfdf;
