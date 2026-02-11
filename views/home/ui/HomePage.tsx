@@ -1,6 +1,6 @@
 "use client";
 
-import { CanvasEditor } from "@/widgets/canvas";
+import { CanvasEditor } from "@widgets/canvas";
 import { UrlInput, useUrlStore } from "@features/url-input";
 
 export function HomePage() {

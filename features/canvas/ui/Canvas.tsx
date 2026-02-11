@@ -4,6 +4,7 @@ import { forwardRef } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { useCanvasStore } from "../model/store";
 import { CanvasItem } from "./CanvasItem";
+import { GRID_SIZE } from "@shared/constants";
 
 export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
   const { viewport } = useCanvasStore();
@@ -28,6 +29,13 @@ export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
       className={`flex-1 relative overflow-auto transition-colors ${
         isOver ? "bg-blue-50" : "bg-gray-100"
       }`}
+      style={{
+        backgroundImage: `
+            linear-gradient(to right, #e5e7eb 1px, transparent 1px),
+            linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)
+          `,
+        backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`,
+      }}
     >
       {viewport.length === 0 && (
         <div className="absolute inset-0 flex items-center justify-center text-gray-400">
