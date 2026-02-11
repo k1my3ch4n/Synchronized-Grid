@@ -33,7 +33,7 @@ export function ViewportFrame({
           title={label}
         />
       </div>
-      <span className="text-sm font-medium text-gray-600">
+      <span className="absolute left-1/2 -translate-x-1/2 -bottom-6 text-sm font-medium text-gray-600">
         {label} ({width}x{height})
       </span>
     </div>
