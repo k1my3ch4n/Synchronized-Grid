@@ -60,11 +60,6 @@ export function CanvasEditor() {
 
     const data = event.active.data.current;
 
-    const snappedDelta = {
-      x: Math.round(delta.x / GRID_SIZE) * GRID_SIZE,
-      y: Math.round(delta.y / GRID_SIZE) * GRID_SIZE,
-    };
-
     if (data?.fromPalette && over?.id === "canvas") {
       const viewport = data.viewport;
 
@@ -87,10 +82,11 @@ export function CanvasEditor() {
 
     if (data?.fromCanvas) {
       const item = data.item;
+
       updatePosition(
         item.id,
-        Math.max(0, item.x + snappedDelta.x),
-        Math.max(0, item.y + snappedDelta.y),
+        Math.round(Math.max(0, item.x + delta.x) / GRID_SIZE) * GRID_SIZE,
+        Math.round(Math.max(0, item.y + delta.y) / GRID_SIZE) * GRID_SIZE,
       );
     }
 
