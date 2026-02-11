@@ -9,4 +9,5 @@ export interface CanvasViewport extends Viewport {
   presetId: string;
   x: number;
   y: number;
+  zIndex: number;
 }

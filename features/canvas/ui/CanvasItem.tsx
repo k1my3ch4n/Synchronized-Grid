@@ -14,7 +14,7 @@ interface CanvasItemProps {
 
 export function CanvasItem({ item }: CanvasItemProps) {
   const { url } = useUrlStore();
-  const { removeViewport, updateSize } = useCanvasStore();
+  const { removeViewport, updateSize, updateZIndex } = useCanvasStore();
 
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: item.id,
@@ -36,8 +36,10 @@ export function CanvasItem({ item }: CanvasItemProps) {
       style={{
         left: item.x,
         top: item.y,
+        zIndex: item.zIndex,
         visibility: isDragging ? "hidden" : "visible",
       }}
+      onPointerDown={() => updateZIndex(item.id)}
     >
       <CanvasItemHeader
         label={item.label}

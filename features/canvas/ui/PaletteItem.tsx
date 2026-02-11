@@ -15,8 +15,11 @@ export function PaletteItem({ viewport }: PaletteItemProps) {
     data: { viewport, fromPalette: true },
   });
 
+  // todo : 0,0 -> 1,1 같은 식으로 등장하는 위치 변경
   const handleClick = () => {
-    if (isDragging) return;
+    if (isDragging) {
+      return;
+    }
 
     addViewport({
       presetId: viewport.id,
