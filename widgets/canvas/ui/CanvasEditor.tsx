@@ -21,7 +21,7 @@ export function CanvasEditor() {
       onDragEnd={handleDragEnd}
       modifiers={[snapToGridModifier]}
     >
-      <div className="flex h-[calc(100vh-120px)]">
+      <div className="flex h-[calc(100vh-64px)]">
         <Palette />
         <Canvas ref={canvasRef} />
       </div>

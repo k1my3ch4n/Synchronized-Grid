@@ -7,7 +7,7 @@ export function HomePage() {
   const { url } = useUrlStore();
 
   return (
-    <main className="min-h-[calc(100vh-64px)] bg-gray-100">
+    <main className="h-[calc(100vh-64px)] bg-gray-100">
       {!url ? (
         <div className="flex items-center justify-center h-[calc(100vh-64px)]">
           <UrlInput />

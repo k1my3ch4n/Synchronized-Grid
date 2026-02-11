@@ -5,8 +5,8 @@ import { PaletteItem } from "./PaletteItem";
 
 export function Palette() {
   return (
-    <div className="w-48 bg-gray-50 border-r border-gray-200 p-4 flex flex-col gap-3">
-      <h2 className="font-semibold text-sm text-gray-700 mb-2">Viewports</h2>
+    <div className="w-48 bg-win98-gray win98-raised p-2 flex flex-col gap-2">
+      <h2 className="font-bold text-xs px-1">Viewports</h2>
       {VIEWPORT_PRESETS.map((viewport) => (
         <PaletteItem key={viewport.id} viewport={viewport} />
       ))}

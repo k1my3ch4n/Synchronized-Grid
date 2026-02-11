@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { DragEndEvent, DragStartEvent, DragMoveEvent } from "@dnd-kit/core";
+import { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
 import { useCanvasStore } from "@features/canvas";
 import { Viewport, CanvasViewport } from "@shared/types";
 import { snapToGrid } from "@shared/lib/grid";
@@ -9,7 +9,6 @@ export function useCanvasDnd() {
   const [activePalette, setActivePalette] = useState<Viewport | null>(null);
   const [activeCanvas, setActiveCanvas] = useState<CanvasViewport | null>(null);
 
-  const pointerPosition = useRef({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -41,6 +40,7 @@ export function useCanvasDnd() {
           delta.x -
           canvasRect.left +
           canvas.scrollLeft;
+
         const y =
           activatorEvent.clientY + delta.y - canvasRect.top + canvas.scrollTop;
 

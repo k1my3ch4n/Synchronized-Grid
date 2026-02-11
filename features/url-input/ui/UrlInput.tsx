@@ -19,11 +19,11 @@ export function UrlInput() {
         value={inputUrl}
         onChange={(e) => setInputUrl(e.target.value)}
         placeholder="https://example.com"
-        className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+        className="flex-1 px-3 py-1.5 bg-white win98-sunken text-sm focus:outline-none"
       />
       <button
         type="submit"
-        className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+        className="px-6 py-1.5 bg-win98-gray win98-raised text-sm font-bold active:win98-sunken"
       >
         Load
       </button>
