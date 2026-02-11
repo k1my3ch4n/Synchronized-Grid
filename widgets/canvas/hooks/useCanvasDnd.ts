@@ -1,5 +1,11 @@
 import { useState, useRef } from "react";
-import { DragEndEvent, DragStartEvent, DragMoveEvent } from "@dnd-kit/core";
+import {
+  DragEndEvent,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import { useCanvasStore } from "@features/canvas";
 import { Viewport, CanvasViewport } from "@shared/types";
 import { snapToGrid } from "@shared/lib/grid";
@@ -9,7 +15,6 @@ export function useCanvasDnd() {
   const [activePalette, setActivePalette] = useState<Viewport | null>(null);
   const [activeCanvas, setActiveCanvas] = useState<CanvasViewport | null>(null);
 
-  const pointerPosition = useRef({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLDivElement>(null);
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -26,28 +31,24 @@ export function useCanvasDnd() {
     }
   };
 
-  const handleDragMove = (event: DragMoveEvent) => {
-    const { activatorEvent, delta } = event;
-
-    if (activatorEvent instanceof PointerEvent) {
-      pointerPosition.current = {
-        x: activatorEvent.clientX + delta.x,
-        y: activatorEvent.clientY + delta.y,
-      };
-    }
-  };
-
   const handleDragEnd = (event: DragEndEvent) => {
-    const { over, delta } = event;
+    const { over, delta, activatorEvent } = event;
     const data = event.active.data.current;
 
     if (data?.fromPalette && over?.id === "canvas") {
       const viewport = data.viewport;
-      const canvasRect = canvasRef.current?.getBoundingClientRect();
+      const canvas = canvasRef.current;
+      const canvasRect = canvas?.getBoundingClientRect();
 
-      if (canvasRect) {
-        const x = pointerPosition.current.x - canvasRect.left;
-        const y = pointerPosition.current.y - canvasRect.top;
+      if (canvasRect && canvas && activatorEvent instanceof PointerEvent) {
+        const x =
+          activatorEvent.clientX +
+          delta.x -
+          canvasRect.left +
+          canvas.scrollLeft;
+
+        const y =
+          activatorEvent.clientY + delta.y - canvasRect.top + canvas.scrollTop;
 
         addViewport({
           presetId: viewport.id,
@@ -73,12 +74,18 @@ export function useCanvasDnd() {
     setActiveCanvas(null);
   };
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+  );
+
   return {
+    sensors,
     canvasRef,
     activePalette,
     activeCanvas,
     handleDragStart,
-    handleDragMove,
     handleDragEnd,
   };
 }

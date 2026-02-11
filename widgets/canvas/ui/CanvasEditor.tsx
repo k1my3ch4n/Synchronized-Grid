@@ -8,22 +8,22 @@ import { CanvasOverlay } from "./CanvasOverlay";
 
 export function CanvasEditor() {
   const {
+    sensors,
     canvasRef,
     activePalette,
     activeCanvas,
     handleDragStart,
-    handleDragMove,
     handleDragEnd,
   } = useCanvasDnd();
 
   return (
     <DndContext
+      sensors={sensors}
       onDragStart={handleDragStart}
-      onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
       modifiers={[snapToGridModifier]}
     >
-      <div className="flex h-[calc(100vh-120px)]">
+      <div className="flex h-[calc(100vh-64px)]">
         <Palette />
         <Canvas ref={canvasRef} />
       </div>

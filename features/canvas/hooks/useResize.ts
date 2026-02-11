@@ -1,6 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { CANVAS_SCALE } from "@shared/constants";
-import { snapToGridWithMinimum } from "@shared/lib/grid";
+import { CANVAS_SCALE, GRID_SIZE } from "@shared/constants";
 
 interface UseResizeParams {
   id: string;
@@ -39,20 +38,19 @@ export function useResize({ id, width, height, onResizeEnd }: UseResizeParams) {
         cancelAnimationFrame(rafId.current);
 
         rafId.current = requestAnimationFrame(() => {
-          const deltaX =
-            (moveEvent.clientX - startPos.current.x) / CANVAS_SCALE;
-          const deltaY =
-            (moveEvent.clientY - startPos.current.y) / CANVAS_SCALE;
+          const deltaX = moveEvent.clientX - startPos.current.x;
+          const deltaY = moveEvent.clientY - startPos.current.y;
 
-          const newWidth = snapToGridWithMinimum(
-            startSize.current.width + deltaX,
-          );
-
-          const newHeight = snapToGridWithMinimum(
-            startSize.current.height + deltaY,
-          );
-
-          const newSize = { width: newWidth, height: newHeight };
+          const newSize = {
+            width: Math.max(
+              GRID_SIZE,
+              Math.round(startSize.current.width + deltaX / CANVAS_SCALE),
+            ),
+            height: Math.max(
+              GRID_SIZE,
+              Math.round(startSize.current.height + deltaY / CANVAS_SCALE),
+            ),
+          };
 
           previewSizeRef.current = newSize;
           setPreviewSize(newSize);

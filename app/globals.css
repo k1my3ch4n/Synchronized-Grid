@@ -5,11 +5,40 @@
   --foreground: #000000;
 }
 
+@utility win98-raised {
+  box-shadow:
+    inset -1px -1px #0a0a0a,
+    inset 1px 1px #fff,
+    inset -2px -2px grey,
+    inset 2px 2px #dfdfdf;
+}
+
+@utility win98-sunken {
+  box-shadow:
+    inset -1px -1px #fff,
+    inset 1px 1px #0a0a0a,
+    inset -2px -2px #dfdfdf,
+    inset 2px 2px grey;
+}
+
+@utility win98-btn {
+  cursor: pointer;
+
+  box-shadow:
+    inset -1px -1px #0a0a0a,
+    inset 1px 1px #dfdfdf;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-win98-gray: #c0c0c0;
+  --color-win98-title-from: #000080;
+  --color-win98-title-to: #1084d0;
+  --color-win98-text: #808080;
 }
 
 @media (prefers-color-scheme: dark) {

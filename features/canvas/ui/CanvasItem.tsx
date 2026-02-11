@@ -14,7 +14,7 @@ interface CanvasItemProps {
 
 export function CanvasItem({ item }: CanvasItemProps) {
   const { url } = useUrlStore();
-  const { removeViewport, updateSize } = useCanvasStore();
+  const { removeViewport, updateSize, updateZIndex } = useCanvasStore();
 
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: item.id,
@@ -32,12 +32,14 @@ export function CanvasItem({ item }: CanvasItemProps) {
   return (
     <div
       ref={setNodeRef}
+      className="absolute"
       style={{
-        position: "absolute",
         left: item.x,
         top: item.y,
+        zIndex: item.zIndex,
         visibility: isDragging ? "hidden" : "visible",
       }}
+      onPointerDown={() => updateZIndex(item.id)}
     >
       <CanvasItemHeader
         label={item.label}
@@ -59,12 +61,12 @@ export function CanvasItem({ item }: CanvasItemProps) {
           url={url}
           width={displayWidth}
           height={displayHeight}
-          label=""
+          label={item.label}
           scale={CANVAS_SCALE}
         />
         <div
           onPointerDown={handleResizePointerDown}
-          className="absolute bottom-0 right-0 w-3 h-3 bg-blue-500 cursor-se-resize rounded-tl z-20"
+          className="absolute bottom-0 right-0 w-3 h-3 cursor-se-resize z-20 bg-win98-gray win98-btn"
           title="드래그하여 크기 조절"
         />
       </div>
