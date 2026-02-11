@@ -1,5 +1,11 @@
 import { useState, useRef } from "react";
-import { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import {
+  DragEndEvent,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import { useCanvasStore } from "@features/canvas";
 import { Viewport, CanvasViewport } from "@shared/types";
 import { snapToGrid } from "@shared/lib/grid";
@@ -68,7 +74,14 @@ export function useCanvasDnd() {
     setActiveCanvas(null);
   };
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+  );
+
   return {
+    sensors,
     canvasRef,
     activePalette,
     activeCanvas,

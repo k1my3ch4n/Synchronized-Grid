@@ -8,6 +8,7 @@ import { CanvasOverlay } from "./CanvasOverlay";
 
 export function CanvasEditor() {
   const {
+    sensors,
     canvasRef,
     activePalette,
     activeCanvas,
@@ -17,6 +18,7 @@ export function CanvasEditor() {
 
   return (
     <DndContext
+      sensors={sensors}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       modifiers={[snapToGridModifier]}
