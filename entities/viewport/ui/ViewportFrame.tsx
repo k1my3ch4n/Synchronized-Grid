@@ -16,9 +16,9 @@ export function ViewportFrame({
   scale = 0.3,
 }: ViewportFrameProps) {
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="relative">
       <div
-        className="border-2 border-gray-300 rounded-b-lg overflow-hidden bg-white"
+        className="overflow-hidden bg-white win98-sunken"
         style={{
           width: `${width * scale}px`,
           height: `${height * scale}px`,
@@ -33,9 +33,11 @@ export function ViewportFrame({
           title={label}
         />
       </div>
-      <span className="absolute left-1/2 -translate-x-1/2 -bottom-6 text-sm font-medium text-gray-600">
-        {label} ({width}x{height})
-      </span>
+      {label && (
+        <span className="absolute left-1/2 -translate-x-1/2 -bottom-6 text-sm font-medium text-gray-600 whitespace-nowrap">
+          {label} ({width}x{height})
+        </span>
+      )}
     </div>
   );
 }

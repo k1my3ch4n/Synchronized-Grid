@@ -20,14 +20,14 @@ export function CanvasItemHeader({
     <div
       {...listeners}
       {...attributes}
-      className="flex items-center justify-between px-2 py-1 bg-gray-700 text-white text-xs rounded-t cursor-grab"
+      className="flex items-center justify-between px-1.5 cursor-grab select-none bg-linear-to-r from-win98-title-from to-win98-title-to text-white text-[11px] font-bold"
       style={{ width, height: GRID_SIZE }}
     >
       <span>{label}</span>
       <button
         onPointerDown={(e) => e.stopPropagation()}
         onClick={onRemove}
-        className="ml-2 hover:text-red-400"
+        className="flex items-center justify-center w-4 h-3.5 text-black text-[10px] leading-none bg-win98-gray win98-btn"
       >
         ✕
       </button>
