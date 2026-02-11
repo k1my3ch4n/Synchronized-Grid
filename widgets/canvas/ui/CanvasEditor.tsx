@@ -12,14 +12,12 @@ export function CanvasEditor() {
     activePalette,
     activeCanvas,
     handleDragStart,
-    handleDragMove,
     handleDragEnd,
   } = useCanvasDnd();
 
   return (
     <DndContext
       onDragStart={handleDragStart}
-      onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
       modifiers={[snapToGridModifier]}
     >

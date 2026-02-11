@@ -18,7 +18,7 @@ export function ViewportFrame({
   return (
     <div className="relative">
       <div
-        className="overflow-hidden bg-white win98-sunken"
+        className="overflow-hidden bg-white win98-sunken border border-win98-text"
         style={{
           width: `${width * scale}px`,
           height: `${height * scale}px`,

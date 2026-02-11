@@ -59,7 +59,7 @@ export function CanvasItem({ item }: CanvasItemProps) {
           url={url}
           width={displayWidth}
           height={displayHeight}
-          label=""
+          label={item.label}
           scale={CANVAS_SCALE}
         />
         <div
