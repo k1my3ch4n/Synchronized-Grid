@@ -64,6 +64,7 @@ export function CanvasItem({ item }: CanvasItemProps) {
           height={displayHeight}
           label={item.label}
           scale={CANVAS_SCALE}
+          onSizeChange={(w, h) => updateSize(item.id, w, h)}
         />
         <div
           onPointerDown={handleResizePointerDown}
