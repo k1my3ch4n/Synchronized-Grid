@@ -1,6 +1,6 @@
 import { GRID_SIZE } from "@shared/constants";
 import { DraggableAttributes } from "@dnd-kit/core";
-import { CloseButton } from "@/shared/ui/CloseButton";
+import { CloseButton } from "@shared/ui/CloseButton";
 
 interface CanvasItemHeaderProps {
   label: string;

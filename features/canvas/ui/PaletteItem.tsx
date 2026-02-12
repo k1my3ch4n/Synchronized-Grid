@@ -1,9 +1,9 @@
 import { useDraggable } from "@dnd-kit/core";
 import { Viewport } from "@shared/types";
+import { CloseButton } from "@shared/ui/CloseButton";
 import { ViewportCard } from "@shared/ui/ViewportCard";
 import { useCanvasStore } from "../model/store";
-import { usePresetStore } from "@/entities/viewport";
-import { CloseButton } from "@/shared/ui/CloseButton";
+import { usePresetStore } from "@entities/viewport";
 
 interface PaletteItemProps {
   viewport: Viewport;

@@ -7,6 +7,7 @@ import { useResize } from "../hooks/useResize";
 import { CanvasItemHeader } from "./CanvasItemHeader";
 
 import { CANVAS_SCALE } from "@shared/constants";
+import { ResizeHandle } from "@shared/ui/ResizeHandle";
 
 interface CanvasItemProps {
   item: CanvasViewport;
@@ -66,11 +67,7 @@ export function CanvasItem({ item }: CanvasItemProps) {
           scale={CANVAS_SCALE}
           onSizeChange={(w, h) => updateSize(item.id, w, h)}
         />
-        <div
-          onPointerDown={handleResizePointerDown}
-          className="absolute bottom-0 right-0 w-3 h-3 cursor-se-resize z-20 bg-win98-gray win98-btn"
-          title="드래그하여 크기 조절"
-        />
+        <ResizeHandle onPointerDown={handleResizePointerDown} />
       </div>
     </div>
   );
