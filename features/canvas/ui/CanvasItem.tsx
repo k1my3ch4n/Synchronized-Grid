@@ -43,7 +43,8 @@ export function CanvasItem({ item }: CanvasItemProps) {
     >
       <CanvasItemHeader
         label={item.label}
-        width={displayWidth * CANVAS_SCALE}
+        width={displayWidth}
+        height={displayHeight}
         listeners={listeners ?? {}}
         attributes={attributes}
         onRemove={() => removeViewport(item.id)}
