@@ -41,10 +41,13 @@ export function PaletteItem({ viewport }: PaletteItemProps) {
       {...attributes}
       onClick={handleViewportClick}
       style={{ opacity: isDragging ? 0.3 : 1 }}
-      className="cursor-grab relative"
+      className="cursor-grab relative group"
     >
       <ViewportCard viewport={viewport} variant="palette" />
-      <CloseButton onClick={() => removePreset(viewport.id)} />;
+      <CloseButton
+        onClick={() => removePreset(viewport.id)}
+        className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+      />
     </div>
   );
 }

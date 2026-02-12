@@ -6,6 +6,7 @@ interface SizeInputProps {
   onSizeChange: (width: number, height: number) => void;
 }
 
+// todo : parseInt 제거
 export function SizeInput({ width, height, onSizeChange }: SizeInputProps) {
   const handleWidthChange = (v: string) => {
     const parsed = parseInt(v);
