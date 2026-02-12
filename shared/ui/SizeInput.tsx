@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { EditableValue } from "@shared/ui/EditableValue";
 
 interface SizeInputProps {
   width: number;
@@ -8,78 +6,30 @@ interface SizeInputProps {
   onSizeChange: (width: number, height: number) => void;
 }
 
-function EditableValue({
-  value,
-  onValueChange,
-}: {
-  value: number;
-  onValueChange: (value: number) => void;
-}) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [inputValue, setInputValue] = useState(String(value));
-
-  const handleOpen = () => {
-    setInputValue(String(value));
-    setIsEditing(true);
-  };
-
-  const handleSubmit = () => {
-    const parsed = parseInt(inputValue);
+export function SizeInput({ width, height, onSizeChange }: SizeInputProps) {
+  const handleChange = (v: string) => {
+    const parsed = parseInt(v);
 
     if (!isNaN(parsed) && parsed > 0) {
-      onValueChange(parsed);
-    }
-
-    setIsEditing(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSubmit();
-    }
-
-    if (e.key === "Escape") {
-      setIsEditing(false);
+      onSizeChange(parsed, height);
     }
   };
 
-  if (isEditing) {
-    return (
-      <input
-        type="number"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onBlur={handleSubmit}
-        onKeyDown={handleKeyDown}
-        autoFocus
-        className="w-14 px-0.5 text-sm text-center text-black win98-sunken"
-      />
-    );
-  }
-
-  return (
-    <button
-      onClick={handleOpen}
-      onPointerDown={(e) => e.stopPropagation()}
-      className="hover:underline cursor-pointer"
-    >
-      {value}
-    </button>
-  );
-}
-
-export function SizeInput({ width, height, onSizeChange }: SizeInputProps) {
   return (
     <span className="flex items-center gap-0.5">
       (
       <EditableValue
-        value={width}
-        onValueChange={(w) => onSizeChange(w, height)}
+        value={String(width)}
+        onValueChange={handleChange}
+        className="hover:underline cursor-pointer"
+        inputClassName="w-14 px-0.5 text-sm text-center text-black win98-sunken"
       />
       ×
       <EditableValue
-        value={height}
-        onValueChange={(h) => onSizeChange(width, h)}
+        value={String(height)}
+        onValueChange={handleChange}
+        className="hover:underline cursor-pointer"
+        inputClassName="w-14 px-0.5 text-sm text-center text-black win98-sunken"
       />
       )
     </span>
