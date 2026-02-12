@@ -7,11 +7,19 @@ interface SizeInputProps {
 }
 
 export function SizeInput({ width, height, onSizeChange }: SizeInputProps) {
-  const handleChange = (v: string) => {
+  const handleWidthChange = (v: string) => {
     const parsed = parseInt(v);
 
     if (!isNaN(parsed) && parsed > 0) {
       onSizeChange(parsed, height);
+    }
+  };
+
+  const handleHeightChange = (v: string) => {
+    const parsed = parseInt(v);
+
+    if (!isNaN(parsed) && parsed > 0) {
+      onSizeChange(width, parsed);
     }
   };
 
@@ -20,14 +28,14 @@ export function SizeInput({ width, height, onSizeChange }: SizeInputProps) {
       (
       <EditableValue
         value={String(width)}
-        onValueChange={handleChange}
+        onValueChange={handleWidthChange}
         className="hover:underline cursor-pointer"
         inputClassName="w-14 px-0.5 text-sm text-center text-black win98-sunken"
       />
       ×
       <EditableValue
         value={String(height)}
-        onValueChange={handleChange}
+        onValueChange={handleHeightChange}
         className="hover:underline cursor-pointer"
         inputClassName="w-14 px-0.5 text-sm text-center text-black win98-sunken"
       />
