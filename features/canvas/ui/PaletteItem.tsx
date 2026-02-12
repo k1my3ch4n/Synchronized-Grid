@@ -3,6 +3,7 @@ import { Viewport } from "@shared/types";
 import { ViewportCard } from "@shared/ui/ViewportCard";
 import { useCanvasStore } from "../model/store";
 import { usePresetStore } from "@/entities/viewport";
+import { CloseButton } from "@/shared/ui/CloseButton";
 
 interface PaletteItemProps {
   viewport: Viewport;
@@ -43,16 +44,7 @@ export function PaletteItem({ viewport }: PaletteItemProps) {
       className="cursor-grab relative"
     >
       <ViewportCard viewport={viewport} variant="palette" />
-      <button
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={(e) => {
-          e.stopPropagation();
-          removePreset(viewport.id);
-        }}
-        className="absolute top-1 right-1 w-4 h-3.5 flex items-center justify-center text-black text-[10px] leading-none bg-win98-gray win98-btn"
-      >
-        ✕
-      </button>
+      <CloseButton onClick={() => removePreset(viewport.id)} />;
     </div>
   );
 }

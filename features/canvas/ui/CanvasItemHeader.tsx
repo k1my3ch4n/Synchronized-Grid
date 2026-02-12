@@ -1,5 +1,6 @@
 import { GRID_SIZE } from "@shared/constants";
 import { DraggableAttributes } from "@dnd-kit/core";
+import { CloseButton } from "@/shared/ui/CloseButton";
 
 interface CanvasItemHeaderProps {
   label: string;
@@ -32,13 +33,7 @@ export function CanvasItemHeader({
           {width}×{height}
         </span>
       </div>
-      <button
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={onRemove}
-        className="flex items-center justify-center w-4 h-3.5 text-black text-[10px] leading-none bg-win98-gray win98-btn"
-      >
-        ✕
-      </button>
+      <CloseButton onClick={onRemove} />
     </div>
   );
 }
