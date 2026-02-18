@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { RoomUser, CanvasViewport } from "@shared/types";
-import { connectSocket, disconnectSocket } from "@shared/lib/socket";
+import { connectSocket, getSocket, disconnectSocket } from "@shared/lib/socket";
 import { useCanvasStore } from "@features/canvas/model/store";
 import { useUrlStore } from "@features/url-input/model/store";
 
@@ -58,11 +58,30 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
     set({ roomId: null, isConnected: false, currentUser: null, users: [] });
   },
 
-  syncAddViewport: () => {},
-  syncUpdatePosition: () => {},
-  syncUpdateSize: () => {},
-  syncRemoveViewport: () => {},
-  syncChangeUrl: () => {},
+  syncAddViewport: (viewport) => {
+    useCanvasStore.getState().addViewport(viewport);
+    getSocket().emit("viewport:add", { viewport });
+  },
+
+  syncUpdatePosition: (id, x, y) => {
+    useCanvasStore.getState().updatePosition(id, x, y);
+    getSocket().emit("viewport:move", { id, x, y });
+  },
+
+  syncUpdateSize: (id, width, height) => {
+    useCanvasStore.getState().updateSize(id, width, height);
+    getSocket().emit("viewport:resize", { id, width, height });
+  },
+
+  syncRemoveViewport: (id) => {
+    useCanvasStore.getState().removeViewport(id);
+    getSocket().emit("viewport:remove", { id });
+  },
+
+  syncChangeUrl: (url) => {
+    useUrlStore.getState().setUrl(url);
+    getSocket().emit("url:change", { url });
+  },
 }));
 
 function setupSocketListeners(socket: any, set: any) {
