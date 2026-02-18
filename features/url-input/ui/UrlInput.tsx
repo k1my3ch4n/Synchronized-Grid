@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useUrlStore } from "../model/store";
+import { useSyncedUrl } from "@features/room/hooks/useSyncedUrl";
 
 export function UrlInput() {
-  const { url, setUrl } = useUrlStore();
+  const { url, setUrl } = useSyncedUrl();
   const [inputUrl, setInputUrl] = useState(url);
 
   const handleSubmit = (e: React.SubmitEvent) => {
