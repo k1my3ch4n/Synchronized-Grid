@@ -1,5 +1,5 @@
-import HomePage from "@views/home";
+import { LobbyPage } from "@views/lobby";
 
 export default function Page() {
-  return <HomePage />;
+  return <LobbyPage />;
 }
