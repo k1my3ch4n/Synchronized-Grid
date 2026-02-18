@@ -13,7 +13,7 @@ interface RoomStoreState {
   joinRoom: (roomId: string) => void;
   leaveRoom: () => void;
 
-  syncAddViewport: (viewport: CanvasViewport) => void;
+  syncAddViewport: (viewport: Omit<CanvasViewport, "id" | "zIndex">) => void;
   syncUpdatePosition: (id: string, x: number, y: number) => void;
   syncUpdateSize: (id: string, width: number, height: number) => void;
   syncRemoveViewport: (id: string) => void;
@@ -59,8 +59,20 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
   },
 
   syncAddViewport: (viewport) => {
-    useCanvasStore.getState().addViewport(viewport);
-    getSocket().emit("viewport:add", { viewport });
+    const viewports = useCanvasStore.getState().viewport;
+    const maxZ = Math.max(...viewports.map((v) => v.zIndex), -1);
+
+    const fullViewport: CanvasViewport = {
+      ...viewport,
+      id: crypto.randomUUID(),
+      zIndex: maxZ + 1,
+    };
+
+    useCanvasStore.setState({
+      viewport: [...viewports, fullViewport],
+    });
+
+    getSocket().emit("viewport:add", { viewport: fullViewport });
   },
 
   syncUpdatePosition: (id, x, y) => {
@@ -97,9 +109,10 @@ function setupSocketListeners(socket: any, set: any) {
     }));
   });
 
-  // 뷰포트 추가
+  // 뷰포트 추가 (서버에서 받은 viewport는 이미 id 포함)
   socket.on("viewport:added", ({ viewport }: { viewport: CanvasViewport }) => {
-    useCanvasStore.getState().addViewport(viewport);
+    const viewports = useCanvasStore.getState().viewport;
+    useCanvasStore.setState({ viewport: [...viewports, viewport] });
   });
 
   // 뷰포트 이동
