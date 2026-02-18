@@ -245,8 +245,17 @@ export function setupSocketHandlers(io: Server) {
       socket.to(currentRoomId).emit("user:left", { userId: socket.id });
 
       if (room.users.size === 0) {
-        rooms.delete(currentRoomId);
-        io.emit("room:deleted", { roomId: currentRoomId });
+        const roomIdToDelete = currentRoomId;
+
+        // 임시 5초 후 방 삭제 (클라이언트가 빠르게 재접속하는 경우를 위해)
+        setTimeout(() => {
+          const room = rooms.get(roomIdToDelete);
+
+          if (room && room.users.size === 0) {
+            rooms.delete(roomIdToDelete);
+            io.emit("room:deleted", { roomId: roomIdToDelete });
+          }
+        }, 5000);
       } else {
         io.emit("room:updated", {
           id: currentRoomId,

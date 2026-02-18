@@ -96,7 +96,21 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
   },
 }));
 
+const SOCKET_EVENTS = [
+  "user:joined",
+  "user:left",
+  "viewport:added",
+  "viewport:moved",
+  "viewport:resized",
+  "viewport:removed",
+  "url:changed",
+  "cursor:moved",
+];
+
 function setupSocketListeners(socket: any, set: any) {
+  // 기존 리스너 제거 (중복 등록 방지)
+  SOCKET_EVENTS.forEach((event) => socket.off(event));
+
   // 유저 입장
   socket.on("user:joined", (user: RoomUser) => {
     set((state: RoomStoreState) => ({ users: [...state.users, user] }));
