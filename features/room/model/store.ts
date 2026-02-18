@@ -47,6 +47,9 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
       if (result.state.url) {
         useUrlStore.getState().setUrl(result.state.url);
       }
+
+      // 소켓 리스너 등록
+      setupSocketListeners(socket, set);
     });
   },
 
@@ -61,3 +64,51 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
   syncRemoveViewport: () => {},
   syncChangeUrl: () => {},
 }));
+
+function setupSocketListeners(socket: any, set: any) {
+  // 유저 입장
+  socket.on("user:joined", (user: RoomUser) => {
+    set((state: RoomStoreState) => ({ users: [...state.users, user] }));
+  });
+
+  // 유저 퇴장
+  socket.on("user:left", ({ userId }: { userId: string }) => {
+    set((state: RoomStoreState) => ({
+      users: state.users.filter((u) => u.id !== userId),
+    }));
+  });
+
+  // 뷰포트 추가
+  socket.on("viewport:added", ({ viewport }: { viewport: CanvasViewport }) => {
+    useCanvasStore.getState().addViewport(viewport);
+  });
+
+  // 뷰포트 이동
+  socket.on("viewport:moved", ({ id, x, y }: any) => {
+    useCanvasStore.getState().updatePosition(id, x, y);
+  });
+
+  // 뷰포트 리사이즈
+  socket.on("viewport:resized", ({ id, width, height }: any) => {
+    useCanvasStore.getState().updateSize(id, width, height);
+  });
+
+  // 뷰포트 삭제
+  socket.on("viewport:removed", ({ id }: { id: string }) => {
+    useCanvasStore.getState().removeViewport(id);
+  });
+
+  // URL 변경
+  socket.on("url:changed", ({ url }: { url: string }) => {
+    useUrlStore.getState().setUrl(url);
+  });
+
+  // 커서 이동
+  socket.on("cursor:moved", ({ userId, x, y }: any) => {
+    set((state: RoomStoreState) => ({
+      users: state.users.map((u) =>
+        u.id === userId ? { ...u, cursor: { x, y } } : u,
+      ),
+    }));
+  });
+}
