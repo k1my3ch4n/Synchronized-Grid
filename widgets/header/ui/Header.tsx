@@ -1,6 +1,7 @@
 "use client";
 
 import { useUrlStore } from "@features/url-input";
+import { UserPresence } from "@features/room/ui/UserPresence";
 import { EditableUrl } from "./EditableUrl";
 
 interface HeaderProps {
@@ -21,6 +22,10 @@ export function Header({ title }: HeaderProps) {
           </div>
         </div>
       )}
+
+      <div className="ml-auto">
+        <UserPresence />
+      </div>
     </header>
   );
 }
