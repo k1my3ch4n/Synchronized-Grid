@@ -1,5 +1,8 @@
 import { create } from "zustand";
 import { RoomUser, CanvasViewport } from "@shared/types";
+import { connectSocket, disconnectSocket } from "@shared/lib/socket";
+import { useCanvasStore } from "@features/canvas/model/store";
+import { useUrlStore } from "@features/url-input/model/store";
 
 interface RoomStoreState {
   roomId: string | null;
@@ -23,8 +26,34 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
   currentUser: null,
   users: [],
 
-  joinRoom: () => {},
-  leaveRoom: () => {},
+  joinRoom: (roomId) => {
+    const socket = connectSocket();
+
+    socket.emit("room:join", { roomId }, (result: any) => {
+      if (result.error) {
+        return;
+      }
+
+      set({
+        roomId,
+        isConnected: true,
+        currentUser: result.user,
+        users: result.state.users,
+      });
+
+      // 서버 상태로 Canvas Store 초기화
+      useCanvasStore.setState({ viewport: result.state.viewports });
+
+      if (result.state.url) {
+        useUrlStore.getState().setUrl(result.state.url);
+      }
+    });
+  },
+
+  leaveRoom: () => {
+    disconnectSocket();
+    set({ roomId: null, isConnected: false, currentUser: null, users: [] });
+  },
 
   syncAddViewport: () => {},
   syncUpdatePosition: () => {},
