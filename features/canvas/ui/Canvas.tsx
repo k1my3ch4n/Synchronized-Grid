@@ -1,6 +1,7 @@
 "use client";
 
-import { forwardRef, useCallback } from "react";
+import { forwardRef, useCallback, useMemo } from "react";
+import throttle from "lodash.throttle";
 import { useDroppable } from "@dnd-kit/core";
 import { useCanvasStore } from "../model/store";
 import { CanvasItem } from "./CanvasItem";
@@ -13,6 +14,14 @@ export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
   const { viewport } = useCanvasStore();
   const { isInRoom } = useRoomContext();
 
+  const throttledEmit = useMemo(
+    () =>
+      throttle((x: number, y: number) => {
+        getSocket().emit("cursor:move", { x, y });
+      }, 50),
+    [],
+  );
+
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (!isInRoom) {
@@ -23,9 +32,9 @@ export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
       const x = e.clientX - rect.left + e.currentTarget.scrollLeft;
       const y = e.clientY - rect.top + e.currentTarget.scrollTop;
 
-      getSocket().emit("cursor:move", { x, y });
+      throttledEmit(x, y);
     },
-    [isInRoom],
+    [isInRoom, throttledEmit],
   );
 
   const { setNodeRef, isOver } = useDroppable({
