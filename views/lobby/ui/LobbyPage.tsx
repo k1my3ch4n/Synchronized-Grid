@@ -7,21 +7,21 @@ import { RoomInfo } from "@shared/types";
 
 export function LobbyPage() {
   const router = useRouter();
-  const [rooms, setRooms] = useState<RoomInfo[]>([]);
+  const [rooms, setRooms] = useState<Omit<RoomInfo, "createdAt">[]>([]);
   const [roomName, setRoomName] = useState("");
 
   useEffect(() => {
     const socket = connectSocket();
 
-    socket.emit("room:list", (roomList: RoomInfo[]) => {
+    socket.emit("room:list", (roomList) => {
       setRooms(roomList);
     });
 
-    socket.on("room:created", (room: RoomInfo) => {
+    socket.on("room:created", (room) => {
       setRooms((prev) => [...prev, room]);
     });
 
-    socket.on("room:updated", (updated: RoomInfo) => {
+    socket.on("room:updated", (updated) => {
       setRooms((prev) =>
         prev.map((r) => (r.id === updated.id ? { ...r, ...updated } : r)),
       );
