@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { RoomUser, CanvasViewport } from "@shared/types";
+import { RoomUser, CanvasViewport, RoomJoinResult } from "@shared/types";
 import { connectSocket, getSocket, disconnectSocket } from "@shared/lib/socket";
 import { useCanvasStore } from "@features/canvas/model/store";
 import { useUrlStore } from "@features/url-input/model/store";
@@ -30,8 +30,8 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
   joinRoom: (roomId) => {
     const socket = connectSocket();
 
-    socket.emit("room:join", { roomId }, (result: any) => {
-      if (result.error) {
+    socket.emit("room:join", { roomId }, (result: RoomJoinResult) => {
+      if ("error" in result) {
         return;
       }
 
@@ -119,9 +119,12 @@ const SOCKET_EVENTS = [
   "viewport:zindexed",
   "url:changed",
   "cursor:moved",
-];
+] as const;
 
-function setupSocketListeners(socket: any, set: any) {
+function setupSocketListeners(
+  socket: ReturnType<typeof getSocket>,
+  set: (fn: (state: RoomStoreState) => Partial<RoomStoreState>) => void,
+) {
   // 기존 리스너 제거 (중복 등록 방지)
   SOCKET_EVENTS.forEach((event) => socket.off(event));
 
@@ -144,12 +147,12 @@ function setupSocketListeners(socket: any, set: any) {
   });
 
   // 뷰포트 이동
-  socket.on("viewport:moved", ({ id, x, y }: any) => {
+  socket.on("viewport:moved", ({ id, x, y }) => {
     useCanvasStore.getState().updatePosition(id, x, y);
   });
 
   // 뷰포트 리사이즈
-  socket.on("viewport:resized", ({ id, width, height }: any) => {
+  socket.on("viewport:resized", ({ id, width, height }) => {
     useCanvasStore.getState().updateSize(id, width, height);
   });
 
@@ -176,7 +179,7 @@ function setupSocketListeners(socket: any, set: any) {
   });
 
   // 커서 이동
-  socket.on("cursor:moved", ({ userId, x, y }: any) => {
+  socket.on("cursor:moved", ({ userId, x, y }) => {
     set((state: RoomStoreState) => ({
       users: state.users.map((u) =>
         u.id === userId ? { ...u, cursor: { x, y } } : u,

@@ -30,8 +30,8 @@ export interface ClientToServerEvents {
 
 // 서버 → 클라이언트
 export interface ServerToClientEvents {
-  "room:created": (data: RoomInfo) => void;
-  "room:updated": (data: RoomInfo) => void;
+  "room:created": (data: Omit<RoomInfo, "createdAt">) => void;
+  "room:updated": (data: Omit<RoomInfo, "createdAt">) => void;
   "room:deleted": (data: { roomId: string }) => void;
   "user:joined": (user: RoomUser) => void;
   "user:left": (data: { userId: string }) => void;
@@ -49,12 +49,13 @@ export interface ServerToClientEvents {
 }
 
 // room:join 콜백 결과 타입
-export interface RoomJoinResult {
-  error?: string;
-  user: RoomUser;
-  state: {
-    url: string;
-    viewports: CanvasViewport[];
-    users: RoomUser[];
-  };
-}
+export type RoomJoinResult =
+  | { error: string }
+  | {
+      user: RoomUser;
+      state: {
+        url: string;
+        viewports: CanvasViewport[];
+        users: RoomUser[];
+      };
+    };

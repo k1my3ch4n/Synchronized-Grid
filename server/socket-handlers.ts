@@ -1,22 +1,13 @@
 import { Server, Socket } from "socket.io";
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+  RoomUser,
+  CanvasViewport,
+} from "@shared/types";
 
-interface RoomUser {
-  id: string;
-  name: string;
-  color: string;
-  cursor?: { x: number; y: number };
-}
-
-interface CanvasViewport {
-  id: string;
-  label: string;
-  width: number;
-  height: number;
-  presetId: string;
-  x: number;
-  y: number;
-  zIndex: number;
-}
+type TypedServer = Server<ClientToServerEvents, ServerToClientEvents>;
+type TypedSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
 
 interface RoomState {
   id: string;
@@ -49,8 +40,8 @@ function generateUserName(): string {
 
 const rooms = new Map<string, RoomState>();
 
-export function setupSocketHandlers(io: Server) {
-  io.on("connection", (socket: Socket) => {
+export function setupSocketHandlers(io: TypedServer) {
+  io.on("connection", (socket: TypedSocket) => {
     let currentRoomId: string | null = null;
 
     // 방 목록 조회
