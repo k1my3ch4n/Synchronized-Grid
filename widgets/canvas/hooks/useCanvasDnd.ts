@@ -6,12 +6,12 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useCanvasStore } from "@features/canvas";
+import { useSyncedCanvas } from "@features/room/hooks/useSyncedCanvas";
 import { Viewport, CanvasViewport } from "@shared/types";
 import { snapToGrid } from "@shared/lib/grid";
 
 export function useCanvasDnd() {
-  const { addViewport, updatePosition } = useCanvasStore();
+  const { addViewport, updatePosition } = useSyncedCanvas();
   const [activePalette, setActivePalette] = useState<Viewport | null>(null);
   const [activeCanvas, setActiveCanvas] = useState<CanvasViewport | null>(null);
 

@@ -1,13 +1,41 @@
 "use client";
 
-import { forwardRef } from "react";
+import { forwardRef, useCallback, useMemo } from "react";
+import throttle from "lodash.throttle";
 import { useDroppable } from "@dnd-kit/core";
 import { useCanvasStore } from "../model/store";
 import { CanvasItem } from "./CanvasItem";
 import { GRID_SIZE } from "@shared/constants";
+import { useRoomContext } from "@features/room/hooks/useRoomContext";
+import { RemoteCursors } from "@features/room/ui/RemoteCursors";
+import { getSocket } from "@shared/lib/socket";
 
 export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
   const { viewport } = useCanvasStore();
+  const { isInRoom } = useRoomContext();
+
+  const throttledEmit = useMemo(
+    () =>
+      throttle((x: number, y: number) => {
+        getSocket().emit("cursor:move", { x, y });
+      }, 50),
+    [],
+  );
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!isInRoom) {
+        return;
+      }
+
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left + e.currentTarget.scrollLeft;
+      const y = e.clientY - rect.top + e.currentTarget.scrollTop;
+
+      throttledEmit(x, y);
+    },
+    [isInRoom, throttledEmit],
+  );
 
   const { setNodeRef, isOver } = useDroppable({
     id: "canvas",
@@ -26,6 +54,7 @@ export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
   return (
     <div
       ref={setRefs}
+      onPointerMove={handlePointerMove}
       className={`flex-1 relative overflow-auto transition-colors ${
         isOver ? "bg-blue-50" : "bg-gray-100"
       }`}
@@ -45,6 +74,7 @@ export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
       {viewport.map((item) => (
         <CanvasItem key={item.id} item={item} />
       ))}
+      {isInRoom && <RemoteCursors />}
     </div>
   );
 });

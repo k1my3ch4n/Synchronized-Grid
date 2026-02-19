@@ -1,7 +1,7 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CanvasViewport } from "@shared/types";
 import { ViewportFrame } from "@entities/viewport";
-import { useCanvasStore } from "../model/store";
+import { useSyncedCanvas } from "@features/room/hooks/useSyncedCanvas";
 import { useUrlStore } from "@features/url-input";
 import { useResize } from "../hooks/useResize";
 import { CanvasItemHeader } from "./CanvasItemHeader";
@@ -15,7 +15,7 @@ interface CanvasItemProps {
 
 export function CanvasItem({ item }: CanvasItemProps) {
   const { url } = useUrlStore();
-  const { removeViewport, updateSize, updateZIndex } = useCanvasStore();
+  const { removeViewport, updateSize, updateZIndex } = useSyncedCanvas();
 
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: item.id,

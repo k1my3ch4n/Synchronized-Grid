@@ -1,6 +1,7 @@
 "use client";
 
-import { useUrlStore } from "@features/url-input";
+import { useSyncedUrl } from "@features/room/hooks/useSyncedUrl";
+import { UserPresence } from "@features/room/ui/UserPresence";
 import { EditableUrl } from "./EditableUrl";
 
 interface HeaderProps {
@@ -8,7 +9,7 @@ interface HeaderProps {
 }
 
 export function Header({ title }: HeaderProps) {
-  const { url, setUrl } = useUrlStore();
+  const { url, setUrl } = useSyncedUrl();
 
   return (
     <header className="h-16 px-4 bg-win98-gray win98-raised flex items-center relative">
@@ -21,6 +22,10 @@ export function Header({ title }: HeaderProps) {
           </div>
         </div>
       )}
+
+      <div className="ml-auto">
+        <UserPresence />
+      </div>
     </header>
   );
 }
