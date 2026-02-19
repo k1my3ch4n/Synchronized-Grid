@@ -17,6 +17,7 @@ interface RoomStoreState {
   syncUpdatePosition: (id: string, x: number, y: number) => void;
   syncUpdateSize: (id: string, width: number, height: number) => void;
   syncRemoveViewport: (id: string) => void;
+  syncUpdateZIndex: (id: string) => void;
   syncChangeUrl: (url: string) => void;
 }
 
@@ -90,6 +91,18 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
     getSocket().emit("viewport:remove", { id });
   },
 
+  syncUpdateZIndex: (id) => {
+    useCanvasStore.getState().updateZIndex(id);
+
+    const viewport = useCanvasStore
+      .getState()
+      .viewport.find((v) => v.id === id);
+
+    if (viewport) {
+      getSocket().emit("viewport:zindex", { id, zIndex: viewport.zIndex });
+    }
+  },
+
   syncChangeUrl: (url) => {
     useUrlStore.getState().setUrl(url);
     getSocket().emit("url:change", { url });
@@ -103,6 +116,7 @@ const SOCKET_EVENTS = [
   "viewport:moved",
   "viewport:resized",
   "viewport:removed",
+  "viewport:zindexed",
   "url:changed",
   "cursor:moved",
 ];
@@ -143,6 +157,18 @@ function setupSocketListeners(socket: any, set: any) {
   socket.on("viewport:removed", ({ id }: { id: string }) => {
     useCanvasStore.getState().removeViewport(id);
   });
+
+  // 뷰포트 Z-index 변경
+  socket.on(
+    "viewport:zindexed",
+    ({ id, zIndex }: { id: string; zIndex: number }) => {
+      useCanvasStore.setState((state) => ({
+        viewport: state.viewport.map((v) =>
+          v.id === id ? { ...v, zIndex } : v,
+        ),
+      }));
+    },
+  );
 
   // URL 변경
   socket.on("url:changed", ({ url }: { url: string }) => {

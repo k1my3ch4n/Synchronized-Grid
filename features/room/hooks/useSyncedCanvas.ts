@@ -15,7 +15,7 @@ export function useSyncedCanvas() {
       updatePosition: roomStore.syncUpdatePosition,
       updateSize: roomStore.syncUpdateSize,
       removeViewport: roomStore.syncRemoveViewport,
-      updateZIndex: canvasStore.updateZIndex,
+      updateZIndex: roomStore.syncUpdateZIndex,
     };
   }
 

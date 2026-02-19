@@ -208,6 +208,23 @@ export function setupSocketHandlers(io: Server) {
       socket.to(currentRoomId).emit("viewport:removed", { id });
     });
 
+    // 뷰포트 Z-index 변경
+    socket.on("viewport:zindex", ({ id, zIndex }) => {
+      if (!currentRoomId) {
+        return;
+      }
+
+      const room = rooms.get(currentRoomId);
+
+      const vp = room?.viewports.find((v) => v.id === id);
+
+      if (vp) {
+        vp.zIndex = zIndex;
+      }
+
+      socket.to(currentRoomId).emit("viewport:zindexed", { id, zIndex });
+    });
+
     // 커서 이동
     socket.on("cursor:move", ({ x, y }) => {
       if (!currentRoomId) {
