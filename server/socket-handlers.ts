@@ -226,7 +226,7 @@ export function setupSocketHandlers(io: TypedServer) {
       const user = room?.users.get(socket.id);
 
       if (user) {
-        user.cursor = { x, y };
+        room?.users.set(socket.id, { ...user, cursor: { x, y } });
       }
 
       socket.to(currentRoomId).emit("cursor:moved", {
