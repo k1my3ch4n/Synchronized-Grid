@@ -1,16 +1,19 @@
 import { io, Socket } from "socket.io-client";
+import { ClientToServerEvents, ServerToClientEvents } from "@shared/types";
 
-let socket: Socket | null = null;
+type TypedSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
-export function getSocket(): Socket {
+let socket: TypedSocket | null = null;
+
+export function getSocket(): TypedSocket {
   if (!socket) {
-    socket = io({ path: "/api/socket", autoConnect: false });
+    socket = io({ path: "/api/socket", autoConnect: false }) as TypedSocket;
   }
 
   return socket;
 }
 
-export function connectSocket(): Socket {
+export function connectSocket(): TypedSocket {
   const socket = getSocket();
 
   if (!socket.connected) {
