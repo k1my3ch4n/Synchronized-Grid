@@ -20,12 +20,12 @@ export function CanvasOverlay({
 
       {activeCanvas && (
         <div
-          className="bg-win98-gray win98-raised"
+          className="glass-card"
           style={{ width: activeCanvas.width * CANVAS_SCALE }}
         >
           <ViewportCard viewport={activeCanvas} variant="header" />
           <div
-            className="flex items-center justify-center text-xs bg-white text-win98-text win98-sunken"
+            className="flex items-center justify-center text-xs bg-black/20 text-text-muted"
             style={{ height: activeCanvas.height * CANVAS_SCALE }}
           >
             {activeCanvas.width} × {activeCanvas.height}

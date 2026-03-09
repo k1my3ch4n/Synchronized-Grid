@@ -23,7 +23,7 @@ export function CanvasEditor() {
       onDragEnd={handleDragEnd}
       modifiers={[snapToGridModifier]}
     >
-      <div className="flex h-[calc(100vh-64px)]">
+      <div className="flex page-height">
         <Palette />
         <Canvas ref={canvasRef} />
       </div>

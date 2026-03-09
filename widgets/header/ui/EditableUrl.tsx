@@ -50,7 +50,7 @@ export function EditableUrl({ url, onUrlChange }: EditableUrlProps) {
         onBlur={handleSubmit}
         onKeyDown={handleKeyDown}
         autoFocus
-        className="bg-white px-2 py-0.5 w-full focus:outline-none text-sm"
+        className="bg-transparent px-1 py-0.5 w-full focus:outline-none text-sm text-text-secondary font-mono"
       />
     );
   }
@@ -58,9 +58,8 @@ export function EditableUrl({ url, onUrlChange }: EditableUrlProps) {
   return (
     <button
       onClick={handleEdit}
-      className="text-sm truncate w-full flex items-center gap-2"
+      className="text-sm truncate w-full flex items-center gap-2 text-text-secondary font-mono"
     >
-      <span>🔗</span>
       <span className="truncate">{url}</span>
     </button>
   );
