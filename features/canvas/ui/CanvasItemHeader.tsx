@@ -23,13 +23,13 @@ export function CanvasItemHeader({
     <div
       {...listeners}
       {...attributes}
-      className="flex items-center justify-between px-1.5 cursor-grab select-none bg-linear-to-r
-                from-win98-title-from to-win98-title-to text-white text-[11px] font-bold"
+      className="flex items-center justify-between px-3 cursor-grab select-none
+                bg-white/[0.03] hover:bg-white/[0.06] border-b border-glass-border text-label font-medium transition-colors"
       style={{ height: GRID_SIZE }}
     >
-      <div className="flex items-center gap-1.5">
-        <span>{label}</span>
-        <span className="text-[10px] text-white/70">
+      <div className="flex items-center gap-2">
+        <span className="text-text-primary">{label}</span>
+        <span className="text-caption text-text-secondary font-mono">
           {width}×{height}
         </span>
       </div>

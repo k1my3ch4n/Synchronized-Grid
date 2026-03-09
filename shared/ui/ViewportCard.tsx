@@ -9,10 +9,10 @@ interface ViewportCardProps {
 }
 
 const variantStyles: Record<ViewportCardVariant, string> = {
-  palette: "p-3 transition-all cursor-grab bg-win98-gray win98-raised",
-  overlay: "p-3 shadow-lg bg-win98-gray win98-raised",
-  header:
-    "px-1.5 py-0.5 text-white text-xs font-bold bg-linear-to-r from-win98-title-from to-win98-title-to",
+  palette:
+    "p-3 transition-all cursor-grab glass-surface rounded-glass hover:bg-glass-hover hover:border-glass-glow",
+  overlay: "p-3 shadow-lg glass rounded-glass",
+  header: "px-2 py-0.5 text-text-secondary text-xs font-medium",
 };
 
 export function ViewportCard({
@@ -32,9 +32,11 @@ export function ViewportCard({
 
   return (
     <div className={`${variantStyles[variant]} ${className}`}>
-      <div className="font-bold text-sm">{label}</div>
-      <div className="text-xs text-win98-text">
-        {width} × {height}
+      <div className="flex items-center justify-between">
+        <span className="font-medium text-sm text-text-primary">{label}</span>
+        <span className="text-label text-text-secondary font-mono tabular-nums">
+          {width}×{height}
+        </span>
       </div>
     </div>
   );

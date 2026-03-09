@@ -7,9 +7,9 @@ export function HomePage() {
   const { url } = useUrlStore();
 
   return (
-    <main className="h-[calc(100vh-64px)] bg-gray-100">
+    <main className="page-height">
       {!url ? (
-        <div className="flex items-center justify-center h-[calc(100vh-64px)]">
+        <div className="flex items-center justify-center page-height">
           <UrlInput />
         </div>
       ) : (

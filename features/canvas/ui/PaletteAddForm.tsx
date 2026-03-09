@@ -39,7 +39,7 @@ export function PaletteAddForm() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full p-2 text-xs bg-win98-gray win98-btn text-center"
+        className="w-full p-3 text-xs rounded-glass border border-dashed border-glass-border text-text-muted text-center transition-all hover:border-accent hover:text-accent hover:bg-accent/5"
       >
         + Add Preset
       </button>
@@ -47,7 +47,7 @@ export function PaletteAddForm() {
   }
 
   return (
-    <div className="p-2 bg-win98-gray win98-sunken flex flex-col gap-1">
+    <div className="p-3 glass-surface rounded-glass flex flex-col gap-2">
       <input
         type="text"
         placeholder="Label"
@@ -55,16 +55,16 @@ export function PaletteAddForm() {
         onChange={(e) => setLabel(e.target.value)}
         onKeyDown={handleKeyDown}
         autoFocus
-        className="w-full px-1 py-0.5 text-xs win98-sunken"
+        className="w-full px-2 py-1.5 text-xs glass-input rounded-lg"
       />
-      <div className="flex gap-1">
+      <div className="flex gap-2">
         <input
           type="number"
           placeholder="W"
           value={width}
           onChange={(e) => setWidth(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="w-1/2 px-1 py-0.5 text-xs win98-sunken"
+          className="w-1/2 px-2 py-1.5 text-xs glass-input rounded-lg"
         />
         <input
           type="number"
@@ -72,19 +72,19 @@ export function PaletteAddForm() {
           value={height}
           onChange={(e) => setHeight(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="w-1/2 px-1 py-0.5 text-xs win98-sunken"
+          className="w-1/2 px-2 py-1.5 text-xs glass-input rounded-lg"
         />
       </div>
-      <div className="flex gap-1">
+      <div className="flex gap-2">
         <button
           onClick={handleSubmit}
-          className="flex-1 text-xs p-1 bg-win98-gray win98-btn"
+          className="flex-1 text-xs p-1.5 glass-btn rounded-lg"
         >
           OK
         </button>
         <button
           onClick={() => setIsOpen(false)}
-          className="flex-1 text-xs p-1 bg-win98-gray win98-btn"
+          className="flex-1 text-xs p-1.5 glass-btn-secondary rounded-lg"
         >
           Cancel
         </button>
