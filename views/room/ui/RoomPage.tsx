@@ -22,7 +22,8 @@ export function RoomPage() {
 
   if (!isConnected) {
     return (
-      <main className="page-height flex items-center justify-center">
+      <main className="page-height flex flex-col items-center justify-center gap-3">
+        <div className="loading-spinner" />
         <p className="text-sm text-text-secondary">방에 접속 중...</p>
       </main>
     );

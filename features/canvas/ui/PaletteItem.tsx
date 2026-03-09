@@ -41,7 +41,7 @@ export function PaletteItem({ viewport }: PaletteItemProps) {
       {...attributes}
       onClick={handleViewportClick}
       style={{ opacity: isDragging ? 0.3 : 1 }}
-      className="cursor-grab relative group"
+      className="cursor-grab relative group transition-opacity duration-150"
     >
       <ViewportCard viewport={viewport} variant="palette" />
       <CloseButton

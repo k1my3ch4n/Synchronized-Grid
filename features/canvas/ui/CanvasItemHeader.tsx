@@ -24,7 +24,7 @@ export function CanvasItemHeader({
       {...listeners}
       {...attributes}
       className="flex items-center justify-between px-3 cursor-grab select-none
-                bg-white/[0.03] border-b border-glass-border text-label font-medium"
+                bg-white/[0.03] hover:bg-white/[0.06] border-b border-glass-border text-label font-medium transition-colors"
       style={{ height: GRID_SIZE }}
     >
       <div className="flex items-center gap-2">

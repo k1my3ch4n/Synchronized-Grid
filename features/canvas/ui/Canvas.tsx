@@ -64,8 +64,14 @@ export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
       }}
     >
       {viewport.length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center text-text-muted">
-          뷰포트를 드래그해서 추가하세요
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+          <span className="text-2xl opacity-30">⊞</span>
+          <p className="text-sm text-text-muted">
+            뷰포트를 드래그해서 추가하세요
+          </p>
+          <p className="text-caption text-text-muted/60">
+            또는 좌측 패널에서 클릭
+          </p>
         </div>
       )}
       {viewport.map((item) => (
