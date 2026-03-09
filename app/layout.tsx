@@ -14,8 +14,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Synchronized Grid",
-  description: "Real-time collaborative viewport grid",
+  title: "싱긋 · SynGrid",
+  description: "실시간 협업 뷰포트 그리드",
 };
 
 export default function RootLayout({
@@ -28,7 +28,7 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        <Header title="Synchronized Grid" />
+        <Header title="싱긋" />
         {children}
       </body>
     </html>

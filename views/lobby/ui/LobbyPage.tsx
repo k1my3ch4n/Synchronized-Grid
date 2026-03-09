@@ -64,7 +64,7 @@ export function LobbyPage() {
         <div className="px-7 pt-7 pb-5 border-b border-glass-border">
           <h2 className="text-lg font-semibold text-text-primary">새로운 방</h2>
           <p className="text-sm text-text-secondary mt-1">
-            협업 그리드를 만들고 참여하세요
+            싱긋에서 협업 그리드를 만들고 참여하세요
           </p>
         </div>
         <div className="px-7 py-6">
