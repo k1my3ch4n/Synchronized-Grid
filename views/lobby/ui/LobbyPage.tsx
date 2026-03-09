@@ -60,7 +60,7 @@ export function LobbyPage() {
 
   return (
     <main className="page-height flex items-center justify-center">
-      <div className="glass rounded-2xl w-[480px] overflow-hidden">
+      <div className="glass rounded-2xl w-[95%] max-w-[480px] overflow-hidden">
         <div className="px-7 pt-7 pb-5 border-b border-glass-border">
           <h2 className="text-lg font-semibold text-text-primary">새로운 방</h2>
           <p className="text-sm text-text-secondary mt-1">
@@ -98,7 +98,7 @@ export function LobbyPage() {
                 <li
                   key={room.id}
                   onClick={() => handleJoinRoom(room.id)}
-                  className="glass-surface rounded-glass p-4 cursor-pointer flex justify-between items-center transition-all hover:bg-glass-hover hover:border-glass-glow hover:translate-x-1 border-l-2 border-l-accent/40 hover:border-l-accent"
+                  className="glass-surface rounded-glass p-4 cursor-pointer flex justify-between items-center transition-all hover:bg-glass-hover hover:border-glass-glow hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] border-l-2 border-l-accent/40 hover:border-l-accent"
                 >
                   <span className="font-medium text-sm text-text-primary">
                     {room.name}

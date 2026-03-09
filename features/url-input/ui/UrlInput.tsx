@@ -13,7 +13,10 @@ export function UrlInput() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-3 p-4 w-1/3">
+    <form
+      onSubmit={handleSubmit}
+      className="flex gap-3 p-4 w-[95%] max-w-[500px]"
+    >
       <input
         type="url"
         value={inputUrl}

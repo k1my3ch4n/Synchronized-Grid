@@ -84,7 +84,7 @@ export function PaletteAddForm() {
         </button>
         <button
           onClick={() => setIsOpen(false)}
-          className="flex-1 text-xs p-1.5 rounded-lg glass-surface text-text-secondary transition-all hover:bg-glass-hover"
+          className="flex-1 text-xs p-1.5 glass-btn-secondary rounded-lg"
         >
           Cancel
         </button>

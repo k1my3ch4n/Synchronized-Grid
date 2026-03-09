@@ -19,7 +19,7 @@ export function Header({ title }: HeaderProps) {
 
       {url && (
         <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
-          <div className="glass rounded-glass px-5 py-1.5 w-[380px] glass-hover transition-all">
+          <div className="glass rounded-glass px-5 py-1.5 w-[90vw] max-w-[380px] glass-hover transition-all">
             <EditableUrl url={url} onUrlChange={setUrl} />
           </div>
         </div>
