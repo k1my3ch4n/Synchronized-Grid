@@ -59,47 +59,59 @@ export function LobbyPage() {
   };
 
   return (
-    <main className="h-[calc(100vh-64px)] bg-gray-100 flex items-center justify-center">
-      <div className="win98-raised p-6 w-[480px]">
-        <h2 className="text-lg font-bold mb-4">방 만들기</h2>
-        <div className="flex gap-2 mb-6">
-          <input
-            type="text"
-            value={roomName}
-            onChange={(e) => setRoomName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleCreateRoom()}
-            placeholder="방 이름을 입력하세요"
-            className="win98-sunken flex-1 px-3 py-2 text-sm"
-          />
-          <button
-            onClick={handleCreateRoom}
-            className="win98-btn px-4 py-2 text-sm font-bold"
-          >
-            생성
-          </button>
-        </div>
-
-        <h2 className="text-lg font-bold mb-2">방 목록</h2>
-        {rooms.length === 0 ? (
-          <p className="text-sm text-gray-500 text-center py-4">
-            생성된 방이 없습니다
+    <main className="page-height flex items-center justify-center">
+      <div className="glass rounded-2xl w-[480px] overflow-hidden">
+        <div className="px-7 pt-7 pb-5 border-b border-glass-border">
+          <h2 className="text-lg font-semibold text-text-primary">새로운 방</h2>
+          <p className="text-sm text-text-secondary mt-1">
+            협업 그리드를 만들고 참여하세요
           </p>
-        ) : (
-          <ul className="space-y-2">
-            {rooms.map((room) => (
-              <li
-                key={room.id}
-                onClick={() => handleJoinRoom(room.id)}
-                className="win98-btn p-3 cursor-pointer flex justify-between items-center"
-              >
-                <span className="font-bold text-sm">{room.name}</span>
-                <span className="text-xs text-gray-600">
-                  {room.userCount}명 접속 중
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
+        </div>
+        <div className="px-7 py-6">
+          <div className="flex gap-3 mb-8">
+            <input
+              type="text"
+              value={roomName}
+              onChange={(e) => setRoomName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleCreateRoom()}
+              placeholder="방 이름을 입력하세요"
+              className="glass-input flex-1 px-4 py-3 text-sm rounded-glass"
+            />
+            <button
+              onClick={handleCreateRoom}
+              className="glass-btn px-6 py-3 text-sm whitespace-nowrap"
+            >
+              생성
+            </button>
+          </div>
+
+          <h3 className="text-xs font-medium text-text-secondary uppercase tracking-widest mb-3">
+            활성 방
+          </h3>
+          {rooms.length === 0 ? (
+            <p className="text-sm text-text-muted text-center py-6">
+              생성된 방이 없습니다
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {rooms.map((room) => (
+                <li
+                  key={room.id}
+                  onClick={() => handleJoinRoom(room.id)}
+                  className="glass-surface rounded-glass p-4 cursor-pointer flex justify-between items-center transition-all hover:bg-glass-hover hover:border-glass-glow hover:translate-x-1 border-l-2 border-l-accent/40 hover:border-l-accent"
+                >
+                  <span className="font-medium text-sm text-text-primary">
+                    {room.name}
+                  </span>
+                  <span className="text-xs text-gd-green flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 bg-gd-green rounded-full animate-[pulse-dot_2s_infinite]" />
+                    {room.userCount}명 접속 중
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </main>
   );

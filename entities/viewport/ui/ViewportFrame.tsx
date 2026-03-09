@@ -22,7 +22,7 @@ export function ViewportFrame({
   return (
     <div className="relative">
       <div
-        className="overflow-hidden bg-white win98-sunken border border-win98-text"
+        className="overflow-hidden bg-white rounded-b-2xl"
         style={{
           width: `${width * scale}px`,
           height: `${height * scale}px`,
@@ -38,7 +38,7 @@ export function ViewportFrame({
         />
       </div>
       {label && (
-        <div className="absolute left-1/2 -translate-x-1/2 -bottom-6 text-sm font-medium text-gray-600 whitespace-nowrap flex items-center gap-1">
+        <div className="absolute left-1/2 -translate-x-1/2 -bottom-6 text-sm font-medium text-text-secondary whitespace-nowrap flex items-center gap-1">
           <span>{label}</span>
           {onSizeChange ? (
             <SizeInput

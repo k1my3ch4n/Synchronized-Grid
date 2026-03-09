@@ -137,6 +137,8 @@ body::after {
 /* Reusable layout classes */
 .page-height {
   height: calc(100vh - var(--spacing-header));
+  position: relative;
+  z-index: 1;
 }
 
 /* Glass card with depth shadow */

@@ -22,7 +22,7 @@ export function RoomPage() {
 
   if (!isConnected) {
     return (
-      <main className="page-height flex items-center justify-center relative z-[1]">
+      <main className="page-height flex items-center justify-center">
         <p className="text-sm text-text-secondary">방에 접속 중...</p>
       </main>
     );
@@ -30,7 +30,7 @@ export function RoomPage() {
 
   return (
     <RoomContext.Provider value={{ isInRoom: true, roomId }}>
-      <main className="page-height relative z-[1]">
+      <main className="page-height">
         {!url ? (
           <div className="flex items-center justify-center page-height">
             <UrlInput />

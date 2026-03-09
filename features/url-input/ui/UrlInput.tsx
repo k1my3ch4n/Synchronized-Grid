@@ -13,18 +13,15 @@ export function UrlInput() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2 p-4 w-1/3">
+    <form onSubmit={handleSubmit} className="flex gap-3 p-4 w-1/3">
       <input
         type="url"
         value={inputUrl}
         onChange={(e) => setInputUrl(e.target.value)}
         placeholder="https://example.com"
-        className="flex-1 px-3 py-1.5 bg-white win98-sunken text-sm focus:outline-none"
+        className="flex-1 px-4 py-2.5 glass-input text-sm rounded-glass font-mono"
       />
-      <button
-        type="submit"
-        className="px-6 py-1.5 bg-win98-gray win98-raised text-sm font-bold active:win98-sunken"
-      >
+      <button type="submit" className="glass-btn px-6 py-2.5 text-sm">
         Load
       </button>
     </form>
