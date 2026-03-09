@@ -31,14 +31,14 @@ export function SizeInput({ width, height, onSizeChange }: SizeInputProps) {
         value={String(width)}
         onValueChange={handleWidthChange}
         className="hover:underline cursor-pointer"
-        inputClassName="w-14 px-0.5 text-sm text-center text-black win98-sunken"
+        inputClassName="w-14 px-0.5 text-sm text-center text-text-primary glass-input rounded"
       />
       ×
       <EditableValue
         value={String(height)}
         onValueChange={handleHeightChange}
         className="hover:underline cursor-pointer"
-        inputClassName="w-14 px-0.5 text-sm text-center text-black win98-sunken"
+        inputClassName="w-14 px-0.5 text-sm text-center text-text-primary glass-input rounded"
       />
       )
     </span>

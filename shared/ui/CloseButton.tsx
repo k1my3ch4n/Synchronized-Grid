@@ -11,7 +11,7 @@ export function CloseButton({ onClick, className = "" }: CloseButtonProps) {
         e.stopPropagation();
         onClick();
       }}
-      className={`flex items-center justify-center w-4 h-3.5 text-black text-[10px] leading-none bg-win98-gray win98-btn ${className}`}
+      className={`flex items-center justify-center w-[18px] h-[18px] rounded-full text-text-muted text-caption leading-none bg-surface hover:bg-gd-rose/20 hover:text-gd-rose transition-all ${className}`}
     >
       ✕
     </button>
