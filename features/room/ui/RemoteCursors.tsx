@@ -1,6 +1,7 @@
 "use client";
 
 import { useRoomStore } from "../model/store";
+import { getTextColorForBg } from "@shared/lib/color";
 
 export function RemoteCursors() {
   const { users, currentUser } = useRoomStore();
@@ -30,7 +31,7 @@ export function RemoteCursors() {
             className="text-caption font-semibold px-2 py-0.5 rounded whitespace-nowrap ml-3"
             style={{
               backgroundColor: user.color,
-              color: "#0a0a12",
+              color: getTextColorForBg(user.color),
               boxShadow: `0 2px 8px ${user.color}66`,
             }}
           >

@@ -62,7 +62,7 @@ export function EditableUrl({ url, onUrlChange }: EditableUrlProps) {
     >
       <span className="truncate">{url}</span>
       <svg
-        className="w-3 h-3 shrink-0 opacity-0 group-hover:opacity-60 transition-opacity"
+        className="w-3 h-3 shrink-0 opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60 transition-opacity"
         viewBox="0 0 16 16"
         fill="currentColor"
       >

@@ -1,20 +1,27 @@
 @import "tailwindcss";
 
 :root {
+  /* Color: Base */
   --background: #0a0a12;
   --foreground: #e8e8ed;
 
-  /* Glass Dark Theme */
+  /* Color: Glass */
   --glass-bg: rgba(255, 255, 255, 0.06);
   --glass-bg-hover: rgba(255, 255, 255, 0.1);
   --glass-border: rgba(255, 255, 255, 0.15);
   --glass-border-glow: rgba(255, 255, 255, 0.22);
   --surface: rgba(255, 255, 255, 0.06);
+
+  /* Color: Text */
   --text-primary: #e8e8ed;
   --text-secondary: #8b8b9e;
   --text-muted: #6b6b82;
+
+  /* Color: Accent */
   --accent: #6366f1;
   --accent-glow: rgba(99, 102, 241, 0.3);
+
+  /* Color: Semantic */
   --gd-green: #22c55e;
   --gd-amber: #f59e0b;
   --gd-rose: #f43f5e;
