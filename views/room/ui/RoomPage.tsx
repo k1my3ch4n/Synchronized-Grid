@@ -22,17 +22,17 @@ export function RoomPage() {
 
   if (!isConnected) {
     return (
-      <main className="h-[calc(100vh-64px)] bg-gray-100 flex items-center justify-center">
-        <p className="text-sm text-gray-500">방에 접속 중...</p>
+      <main className="page-height flex items-center justify-center relative z-[1]">
+        <p className="text-sm text-text-secondary">방에 접속 중...</p>
       </main>
     );
   }
 
   return (
     <RoomContext.Provider value={{ isInRoom: true, roomId }}>
-      <main className="h-[calc(100vh-64px)] bg-gray-100">
+      <main className="page-height relative z-[1]">
         {!url ? (
-          <div className="flex items-center justify-center h-[calc(100vh-64px)]">
+          <div className="flex items-center justify-center page-height">
             <UrlInput />
           </div>
         ) : (

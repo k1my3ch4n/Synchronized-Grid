@@ -22,13 +22,17 @@ export function RemoteCursors() {
             <path
               d="M0 0L16 12H6L0 20V0Z"
               fill={user.color}
-              stroke="white"
+              stroke="rgba(0,0,0,0.3)"
               strokeWidth="1"
             />
           </svg>
           <span
-            className="text-xs text-white px-1.5 py-0.5 rounded whitespace-nowrap ml-3"
-            style={{ backgroundColor: user.color }}
+            className="text-caption font-semibold px-2 py-0.5 rounded whitespace-nowrap ml-3"
+            style={{
+              backgroundColor: user.color,
+              color: "#0a0a12",
+              boxShadow: `0 2px 8px ${user.color}66`,
+            }}
           >
             {user.name}
           </span>
