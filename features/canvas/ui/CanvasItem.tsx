@@ -33,7 +33,7 @@ export function CanvasItem({ item }: CanvasItemProps) {
   return (
     <div
       ref={setNodeRef}
-      className="absolute"
+      className="absolute glass-card"
       style={{
         left: item.x,
         top: item.y,

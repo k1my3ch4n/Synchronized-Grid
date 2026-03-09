@@ -56,18 +56,15 @@ export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
       ref={setRefs}
       onPointerMove={handlePointerMove}
       className={`flex-1 relative overflow-auto transition-colors ${
-        isOver ? "bg-blue-50" : "bg-gray-100"
+        isOver ? "bg-accent/5" : ""
       }`}
       style={{
-        backgroundImage: `
-            linear-gradient(to right, #e5e7eb 1px, transparent 1px),
-            linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)
-          `,
+        backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 1px)`,
         backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`,
       }}
     >
       {viewport.length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+        <div className="absolute inset-0 flex items-center justify-center text-text-muted">
           뷰포트를 드래그해서 추가하세요
         </div>
       )}
