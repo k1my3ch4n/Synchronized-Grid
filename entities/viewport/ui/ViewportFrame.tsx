@@ -29,7 +29,7 @@ export function ViewportFrame({
         }}
       >
         <iframe
-          src={url}
+          src={url ? `/api/proxy?url=${encodeURIComponent(url)}` : ""}
           width={width}
           height={height}
           className="border-0 origin-top-left"
