@@ -2,6 +2,7 @@
 
 import { useSyncedUrl } from "@features/room/hooks/useSyncedUrl";
 import { UserPresence } from "@features/room/ui/UserPresence";
+import { UserMenu } from "@features/auth";
 import { EditableUrl } from "./EditableUrl";
 
 interface HeaderProps {
@@ -30,8 +31,9 @@ export function Header({ title }: HeaderProps) {
         </div>
       )}
 
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-3">
         <UserPresence />
+        <UserMenu />
       </div>
     </header>
   );

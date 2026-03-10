@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Header } from "@widgets/header";
+import { AuthProvider } from "@features/auth";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -28,8 +29,10 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        <Header title="싱긋" />
-        {children}
+        <AuthProvider>
+          <Header title="싱긋" />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
