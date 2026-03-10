@@ -12,8 +12,51 @@ import { validateProxyUrl } from "./proxy-security";
 import { rewriteHtml, rewriteCss } from "./proxy-url-rewriter";
 
 function sendError(res: ServerResponse, status: number, message: string) {
-  res.writeHead(status, { "content-type": "application/json" });
-  res.end(JSON.stringify({ error: message }));
+  res.writeHead(status, {
+    "content-type": "text/html; charset=utf-8",
+    "x-frame-options": "ALLOWALL",
+    "access-control-allow-origin": "*",
+  });
+  res.end(`<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:#0a0a12;color:#8b8b9e;font-family:system-ui,sans-serif;padding:32px}
+.card{text-align:center;max-width:420px}
+.icon{font-size:48px;margin-bottom:16px;opacity:.6}
+.status{font-size:14px;font-weight:600;color:#6366f1;letter-spacing:1px;margin-bottom:8px}
+.msg{font-size:15px;color:#e8e8ed;line-height:1.5;margin-bottom:12px}
+.hint{font-size:12px;color:#6b6b82;line-height:1.6}
+</style></head><body>
+<div class="card">
+<div class="icon">${status === 504 ? "&#9203;" : status === 400 ? "&#128683;" : "&#9888;&#65039;"}</div>
+<div class="status">${status}</div>
+<div class="msg">${escapeHtml(message)}</div>
+<div class="hint">${getErrorHint(status)}</div>
+</div>
+</body></html>`);
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function getErrorHint(status: number): string {
+  switch (status) {
+    case 400:
+      return "URL을 확인해 주세요. http:// 또는 https://로 시작하는 완전한 URL이 필요합니다.";
+    case 413:
+      return "페이지 크기가 제한(50MB)을 초과합니다.";
+    case 504:
+      return "대상 서버가 응답하지 않습니다. 잘못된 URL이거나 서버가 다운된 상태일 수 있습니다.";
+    default:
+      return "페이지를 불러올 수 없습니다. URL이 올바른지 확인해 주세요.";
+  }
 }
 
 function isHtml(contentType: string): boolean {

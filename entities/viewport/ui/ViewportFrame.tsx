@@ -41,12 +41,20 @@ export function ViewportFrame({
   return (
     <div className="relative">
       <div
-        className="overflow-hidden bg-white rounded-b-2xl"
+        className="overflow-hidden bg-white rounded-b-2xl relative"
         style={{
           width: `${width * scale}px`,
           height: `${height * scale}px`,
         }}
       >
+        {!url && (
+          <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a12] z-10">
+            <div className="text-center">
+              <div className="text-2xl mb-2 opacity-40">&#127760;</div>
+              <p className="text-xs text-text-muted">URL을 입력해 주세요</p>
+            </div>
+          </div>
+        )}
         <iframe
           ref={iframeRef}
           src={
