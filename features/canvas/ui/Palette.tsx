@@ -6,7 +6,7 @@ import { PaletteItem } from "./PaletteItem";
 import { PaletteAddForm } from "./PaletteAddForm";
 
 export function Palette() {
-  const { presets } = usePresetStore();
+  const { presets, resetPresets } = usePresetStore();
   const { enabled, toggle } = useScrollSyncStore();
 
   return (
@@ -24,6 +24,13 @@ export function Palette() {
         ))
       )}
       <PaletteAddForm />
+
+      <button
+        onClick={resetPresets}
+        className="w-full p-2 text-xs text-text-muted hover:text-gd-rose transition-colors"
+      >
+        기본 프리셋으로 초기화
+      </button>
 
       <div className="mt-auto pt-3 border-t border-glass-border">
         <button
