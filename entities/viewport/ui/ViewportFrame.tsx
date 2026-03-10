@@ -1,8 +1,11 @@
 "use client";
 
+import { useCallback, useEffect, useRef } from "react";
 import { SizeInput } from "@shared/ui/SizeInput";
+import { useScrollSyncStore } from "@features/scroll-sync";
 
 interface ViewportFrameProps {
+  id: string;
   url: string;
   width: number;
   height: number;
@@ -12,6 +15,7 @@ interface ViewportFrameProps {
 }
 
 export function ViewportFrame({
+  id,
   url,
   width,
   height,
@@ -19,6 +23,21 @@ export function ViewportFrame({
   scale = 0.3,
   onSizeChange,
 }: ViewportFrameProps) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const { registerFrame, unregisterFrame } = useScrollSyncStore();
+
+  const handleLoad = useCallback(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    registerFrame(id, iframe);
+    iframe.contentWindow?.postMessage({ type: "proxy:init", frameId: id }, "*");
+  }, [id, registerFrame]);
+
+  useEffect(() => {
+    return () => unregisterFrame(id);
+  }, [id, unregisterFrame]);
+
   return (
     <div className="relative">
       <div
@@ -29,12 +48,16 @@ export function ViewportFrame({
         }}
       >
         <iframe
-          src={url ? `/api/proxy?url=${encodeURIComponent(url)}` : ""}
+          ref={iframeRef}
+          src={
+            url ? `/api/proxy?url=${encodeURIComponent(url)}` : "about:blank"
+          }
           width={width}
           height={height}
           className="border-0 origin-top-left"
           style={{ transform: `scale(${scale})` }}
           title={label}
+          onLoad={url ? handleLoad : undefined}
         />
       </div>
       {label && (

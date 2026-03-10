@@ -1,11 +1,13 @@
 "use client";
 
 import { usePresetStore } from "@entities/viewport";
+import { useScrollSyncStore } from "@features/scroll-sync";
 import { PaletteItem } from "./PaletteItem";
 import { PaletteAddForm } from "./PaletteAddForm";
 
 export function Palette() {
   const { presets } = usePresetStore();
+  const { enabled, toggle } = useScrollSyncStore();
 
   return (
     <div className="w-[220px] glass border-r border-glass-border p-4 flex flex-col gap-2">
@@ -22,6 +24,31 @@ export function Palette() {
         ))
       )}
       <PaletteAddForm />
+
+      <div className="mt-auto pt-3 border-t border-glass-border">
+        <button
+          onClick={toggle}
+          className={`w-full flex items-center gap-2 px-3 py-2 rounded-glass text-label transition-colors ${
+            enabled
+              ? "bg-accent/20 text-accent border border-accent/30"
+              : "bg-white/[0.03] text-text-muted border border-glass-border hover:bg-white/[0.06]"
+          }`}
+        >
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 20V4M12 4l-4 4M12 4l4 4M6 16h12" />
+          </svg>
+          <span>스크롤 동기화 {enabled ? "ON" : "OFF"}</span>
+        </button>
+      </div>
     </div>
   );
 }

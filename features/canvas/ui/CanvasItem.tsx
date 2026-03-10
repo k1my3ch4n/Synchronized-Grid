@@ -76,6 +76,7 @@ export function CanvasItem({ item }: CanvasItemProps) {
         <div className="absolute inset-0 z-10" />
         {isResizing && <div className="absolute inset-0 z-20" />}
         <ViewportFrame
+          id={item.id}
           url={url}
           width={displayWidth}
           height={displayHeight}

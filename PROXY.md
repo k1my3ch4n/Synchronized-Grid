@@ -105,13 +105,17 @@ https://example.com/img.png       → /api/proxy?url=https://example.com/img.png
 | `<style>` 태그 | `<style>` 내부 CSS | `url()` 참조 재작성 |
 | CSS 파일 | 별도 `rewriteCss()` 함수 | CSS 파일 전체의 `url()` 재작성 |
 
-#### 안전망: `<base>` 태그
+#### 스크립트 보호 (Script Protection)
 
-정규식이 놓칠 수 있는 URL(JS 동적 생성 등)을 위해 `<head>` 뒤에 삽입:
-```html
-<base href="https://example.com/">
+정규식이 `<script>` 내부 JavaScript 코드를 손상시키지 않도록, 리라이팅 전에 스크립트 블록을 플레이스홀더로 치환하고 리라이팅 후 복원합니다.
+
 ```
-브라우저가 상대 경로를 원본 도메인 기준으로 해석하도록 합니다.
+① <script>...</script> → <!--__SCRIPT_0__-->  (추출)
+② HTML 속성/CSS url() 리라이팅              (안전한 영역만)
+③ <!--__SCRIPT_0__--> → <script>...</script>  (복원)
+```
+
+> `<base>` 태그는 사용하지 않습니다. 리라이팅된 `/api/proxy?url=...` 경로가 `<base>`에 의해 원본 도메인으로 해석되어 CORS 에러를 유발하기 때문입니다. 자세한 경위는 [PROXY-DEBUGGING.md](PROXY-DEBUGGING.md)를 참고하세요.
 
 #### 브릿지 스크립트
 
@@ -139,7 +143,9 @@ new ResizeObserver(() => {
 }).observe(document.documentElement);
 ```
 
-향후 스크롤 동기화 구현 시 부모 페이지에서 `message` 이벤트를 수신하여 활용합니다.
+부모 페이지의 `useScrollSync` 훅이 `message` 이벤트를 수신하여 뷰포트 간 스크롤을 동기화합니다.
+
+추가로 `history.pushState`/`replaceState`를 패치하여 프록시된 페이지의 cross-origin SecurityError를 방지합니다.
 
 ### proxy.ts
 
@@ -197,7 +203,7 @@ if (parsedUrl.pathname?.startsWith(PROXY_PATH)) {
 
 | 제약 | 설명 | 보완 |
 |------|------|------|
-| 정규식 기반 재작성 | JS 동적 생성 URL은 재작성 불가 | `<base>` 태그로 일부 보완 |
+| 정규식 기반 재작성 | JS 동적 생성 URL은 재작성 불가 | 스크립트 보호 방식으로 JS 손상 방지 |
 | SPA 제한 | CSR 앱의 API 호출은 원본 서버로 가서 CORS 에러 가능 | 정적 사이트/SSR에 적합 |
 | 쿠키 미전달 | 보안상 의도적으로 쿠키를 전달하지 않음 | 인증 필요 사이트는 비로그인 상태로 표시 |
 | WebSocket 미지원 | 타겟 사이트의 WS 연결은 프록시되지 않음 | 디자인 프리뷰 목적에는 충분 |
@@ -205,6 +211,6 @@ if (parsedUrl.pathname?.startsWith(PROXY_PATH)) {
 
 ## 향후 확장
 
-- **스크롤 동기화**: 브릿지 스크립트의 `proxy:scroll` 이벤트를 수신하여 뷰포트 간 스크롤 연동
+- ~~**스크롤 동기화**~~: 구현 완료 (`features/scroll-sync/` — 비율 기반 동기화)
 - **Service Worker 주입**: 프록시된 페이지에 SW를 등록하여 동적 fetch/XHR도 프록시 경유
 - **서버 사이드 캐시**: 자주 요청되는 리소스를 인메모리 LRU 캐시로 성능 개선

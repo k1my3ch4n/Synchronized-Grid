@@ -5,8 +5,11 @@ import { Palette, Canvas } from "@features/canvas";
 import { useCanvasDnd } from "../hooks/useCanvasDnd";
 import { snapToGridModifier } from "../lib/snapToGrid";
 import { CanvasOverlay } from "./CanvasOverlay";
+import { useScrollSync } from "@features/scroll-sync";
 
 export function CanvasEditor() {
+  useScrollSync();
+
   const {
     sensors,
     canvasRef,

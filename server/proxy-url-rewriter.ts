@@ -1,7 +1,6 @@
 import { PROXY_PATH } from "./proxy-constants";
 
 function proxyUrl(value: string, baseUrl: string): string {
-  // Skip non-HTTP schemes and fragments
   if (
     !value ||
     value.startsWith("data:") ||
@@ -30,19 +29,19 @@ function proxyUrl(value: string, baseUrl: string): string {
   return `${PROXY_PATH}?url=${encodeURIComponent(resolved)}`;
 }
 
-// Rewrite src, href, action attributes
+// Rewrite src, href, action, poster attributes
 function rewriteAttributes(html: string, baseUrl: string): string {
   return html
     .replace(
       /(\b(?:src|href|action|poster))\s*=\s*"([^"]*?)"/gi,
-      (match, attr, url) => {
+      (_match, attr, url) => {
         const rewritten = proxyUrl(url.trim(), baseUrl);
         return `${attr}="${rewritten}"`;
       },
     )
     .replace(
       /(\b(?:src|href|action|poster))\s*=\s*'([^']*?)'/gi,
-      (match, attr, url) => {
+      (_match, attr, url) => {
         const rewritten = proxyUrl(url.trim(), baseUrl);
         return `${attr}='${rewritten}'`;
       },
@@ -51,7 +50,7 @@ function rewriteAttributes(html: string, baseUrl: string): string {
 
 // Rewrite srcset attribute
 function rewriteSrcset(html: string, baseUrl: string): string {
-  return html.replace(/srcset\s*=\s*"([^"]+)"/gi, (match, srcset) => {
+  return html.replace(/srcset\s*=\s*"([^"]+)"/gi, (_match, srcset) => {
     const rewritten = srcset
       .split(",")
       .map((entry: string) => {
@@ -66,11 +65,11 @@ function rewriteSrcset(html: string, baseUrl: string): string {
   });
 }
 
-// Rewrite url() in CSS (inline styles and style tags)
+// Rewrite url() in CSS
 function rewriteCssUrls(content: string, baseUrl: string): string {
   return content.replace(
     /url\(\s*["']?([^"')]+?)["']?\s*\)/gi,
-    (match, url) => {
+    (_match, url) => {
       const rewritten = proxyUrl(url.trim(), baseUrl);
       return `url("${rewritten}")`;
     },
@@ -79,12 +78,52 @@ function rewriteCssUrls(content: string, baseUrl: string): string {
 
 const BRIDGE_SCRIPT = `<script data-proxy-bridge>
 (function(){
+  // Patch history API — proxied pages run on localhost but try to push original-origin URLs
+  var origPushState = history.pushState;
+  var origReplaceState = history.replaceState;
+  function patchUrl(url){
+    if(!url) return url;
+    try {
+      var u = new URL(url, location.href);
+      if(u.origin !== location.origin){
+        return u.pathname + u.search + u.hash;
+      }
+    } catch(e){}
+    return url;
+  }
+  history.pushState = function(state, title, url){
+    return origPushState.call(this, state, title, patchUrl(url));
+  };
+  history.replaceState = function(state, title, url){
+    return origReplaceState.call(this, state, title, patchUrl(url));
+  };
+
+  var frameId = null;
+  var programmatic = false;
   var lastScrollY = -1;
+
+  window.addEventListener('message',function(e){
+    var d = e.data;
+    if(!d) return;
+    if(d.type==='proxy:init'){
+      frameId = d.frameId;
+    }
+    if(d.type==='proxy:scrollTo'){
+      var max = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      if(max <= 0) return;
+      programmatic = true;
+      window.scrollTo({top:d.ratio * max,behavior:'instant'});
+      requestAnimationFrame(function(){ programmatic = false; });
+    }
+  });
+
   function onScroll(){
+    if(programmatic) return;
     if(window.scrollY !== lastScrollY){
       lastScrollY = window.scrollY;
       window.parent.postMessage({
         type:'proxy:scroll',
+        frameId:frameId,
         scrollX:window.scrollX,
         scrollY:window.scrollY,
         scrollHeight:document.documentElement.scrollHeight,
@@ -92,10 +131,12 @@ const BRIDGE_SCRIPT = `<script data-proxy-bridge>
       },'*');
     }
   }
+
   window.addEventListener('scroll',onScroll,{passive:true});
   new ResizeObserver(function(){
     window.parent.postMessage({
       type:'proxy:resize',
+      frameId:frameId,
       width:document.documentElement.scrollWidth,
       height:document.documentElement.scrollHeight
     },'*');
@@ -105,43 +146,46 @@ const BRIDGE_SCRIPT = `<script data-proxy-bridge>
 </script>`;
 
 export function rewriteHtml(html: string, baseUrl: string): string {
-  const origin = new URL(baseUrl).origin;
+  // 1. Protect <script> blocks — extract and replace with placeholders
+  const scripts: string[] = [];
+  let safe = html.replace(/(<script[\s>][\s\S]*?<\/script>)/gi, (match) => {
+    scripts.push(match);
+    return `<!--__SCRIPT_${scripts.length - 1}__-->`;
+  });
 
-  // Rewrite URLs in attributes
-  let result = rewriteAttributes(html, baseUrl);
-  result = rewriteSrcset(result, baseUrl);
+  // 2. Rewrite URLs in safe (non-script) HTML only
+  safe = rewriteAttributes(safe, baseUrl);
+  safe = rewriteSrcset(safe, baseUrl);
 
-  // Rewrite inline style url()
-  result = result.replace(
+  // 3. Rewrite inline style url()
+  safe = safe.replace(
     /style\s*=\s*"([^"]*)"/gi,
-    (match, style) => `style="${rewriteCssUrls(style, baseUrl)}"`,
+    (_match, style) => `style="${rewriteCssUrls(style, baseUrl)}"`,
   );
 
-  // Rewrite <style> tag contents
-  result = result.replace(
+  // 4. Rewrite <style> tag contents
+  safe = safe.replace(
     /(<style[^>]*>)([\s\S]*?)(<\/style>)/gi,
-    (match, open, css, close) =>
+    (_match, open, css, close) =>
       `${open}${rewriteCssUrls(css, baseUrl)}${close}`,
   );
 
-  // Insert <base> tag after <head> for any URLs the regex misses
-  const baseTag = `<base href="${origin}/">`;
-  if (/<head[^>]*>/i.test(result)) {
-    result = result.replace(/(<head[^>]*>)/i, `$1${baseTag}`);
+  // 5. Restore <script> blocks (untouched)
+  safe = safe.replace(
+    /<!--__SCRIPT_(\d+)__-->/g,
+    (_match, idx) => scripts[parseInt(idx)],
+  );
+
+  // 6. Inject bridge script before </head> or </body>
+  if (/<\/head>/i.test(safe)) {
+    safe = safe.replace(/<\/head>/i, `${BRIDGE_SCRIPT}</head>`);
+  } else if (/<\/body>/i.test(safe)) {
+    safe = safe.replace(/<\/body>/i, `${BRIDGE_SCRIPT}</body>`);
   } else {
-    result = baseTag + result;
+    safe += BRIDGE_SCRIPT;
   }
 
-  // Inject bridge script before </head> or </body>
-  if (/<\/head>/i.test(result)) {
-    result = result.replace(/<\/head>/i, `${BRIDGE_SCRIPT}</head>`);
-  } else if (/<\/body>/i.test(result)) {
-    result = result.replace(/<\/body>/i, `${BRIDGE_SCRIPT}</body>`);
-  } else {
-    result += BRIDGE_SCRIPT;
-  }
-
-  return result;
+  return safe;
 }
 
 export function rewriteCss(css: string, baseUrl: string): string {

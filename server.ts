@@ -21,7 +21,16 @@ app.prepare().then(() => {
     const parsedUrl = parse(req.url!, true);
 
     if (parsedUrl.pathname?.startsWith(PROXY_PATH)) {
-      await handleProxyRequest(req, res);
+      try {
+        await handleProxyRequest(req, res);
+      } catch (err) {
+        console.error("[proxy] Unhandled error:", err);
+
+        if (!res.headersSent) {
+          res.writeHead(502, { "content-type": "application/json" });
+          res.end(JSON.stringify({ error: "Proxy error" }));
+        }
+      }
       return;
     }
 
