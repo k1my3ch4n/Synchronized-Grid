@@ -7,7 +7,11 @@ let socket: TypedSocket | null = null;
 
 export function getSocket(): TypedSocket {
   if (!socket) {
-    socket = io({ path: "/api/socket", autoConnect: false }) as TypedSocket;
+    socket = io({
+      path: "/api/socket",
+      autoConnect: false,
+      withCredentials: true,
+    }) as TypedSocket;
   }
 
   return socket;
