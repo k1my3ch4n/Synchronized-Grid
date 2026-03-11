@@ -1,5 +1,5 @@
 import { Server as SocketIOServer } from "socket.io";
-import { jwtVerify } from "jose";
+import { decode } from "next-auth/jwt";
 import { parse as parseCookie } from "cookie";
 
 export interface SocketUser {
@@ -13,13 +13,9 @@ export function setupSocketAuth(io: SocketIOServer) {
   const secret = process.env.NEXTAUTH_SECRET;
 
   if (!secret) {
-    console.warn(
-      "[socket-auth] NEXTAUTH_SECRET not set, socket auth disabled",
-    );
+    console.warn("[socket-auth] NEXTAUTH_SECRET not set, socket auth disabled");
     return;
   }
-
-  const encodedSecret = new TextEncoder().encode(secret);
 
   io.use(async (socket, next) => {
     try {
@@ -31,20 +27,27 @@ export function setupSocketAuth(io: SocketIOServer) {
 
       const cookies = parseCookie(cookieHeader);
 
-      // NextAuth uses different cookie names in dev vs prod
-      const token =
-        cookies["__Secure-authjs.session-token"] ||
-        cookies["authjs.session-token"] ||
-        cookies["__Secure-next-auth.session-token"] ||
-        cookies["next-auth.session-token"];
+      // NextAuth v5는 dev에서 authjs.session-token, prod에서 __Secure-authjs.session-token 사용
+      const isSecure = process.env.NODE_ENV === "production";
+      const cookieName = isSecure
+        ? "__Secure-authjs.session-token"
+        : "authjs.session-token";
+      const token = cookies[cookieName];
 
       if (!token) {
         return next(new Error("세션 토큰이 없습니다"));
       }
 
-      const { payload } = await jwtVerify(token, encodedSecret, {
-        algorithms: ["HS256"],
+      // NextAuth의 decode로 JWE 암호화 토큰 복호화
+      const payload = await decode({
+        token,
+        secret,
+        salt: cookieName,
       });
+
+      if (!payload) {
+        return next(new Error("토큰 복호화 실패"));
+      }
 
       (socket.data as Record<string, unknown>).user = {
         id: (payload.sub ?? payload.id) as string,
