@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { jwtVerify } from "jose";
+import { getToken } from "next-auth/jwt";
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -19,22 +19,9 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // JWT 토큰 확인 (쿠키에서)
-  const token =
-    req.cookies.get("__Secure-authjs.session-token")?.value ||
-    req.cookies.get("authjs.session-token")?.value;
-
-  let isLoggedIn = false;
-
-  if (token && process.env.NEXTAUTH_SECRET) {
-    try {
-      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET);
-      await jwtVerify(token, secret);
-      isLoggedIn = true;
-    } catch {
-      // 토큰 만료 또는 유효하지 않음
-    }
-  }
+  // NextAuth의 getToken으로 JWT 복호화 (NextAuth v5는 JWE 암호화 사용)
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const isLoggedIn = !!token;
 
   // 미인증 사용자 → 로그인
   if (!isLoggedIn) {
