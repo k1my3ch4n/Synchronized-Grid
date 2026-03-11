@@ -1,7 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useSyncedUrl } from "@features/room/hooks/useSyncedUrl";
 import { UserPresence } from "@features/room/ui/UserPresence";
+import { InviteButton } from "@features/room/ui/InviteButton";
+import { UserMenu } from "@features/auth";
 import { EditableUrl } from "./EditableUrl";
 
 interface HeaderProps {
@@ -13,14 +16,17 @@ export function Header({ title }: HeaderProps) {
 
   return (
     <header className="h-16 px-6 glass flex items-center relative z-10">
-      <div className="flex items-baseline gap-2">
-        <h1 className="text-sm font-semibold tracking-tight text-text-primary">
+      <Link
+        href="/workspaces"
+        className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+      >
+        <h1 className="text-lg font-bold tracking-tight text-text-primary">
           {title}
         </h1>
-        <span className="text-caption text-text-muted font-mono hidden sm:inline">
+        <span className="text-xs text-text-muted font-mono hidden sm:inline">
           SynGrid
         </span>
-      </div>
+      </Link>
 
       {url && (
         <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
@@ -30,8 +36,10 @@ export function Header({ title }: HeaderProps) {
         </div>
       )}
 
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-3">
+        <InviteButton />
         <UserPresence />
+        <UserMenu />
       </div>
     </header>
   );

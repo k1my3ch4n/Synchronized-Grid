@@ -3,6 +3,8 @@ import { parse } from "url";
 import next from "next";
 import { Server as SocketIOServer } from "socket.io";
 import { setupSocketHandlers } from "./server/socket-handlers";
+import { setupSocketAuth } from "./server/socket-auth";
+import "dotenv/config";
 
 const dev = process.env.NODE_ENV !== "production";
 
@@ -20,6 +22,7 @@ app.prepare().then(() => {
     path: "/api/socket",
   });
 
+  setupSocketAuth(io);
   setupSocketHandlers(io);
 
   const PORT = process.env.PORT || 3000;

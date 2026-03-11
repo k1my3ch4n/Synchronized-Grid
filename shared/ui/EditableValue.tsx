@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEditableValue } from "@shared/hooks/useEditableValue";
 
 interface EditableValueProps {
   value: string;
@@ -15,38 +15,21 @@ export function EditableValue({
   className = "",
   inputClassName = "",
 }: EditableValueProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [inputValue, setInputValue] = useState(value);
-
-  const handleOpen = () => {
-    setInputValue(value);
-    setIsEditing(true);
-  };
-
-  const handleSubmit = () => {
-    if (inputValue.trim()) {
-      onValueChange(inputValue.trim());
-    }
-
-    setIsEditing(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSubmit();
-    }
-
-    if (e.key === "Escape") {
-      setIsEditing(false);
-    }
-  };
+  const {
+    isEditing,
+    inputValue,
+    setInputValue,
+    startEditing,
+    submit,
+    handleKeyDown,
+  } = useEditableValue(value, onValueChange);
 
   if (isEditing) {
     return (
       <input
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
-        onBlur={handleSubmit}
+        onBlur={submit}
         onKeyDown={handleKeyDown}
         autoFocus
         className={inputClassName}
@@ -56,7 +39,7 @@ export function EditableValue({
 
   return (
     <button
-      onClick={handleOpen}
+      onClick={startEditing}
       onPointerDown={(e) => e.stopPropagation()}
       className={className}
     >

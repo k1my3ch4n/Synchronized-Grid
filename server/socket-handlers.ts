@@ -5,17 +5,20 @@ import {
   RoomUser,
   CanvasViewport,
 } from "@shared/types";
+import {
+  loadRoomFromDB,
+  saveRoomUrl,
+  saveRoomViewports,
+} from "./room-persistence";
 
 type TypedServer = Server<ClientToServerEvents, ServerToClientEvents>;
 type TypedSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
 
-interface RoomState {
-  id: string;
-  name: string;
+interface ActiveRoomState {
+  workspaceId: string;
   url: string;
   viewports: CanvasViewport[];
   users: Map<string, RoomUser>;
-  createdAt: Date;
 }
 
 const COLORS = [
@@ -29,87 +32,66 @@ const COLORS = [
   "#F7DC6F",
 ];
 
-const ADJECTIVES = ["빠른", "용감한", "현명한", "밝은", "조용한", "강한"];
-const ANIMALS = ["사자", "독수리", "돌고래", "판다", "여우", "늑대"];
-
-function generateUserName(): string {
-  const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
-  const animal = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
-  return `${adj} ${animal}`;
-}
-
-const rooms = new Map<string, RoomState>();
+// 접속 중인 룸의 활성 상태 (ephemeral)
+const activeRooms = new Map<string, ActiveRoomState>();
 
 export function setupSocketHandlers(io: TypedServer) {
   io.on("connection", (socket: TypedSocket) => {
     let currentRoomId: string | null = null;
 
-    // 방 목록 조회
-    socket.on("room:list", (callback) => {
-      const roomList = Array.from(rooms.values()).map((room) => ({
-        id: room.id,
-        name: room.name,
-        userCount: room.users.size,
-        createdAt: room.createdAt,
-      }));
+    // 방 입장 — DB에서 로드
+    socket.on("room:join", async ({ roomId }, callback) => {
+      try {
+        let active = activeRooms.get(roomId);
 
-      callback(roomList);
-    });
+        if (!active) {
+          // DB에서 룸 로드
+          const dbRoom = await loadRoomFromDB(roomId);
 
-    // 방 생성
-    socket.on("room:create", ({ name }, callback) => {
-      const roomId = crypto.randomUUID();
+          if (!dbRoom) {
+            return callback({ error: "Room not found" });
+          }
 
-      rooms.set(roomId, {
-        id: roomId,
-        name,
-        url: "",
-        viewports: [],
-        users: new Map(),
-        createdAt: new Date(),
-      });
+          active = {
+            workspaceId: dbRoom.workspaceId,
+            url: dbRoom.url,
+            viewports: dbRoom.viewports,
+            users: new Map(),
+          };
+          activeRooms.set(roomId, active);
+        }
 
-      callback({ roomId });
+        const socketData = socket.data as {
+          user?: { name?: string; image?: string };
+        };
+        const userName =
+          socketData?.user?.name || `User-${socket.id.slice(0, 4)}`;
 
-      io.emit("room:created", { id: roomId, name, userCount: 0 });
-    });
+        const user: RoomUser = {
+          id: socket.id,
+          name: userName,
+          color: COLORS[active.users.size % COLORS.length],
+        };
 
-    // 방 입장
-    socket.on("room:join", ({ roomId }, callback) => {
-      const room = rooms.get(roomId);
+        active.users.set(socket.id, user);
 
-      if (!room) {
-        return callback({ error: "Room not found" });
+        socket.join(roomId);
+        currentRoomId = roomId;
+
+        callback({
+          user,
+          workspaceId: active.workspaceId,
+          state: {
+            url: active.url,
+            viewports: active.viewports,
+            users: Array.from(active.users.values()),
+          },
+        });
+
+        socket.to(roomId).emit("user:joined", user);
+      } catch {
+        callback({ error: "Failed to join room" });
       }
-
-      const user: RoomUser = {
-        id: socket.id,
-        name: generateUserName(),
-        color: COLORS[room.users.size % COLORS.length],
-      };
-
-      room.users.set(socket.id, user);
-
-      socket.join(roomId);
-
-      currentRoomId = roomId;
-
-      callback({
-        user,
-        state: {
-          url: room.url,
-          viewports: room.viewports,
-          users: Array.from(room.users.values()),
-        },
-      });
-
-      socket.to(roomId).emit("user:joined", user);
-
-      io.emit("room:updated", {
-        id: roomId,
-        name: room.name,
-        userCount: room.users.size,
-      });
     });
 
     // URL 변경
@@ -118,10 +100,11 @@ export function setupSocketHandlers(io: TypedServer) {
         return;
       }
 
-      const room = rooms.get(currentRoomId);
+      const active = activeRooms.get(currentRoomId);
 
-      if (room) {
-        room.url = url;
+      if (active) {
+        active.url = url;
+        saveRoomUrl(currentRoomId, url);
       }
 
       socket.to(currentRoomId).emit("url:changed", { url });
@@ -133,13 +116,14 @@ export function setupSocketHandlers(io: TypedServer) {
         return;
       }
 
-      const room = rooms.get(currentRoomId);
+      const active = activeRooms.get(currentRoomId);
 
-      if (!room) {
+      if (!active) {
         return;
       }
 
-      room.viewports.push(viewport);
+      active.viewports.push(viewport);
+      saveRoomViewports(currentRoomId, active.viewports);
 
       socket.to(currentRoomId).emit("viewport:added", { viewport });
 
@@ -154,13 +138,13 @@ export function setupSocketHandlers(io: TypedServer) {
         return;
       }
 
-      const room = rooms.get(currentRoomId);
-
-      const vp = room?.viewports.find((v) => v.id === id);
+      const active = activeRooms.get(currentRoomId);
+      const vp = active?.viewports.find((v) => v.id === id);
 
       if (vp) {
         vp.x = x;
         vp.y = y;
+        saveRoomViewports(currentRoomId, active!.viewports);
       }
 
       socket.to(currentRoomId).emit("viewport:moved", { id, x, y });
@@ -172,13 +156,13 @@ export function setupSocketHandlers(io: TypedServer) {
         return;
       }
 
-      const room = rooms.get(currentRoomId);
-
-      const vp = room?.viewports.find((v) => v.id === id);
+      const active = activeRooms.get(currentRoomId);
+      const vp = active?.viewports.find((v) => v.id === id);
 
       if (vp) {
         vp.width = width;
         vp.height = height;
+        saveRoomViewports(currentRoomId, active!.viewports);
       }
 
       socket.to(currentRoomId).emit("viewport:resized", { id, width, height });
@@ -190,10 +174,10 @@ export function setupSocketHandlers(io: TypedServer) {
         return;
       }
 
-      const room = rooms.get(currentRoomId);
-
-      if (room) {
-        room.viewports = room.viewports.filter((v) => v.id !== id);
+      const active = activeRooms.get(currentRoomId);
+      if (active) {
+        active.viewports = active.viewports.filter((v) => v.id !== id);
+        saveRoomViewports(currentRoomId, active.viewports);
       }
 
       socket.to(currentRoomId).emit("viewport:removed", { id });
@@ -205,12 +189,12 @@ export function setupSocketHandlers(io: TypedServer) {
         return;
       }
 
-      const room = rooms.get(currentRoomId);
-
-      const vp = room?.viewports.find((v) => v.id === id);
+      const active = activeRooms.get(currentRoomId);
+      const vp = active?.viewports.find((v) => v.id === id);
 
       if (vp) {
         vp.zIndex = zIndex;
+        saveRoomViewports(currentRoomId, active!.viewports);
       }
 
       socket.to(currentRoomId).emit("viewport:zindexed", { id, zIndex });
@@ -222,11 +206,11 @@ export function setupSocketHandlers(io: TypedServer) {
         return;
       }
 
-      const room = rooms.get(currentRoomId);
-      const user = room?.users.get(socket.id);
+      const active = activeRooms.get(currentRoomId);
+      const user = active?.users.get(socket.id);
 
       if (user) {
-        room?.users.set(socket.id, { ...user, cursor: { x, y } });
+        active?.users.set(socket.id, { ...user, cursor: { x, y } });
       }
 
       socket.to(currentRoomId).emit("cursor:moved", {
@@ -242,34 +226,19 @@ export function setupSocketHandlers(io: TypedServer) {
         return;
       }
 
-      const room = rooms.get(currentRoomId);
+      const active = activeRooms.get(currentRoomId);
 
-      if (!room) {
+      if (!active) {
         return;
       }
 
-      room.users.delete(socket.id);
+      active.users.delete(socket.id);
 
       socket.to(currentRoomId).emit("user:left", { userId: socket.id });
 
-      if (room.users.size === 0) {
-        const roomIdToDelete = currentRoomId;
-
-        // 임시 5초 후 방 삭제 (클라이언트가 빠르게 재접속하는 경우를 위해)
-        setTimeout(() => {
-          const room = rooms.get(roomIdToDelete);
-
-          if (room && room.users.size === 0) {
-            rooms.delete(roomIdToDelete);
-            io.emit("room:deleted", { roomId: roomIdToDelete });
-          }
-        }, 5000);
-      } else {
-        io.emit("room:updated", {
-          id: currentRoomId,
-          name: room.name,
-          userCount: room.users.size,
-        });
+      // 마지막 유저가 떠나면 인메모리 활성 상태만 정리 (DB 룸은 유지)
+      if (active.users.size === 0) {
+        activeRooms.delete(currentRoomId);
       }
     });
   });

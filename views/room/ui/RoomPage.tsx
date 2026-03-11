@@ -11,6 +11,7 @@ export function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
   const { url } = useUrlStore();
   const isConnected = useRoomStore((state) => state.isConnected);
+  const error = useRoomStore((state) => state.error);
 
   useEffect(() => {
     useRoomStore.getState().joinRoom(roomId);
@@ -19,6 +20,20 @@ export function RoomPage() {
       useRoomStore.getState().leaveRoom();
     };
   }, [roomId]);
+
+  if (error) {
+    return (
+      <main className="page-height flex flex-col items-center justify-center gap-3">
+        <p className="text-sm text-red-400">{error}</p>
+        <button
+          onClick={() => window.history.back()}
+          className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+        >
+          ← 돌아가기
+        </button>
+      </main>
+    );
+  }
 
   if (!isConnected) {
     return (
