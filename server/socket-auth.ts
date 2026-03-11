@@ -13,8 +13,9 @@ export function setupSocketAuth(io: SocketIOServer) {
   const secret = process.env.NEXTAUTH_SECRET;
 
   if (!secret) {
-    console.warn("[socket-auth] NEXTAUTH_SECRET not set, socket auth disabled");
-    return;
+    throw new Error(
+      "[socket-auth] NEXTAUTH_SECRET is not set. Socket authentication cannot be initialized.",
+    );
   }
 
   io.use(async (socket, next) => {
