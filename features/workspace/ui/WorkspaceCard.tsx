@@ -5,10 +5,17 @@ import { useInviteLink } from "@shared/hooks/useInviteLink";
 
 interface WorkspaceCardProps {
   workspace: WorkspaceResponse;
+  currentUserId?: string;
   onClick: () => void;
+  onDelete?: (workspaceId: string) => void;
 }
 
-export function WorkspaceCard({ workspace, onClick }: WorkspaceCardProps) {
+export function WorkspaceCard({
+  workspace,
+  currentUserId,
+  onClick,
+  onDelete,
+}: WorkspaceCardProps) {
   const { copied, copyInviteLink } = useInviteLink(workspace.id);
 
   const handleInvite = (e: React.MouseEvent) => {
@@ -25,12 +32,25 @@ export function WorkspaceCard({ workspace, onClick }: WorkspaceCardProps) {
         <h3 className="font-medium text-sm text-text-primary">
           {workspace.name}
         </h3>
-        <button
-          onClick={handleInvite}
-          className="text-xs text-text-muted hover:text-accent transition-colors px-2 py-1 rounded"
-        >
-          {copied ? "복사됨!" : "초대 링크"}
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleInvite}
+            className="text-xs text-text-muted hover:text-accent transition-colors px-2 py-1 rounded"
+          >
+            {copied ? "복사됨!" : "초대 링크"}
+          </button>
+          {onDelete && currentUserId === workspace.ownerId && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(workspace.id);
+              }}
+              className="text-xs text-text-muted hover:text-gd-rose transition-colors px-2 py-1 rounded"
+            >
+              삭제
+            </button>
+          )}
+        </div>
       </div>
       <div className="flex gap-4 text-xs text-text-secondary">
         <span>{workspace._count?.members ?? 0}명 멤버</span>

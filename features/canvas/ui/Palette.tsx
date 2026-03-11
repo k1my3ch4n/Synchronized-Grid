@@ -12,9 +12,15 @@ export function Palette() {
       <h2 className="text-label font-medium text-text-muted uppercase tracking-[3px] pb-3 border-b border-glass-border mb-1">
         Viewports
       </h2>
-      {presets.map((viewport) => (
-        <PaletteItem key={viewport.id} viewport={viewport} />
-      ))}
+      {presets.length === 0 ? (
+        <p className="text-xs text-text-muted text-center py-4">
+          아래에서 뷰포트를 추가하세요
+        </p>
+      ) : (
+        presets.map((viewport) => (
+          <PaletteItem key={viewport.id} viewport={viewport} />
+        ))
+      )}
       <PaletteAddForm />
     </div>
   );
