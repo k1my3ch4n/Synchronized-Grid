@@ -5,9 +5,4 @@ export type {
   ServerToClientEvents,
   RoomJoinResult,
 } from "./socket";
-export type {
-  WorkspaceResponse,
-  WorkspaceMemberResponse,
-  WorkspaceDetailResponse,
-  RoomResponse,
-} from "./workspace";
+export type { WorkspaceResponse } from "./workspace";

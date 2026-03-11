@@ -3,17 +3,8 @@
 import { useState } from "react";
 
 interface CreateWorkspaceModalProps {
-  onSubmit: (data: { name: string; slug: string }) => Promise<void>;
+  onSubmit: (data: { name: string }) => Promise<void>;
   onClose: () => void;
-}
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9가-힣\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
 }
 
 export function CreateWorkspaceModal({
@@ -21,21 +12,11 @@ export function CreateWorkspaceModal({
   onClose,
 }: CreateWorkspaceModalProps) {
   const [name, setName] = useState("");
-  const [slug, setSlug] = useState("");
-  const [slugEdited, setSlugEdited] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleNameChange = (value: string) => {
-    setName(value);
-
-    if (!slugEdited) {
-      setSlug(slugify(value));
-    }
-  };
-
   const handleSubmit = async () => {
-    if (!name.trim() || !slug.trim()) {
+    if (!name.trim()) {
       return;
     }
 
@@ -43,7 +24,7 @@ export function CreateWorkspaceModal({
     setError("");
 
     try {
-      await onSubmit({ name: name.trim(), slug });
+      await onSubmit({ name: name.trim() });
     } catch (err) {
       setError(err instanceof Error ? err.message : "생성에 실패했습니다");
     } finally {
@@ -67,26 +48,11 @@ export function CreateWorkspaceModal({
             <input
               type="text"
               value={name}
-              onChange={(e) => handleNameChange(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
               placeholder="내 워크스페이스"
               maxLength={50}
               className="glass-input w-full px-4 py-3 text-sm rounded-glass"
               autoFocus
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-text-secondary mb-1.5">
-              슬러그 (URL 식별자)
-            </label>
-            <input
-              type="text"
-              value={slug}
-              onChange={(e) => {
-                setSlug(e.target.value);
-                setSlugEdited(true);
-              }}
-              placeholder="my-workspace"
-              className="glass-input w-full px-4 py-3 text-sm rounded-glass"
             />
           </div>
           {error && <p className="text-xs text-red-400">{error}</p>}
@@ -99,7 +65,7 @@ export function CreateWorkspaceModal({
             </button>
             <button
               onClick={handleSubmit}
-              disabled={loading || !name.trim() || !slug.trim()}
+              disabled={loading || !name.trim()}
               className="glass-btn flex-1 px-4 py-3 text-sm disabled:opacity-50"
             >
               {loading ? "생성 중..." : "생성"}

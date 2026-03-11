@@ -9,12 +9,24 @@ export async function GET() {
     const workspaces = await prisma.workspace.findMany({
       where: { members: { some: { userId: user.id } } },
       include: {
-        _count: { select: { rooms: true, members: true } },
+        rooms: { take: 1, orderBy: { createdAt: "asc" } },
+        _count: { select: { members: true } },
       },
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(workspaces);
+    const result = workspaces.map((ws) => ({
+      id: ws.id,
+      name: ws.name,
+      slug: ws.slug,
+      ownerId: ws.ownerId,
+      createdAt: ws.createdAt,
+      updatedAt: ws.updatedAt,
+      defaultRoomId: ws.rooms[0]?.id ?? null,
+      _count: { members: ws._count.members },
+    }));
+
+    return NextResponse.json(result);
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -25,7 +37,7 @@ export async function POST(request: NextRequest) {
     const user = await requireAuth();
     const body = await request.json();
 
-    const { name, slug } = body;
+    const { name } = body;
 
     if (!name || typeof name !== "string" || name.trim().length === 0) {
       return NextResponse.json(
@@ -41,20 +53,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!slug || typeof slug !== "string" || !/^[a-z0-9-]+$/.test(slug)) {
-      return NextResponse.json(
-        { error: "슬러그는 영문 소문자, 숫자, 하이픈만 사용 가능합니다" },
-        { status: 400 },
-      );
-    }
-
-    const existing = await prisma.workspace.findUnique({ where: { slug } });
-    if (existing) {
-      return NextResponse.json(
-        { error: "이미 사용 중인 슬러그입니다" },
-        { status: 409 },
-      );
-    }
+    // 랜덤 슬러그 자동 생성
+    const slug = `ws-${crypto.randomUUID().slice(0, 8)}`;
 
     const workspace = await prisma.workspace.create({
       data: {
@@ -64,13 +64,32 @@ export async function POST(request: NextRequest) {
         members: {
           create: { userId: user.id!, role: "OWNER" },
         },
+        rooms: {
+          create: {
+            name: "기본 룸",
+            createdById: user.id!,
+          },
+        },
       },
       include: {
-        _count: { select: { rooms: true, members: true } },
+        rooms: { take: 1, orderBy: { createdAt: "asc" } },
+        _count: { select: { members: true } },
       },
     });
 
-    return NextResponse.json(workspace, { status: 201 });
+    return NextResponse.json(
+      {
+        id: workspace.id,
+        name: workspace.name,
+        slug: workspace.slug,
+        ownerId: workspace.ownerId,
+        createdAt: workspace.createdAt,
+        updatedAt: workspace.updatedAt,
+        defaultRoomId: workspace.rooms[0]?.id ?? null,
+        _count: { members: workspace._count.members },
+      },
+      { status: 201 },
+    );
   } catch (error) {
     if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

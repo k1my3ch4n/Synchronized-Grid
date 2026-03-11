@@ -17,10 +17,8 @@ export function WorkspaceCard({ workspace, onClick }: WorkspaceCardProps) {
         <h3 className="font-medium text-sm text-text-primary">
           {workspace.name}
         </h3>
-        <span className="text-xs text-text-muted">/{workspace.slug}</span>
       </div>
       <div className="flex gap-4 text-xs text-text-secondary">
-        <span>{workspace._count?.rooms ?? 0}개 룸</span>
         <span>{workspace._count?.members ?? 0}명 멤버</span>
       </div>
     </li>

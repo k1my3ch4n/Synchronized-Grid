@@ -28,7 +28,7 @@ export function WorkspaceListPage() {
     loadWorkspaces();
   }, [loadWorkspaces]);
 
-  const handleCreate = async (data: { name: string; slug: string }) => {
+  const handleCreate = async (data: { name: string }) => {
     await createWorkspace(data);
     setShowCreate(false);
     await loadWorkspaces();
@@ -69,7 +69,11 @@ export function WorkspaceListPage() {
                   <WorkspaceCard
                     key={ws.id}
                     workspace={ws}
-                    onClick={() => router.push(`/workspaces/${ws.id}`)}
+                    onClick={() => {
+                      if (ws.defaultRoomId) {
+                        router.push(`/room/${ws.defaultRoomId}`);
+                      }
+                    }}
                   />
                 ))}
               </ul>
