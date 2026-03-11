@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import type { CanvasViewport } from "@shared/types";
 
@@ -52,7 +53,7 @@ export function saveRoomViewports(roomId: string, viewports: CanvasViewport[]) {
     prisma.room
       .update({
         where: { id: roomId },
-        data: { viewports: JSON.parse(JSON.stringify(viewports)) },
+        data: { viewports: viewports as unknown as Prisma.InputJsonValue },
       })
       .then(() => {}),
   );

@@ -53,8 +53,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 랜덤 슬러그 자동 생성
-    const slug = `ws-${crypto.randomUUID().slice(0, 8)}`;
+    // 랜덤 슬러그 자동 생성 (충돌 시 재시도)
+    let slug = "";
+    for (let i = 0; i < 5; i++) {
+      const candidate = `ws-${crypto.randomUUID().slice(0, 8)}`;
+      const existing = await prisma.workspace.findUnique({
+        where: { slug: candidate },
+        select: { id: true },
+      });
+      if (!existing) {
+        slug = candidate;
+        break;
+      }
+    }
+
+    if (!slug) {
+      return NextResponse.json(
+        { error: "슬러그 생성에 실패했습니다. 다시 시도해주세요." },
+        { status: 500 },
+      );
+    }
 
     const workspace = await prisma.workspace.create({
       data: {
