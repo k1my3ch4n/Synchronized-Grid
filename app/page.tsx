@@ -1,5 +1,5 @@
-import { LobbyPage } from "@views/lobby";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <LobbyPage />;
+  redirect("/workspaces");
 }
