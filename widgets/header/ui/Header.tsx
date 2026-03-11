@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSyncedUrl } from "@features/room/hooks/useSyncedUrl";
 import { UserPresence } from "@features/room/ui/UserPresence";
+import { InviteButton } from "@features/room/ui/InviteButton";
 import { UserMenu } from "@features/auth";
 import { EditableUrl } from "./EditableUrl";
 
@@ -36,6 +37,7 @@ export function Header({ title }: HeaderProps) {
       )}
 
       <div className="ml-auto flex items-center gap-3">
+        <InviteButton />
         <UserPresence />
         <UserMenu />
       </div>

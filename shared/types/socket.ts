@@ -45,6 +45,7 @@ export type RoomJoinResult =
   | { error: string }
   | {
       user: RoomUser;
+      workspaceId: string;
       state: {
         url: string;
         viewports: CanvasViewport[];

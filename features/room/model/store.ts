@@ -6,6 +6,7 @@ import { useUrlStore } from "@features/url-input/model/store";
 
 interface RoomStoreState {
   roomId: string | null;
+  workspaceId: string | null;
   isConnected: boolean;
   currentUser: RoomUser | null;
   users: RoomUser[];
@@ -24,6 +25,7 @@ interface RoomStoreState {
 
 export const useRoomStore = create<RoomStoreState>((set, get) => ({
   roomId: null,
+  workspaceId: null,
   isConnected: false,
   currentUser: null,
   users: [],
@@ -41,6 +43,7 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
 
       set({
         roomId,
+        workspaceId: result.workspaceId,
         isConnected: true,
         currentUser: result.user,
         users: result.state.users,
@@ -62,6 +65,7 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
     disconnectSocket();
     set({
       roomId: null,
+      workspaceId: null,
       isConnected: false,
       currentUser: null,
       users: [],

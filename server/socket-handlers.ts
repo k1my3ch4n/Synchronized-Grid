@@ -15,6 +15,7 @@ type TypedServer = Server<ClientToServerEvents, ServerToClientEvents>;
 type TypedSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
 
 interface ActiveRoomState {
+  workspaceId: string;
   url: string;
   viewports: CanvasViewport[];
   users: Map<string, RoomUser>;
@@ -52,6 +53,7 @@ export function setupSocketHandlers(io: TypedServer) {
           }
 
           active = {
+            workspaceId: dbRoom.workspaceId,
             url: dbRoom.url,
             viewports: dbRoom.viewports,
             users: new Map(),
@@ -78,6 +80,7 @@ export function setupSocketHandlers(io: TypedServer) {
 
         callback({
           user,
+          workspaceId: active.workspaceId,
           state: {
             url: active.url,
             viewports: active.viewports,
