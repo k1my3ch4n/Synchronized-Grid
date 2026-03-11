@@ -9,6 +9,7 @@ interface RoomStoreState {
   isConnected: boolean;
   currentUser: RoomUser | null;
   users: RoomUser[];
+  error: string | null;
 
   joinRoom: (roomId: string) => void;
   leaveRoom: () => void;
@@ -26,12 +27,15 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
   isConnected: false,
   currentUser: null,
   users: [],
+  error: null,
 
   joinRoom: (roomId) => {
+    set({ error: null });
     const socket = connectSocket();
 
     socket.emit("room:join", { roomId }, (result: RoomJoinResult) => {
       if ("error" in result) {
+        set({ error: result.error });
         return;
       }
 
@@ -56,7 +60,13 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
 
   leaveRoom: () => {
     disconnectSocket();
-    set({ roomId: null, isConnected: false, currentUser: null, users: [] });
+    set({
+      roomId: null,
+      isConnected: false,
+      currentUser: null,
+      users: [],
+      error: null,
+    });
   },
 
   syncAddViewport: (viewport) => {

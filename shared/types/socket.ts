@@ -1,13 +1,8 @@
 import { CanvasViewport } from "./canvas";
-import { RoomUser, RoomInfo } from "./room";
+import { RoomUser } from "./room";
 
 // 클라이언트 → 서버
 export interface ClientToServerEvents {
-  "room:list": (callback: (rooms: RoomInfo[]) => void) => void;
-  "room:create": (
-    data: { name: string },
-    callback: (result: { roomId: string }) => void,
-  ) => void;
   "room:join": (
     data: { roomId: string },
     callback: (result: RoomJoinResult) => void,
@@ -30,9 +25,6 @@ export interface ClientToServerEvents {
 
 // 서버 → 클라이언트
 export interface ServerToClientEvents {
-  "room:created": (data: Omit<RoomInfo, "createdAt">) => void;
-  "room:updated": (data: Omit<RoomInfo, "createdAt">) => void;
-  "room:deleted": (data: { roomId: string }) => void;
   "user:joined": (user: RoomUser) => void;
   "user:left": (data: { userId: string }) => void;
   "viewport:added": (data: { viewport: CanvasViewport }) => void;
