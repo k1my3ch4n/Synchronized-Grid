@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import type { WorkspaceResponse } from "@shared/types";
+import { useInviteLink } from "@shared/hooks/useInviteLink";
 
 interface WorkspaceCardProps {
   workspace: WorkspaceResponse;
@@ -9,26 +9,11 @@ interface WorkspaceCardProps {
 }
 
 export function WorkspaceCard({ workspace, onClick }: WorkspaceCardProps) {
-  const [copied, setCopied] = useState(false);
+  const { copied, copyInviteLink } = useInviteLink(workspace.id);
 
-  const handleInvite = async (e: React.MouseEvent) => {
+  const handleInvite = (e: React.MouseEvent) => {
     e.stopPropagation();
-
-    try {
-      const res = await fetch(`/api/workspaces/${workspace.id}/invite`, {
-        method: "POST",
-      });
-      const data = await res.json();
-
-      if (data.token) {
-        const url = `${window.location.origin}/invite/${data.token}`;
-        await navigator.clipboard.writeText(url);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      }
-    } catch {
-      // 복사 실패 시 무시
-    }
+    copyInviteLink();
   };
 
   return (
