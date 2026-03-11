@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useEditableValue } from "@shared/hooks/useEditableValue";
 
 interface EditableUrlProps {
   url: string;
@@ -8,46 +9,26 @@ interface EditableUrlProps {
 }
 
 export function EditableUrl({ url, onUrlChange }: EditableUrlProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [inputUrl, setInputUrl] = useState(url);
-
-  const handleEdit = () => {
-    setInputUrl(url);
-    setIsEditing(true);
-  };
-
-  const handleSubmit = () => {
-    const trimmedUrl = inputUrl.trim();
-
-    if (trimmedUrl) {
-      onUrlChange(trimmedUrl);
-    }
-
-    setIsEditing(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSubmit();
-    }
-
-    if (e.key === "Escape") {
-      setInputUrl(url);
-      setIsEditing(false);
-    }
-  };
+  const {
+    isEditing,
+    inputValue,
+    setInputValue,
+    startEditing,
+    submit,
+    handleKeyDown,
+  } = useEditableValue(url, onUrlChange);
 
   useEffect(() => {
-    setInputUrl(url);
-  }, [url]);
+    setInputValue(url);
+  }, [url, setInputValue]);
 
   if (isEditing) {
     return (
       <input
         type="url"
-        value={inputUrl}
-        onChange={(e) => setInputUrl(e.target.value)}
-        onBlur={handleSubmit}
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        onBlur={submit}
         onKeyDown={handleKeyDown}
         autoFocus
         className="bg-transparent px-1 py-0.5 w-full focus:outline-none text-sm text-text-secondary font-mono"
@@ -57,7 +38,7 @@ export function EditableUrl({ url, onUrlChange }: EditableUrlProps) {
 
   return (
     <button
-      onClick={handleEdit}
+      onClick={startEditing}
       className="text-sm truncate w-full flex items-center gap-2 text-text-secondary font-mono group"
     >
       <span className="truncate">{url}</span>
