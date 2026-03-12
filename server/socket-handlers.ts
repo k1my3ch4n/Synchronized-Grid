@@ -9,6 +9,7 @@ import {
   loadRoomFromDB,
   saveRoomUrl,
   saveRoomViewports,
+  flushPendingSave,
 } from "./room-persistence";
 
 type TypedServer = Server<ClientToServerEvents, ServerToClientEvents>;
@@ -221,7 +222,7 @@ export function setupSocketHandlers(io: TypedServer) {
     });
 
     // 연결 해제
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
       if (!currentRoomId) {
         return;
       }
@@ -236,8 +237,9 @@ export function setupSocketHandlers(io: TypedServer) {
 
       socket.to(currentRoomId).emit("user:left", { userId: socket.id });
 
-      // 마지막 유저가 떠나면 인메모리 활성 상태만 정리 (DB 룸은 유지)
+      // 마지막 유저가 떠나면 대기 중인 저장을 flush 후 인메모리 상태 정리
       if (active.users.size === 0) {
+        await flushPendingSave(currentRoomId);
         activeRooms.delete(currentRoomId);
       }
     });

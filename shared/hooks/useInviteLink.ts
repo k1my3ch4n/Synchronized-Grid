@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function useInviteLink(workspaceId: string) {
   const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const copyInviteLink = async () => {
+    setLoading(true);
     try {
       const res = await fetch(`/api/workspaces/${workspaceId}/invite`, {
         method: "POST",
@@ -18,11 +21,14 @@ export function useInviteLink(workspaceId: string) {
         await navigator.clipboard.writeText(url);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+        toast.success("초대 링크가 복사되었습니다");
       }
     } catch {
-      // 복사 실패 시 무시
+      toast.error("초대 링크 복사에 실패했습니다");
+    } finally {
+      setLoading(false);
     }
   };
 
-  return { copied, copyInviteLink };
+  return { copied, loading, copyInviteLink };
 }

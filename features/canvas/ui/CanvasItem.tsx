@@ -5,6 +5,7 @@ import { useSyncedCanvas } from "@features/room/hooks/useSyncedCanvas";
 import { useUrlStore } from "@features/url-input";
 import { useResize } from "../hooks/useResize";
 import { CanvasItemHeader } from "./CanvasItemHeader";
+import { toast } from "sonner";
 
 import { CANVAS_SCALE } from "@shared/constants";
 import { ResizeHandle } from "@shared/ui/ResizeHandle";
@@ -15,7 +16,8 @@ interface CanvasItemProps {
 
 export function CanvasItem({ item }: CanvasItemProps) {
   const { url } = useUrlStore();
-  const { removeViewport, updateSize, updateZIndex } = useSyncedCanvas();
+  const { addViewport, removeViewport, updateSize, updateZIndex } =
+    useSyncedCanvas();
 
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: item.id,
@@ -40,7 +42,7 @@ export function CanvasItem({ item }: CanvasItemProps) {
         zIndex: item.zIndex,
         visibility: isDragging ? "hidden" : "visible",
       }}
-      onPointerDown={() => updateZIndex(item.id)}
+      onPointerDownCapture={() => updateZIndex(item.id)}
     >
       <CanvasItemHeader
         label={item.label}
@@ -48,7 +50,15 @@ export function CanvasItem({ item }: CanvasItemProps) {
         height={displayHeight}
         listeners={listeners ?? {}}
         attributes={attributes}
-        onRemove={() => removeViewport(item.id)}
+        onRemove={() => {
+          removeViewport(item.id);
+          toast(`"${item.label}" 뷰포트가 삭제되었습니다`, {
+            action: {
+              label: "되돌리기",
+              onClick: () => addViewport(item),
+            },
+          });
+        }}
       />
 
       <div
@@ -58,7 +68,8 @@ export function CanvasItem({ item }: CanvasItemProps) {
           height: displayHeight * CANVAS_SCALE,
         }}
       >
-        {isResizing && <div className="absolute inset-0 z-10" />}
+        <div className="absolute inset-0 z-10" />
+        {isResizing && <div className="absolute inset-0 z-20" />}
         <ViewportFrame
           url={url}
           width={displayWidth}
