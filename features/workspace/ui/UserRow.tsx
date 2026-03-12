@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { WorkspaceRole, WorkspaceUser } from "@shared/types";
 import { toast } from "sonner";
 import {
@@ -9,6 +10,7 @@ import {
   WORKSPACE_ROLES,
 } from "@shared/constants";
 import { getSocket } from "@shared/lib/socket";
+import { useWorkspaceStore } from "../model/store";
 
 interface UserRowProps {
   user: WorkspaceUser;
@@ -23,10 +25,13 @@ export function UserRow({
   isOwner,
   workspaceId,
 }: UserRowProps) {
+  const router = useRouter();
+  const { leaveWorkspace } = useWorkspaceStore();
   const [loading, setLoading] = useState(false);
 
   const canManage =
     isOwner && !isCurrentUser && user.role !== WORKSPACE_ROLES.OWNER;
+  const canLeave = isCurrentUser && user.role !== WORKSPACE_ROLES.OWNER;
 
   const handleRoleChange = async (newRole: WorkspaceRole) => {
     if (!workspaceId || loading) {
@@ -69,6 +74,34 @@ export function UserRow({
       } else {
         const data = await res.json();
         toast.error(data.error || "역할 변경 실패");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLeave = async () => {
+    if (!workspaceId || loading) {
+      return;
+    }
+
+    if (!confirm("이 워크스페이스를 나가시겠습니까?")) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/workspaces/${workspaceId}/leave`, {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        leaveWorkspace();
+        router.push("/workspaces");
+        toast.success("워크스페이스를 나갔습니다");
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "나가기 실패");
       }
     } finally {
       setLoading(false);
@@ -141,6 +174,16 @@ export function UserRow({
           <span className="text-[10px] text-text-muted">
             {ROLE_LABELS[user.role]}
           </span>
+        )}
+        {canLeave && (
+          <button
+            onClick={handleLeave}
+            disabled={loading}
+            className="text-[10px] text-red-400 hover:text-red-300 disabled:opacity-50 ml-1"
+            title="나가기"
+          >
+            나가기
+          </button>
         )}
       </div>
     </div>
