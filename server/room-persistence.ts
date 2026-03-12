@@ -2,28 +2,29 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import type { CanvasViewport } from "@shared/types";
 
-const saveTimers = new Map<string, NodeJS.Timeout>();
+const pendingSaves = new Map<
+  string,
+  { timer: NodeJS.Timeout; saveFn: () => Promise<void> }
+>();
 
-function debouncedSave(
-  roomId: string,
-  saveFn: () => Promise<void>,
-  delay = 500,
-) {
-  const existing = saveTimers.get(roomId);
-  if (existing) clearTimeout(existing);
+function debouncedSave(key: string, saveFn: () => Promise<void>, delay = 500) {
+  const existing = pendingSaves.get(key);
 
-  saveTimers.set(
-    roomId,
-    setTimeout(async () => {
-      saveTimers.delete(roomId);
+  if (existing) {
+    clearTimeout(existing.timer);
+  }
 
-      try {
-        await saveFn();
-      } catch (err) {
-        console.error(`[room-persistence] Save failed for ${roomId}:`, err);
-      }
-    }, delay),
-  );
+  const timer = setTimeout(async () => {
+    pendingSaves.delete(key);
+
+    try {
+      await saveFn();
+    } catch (err) {
+      console.error(`[room-persistence] Save failed for ${key}:`, err);
+    }
+  }, delay);
+
+  pendingSaves.set(key, { timer, saveFn });
 }
 
 export async function loadRoomFromDB(roomId: string) {
@@ -43,13 +44,13 @@ export async function loadRoomFromDB(roomId: string) {
 }
 
 export function saveRoomUrl(roomId: string, url: string) {
-  debouncedSave(roomId, () =>
+  debouncedSave(`${roomId}:url`, () =>
     prisma.room.update({ where: { id: roomId }, data: { url } }).then(() => {}),
   );
 }
 
 export function saveRoomViewports(roomId: string, viewports: CanvasViewport[]) {
-  debouncedSave(roomId, () =>
+  debouncedSave(`${roomId}:viewports`, () =>
     prisma.room
       .update({
         where: { id: roomId },
@@ -59,11 +60,26 @@ export function saveRoomViewports(roomId: string, viewports: CanvasViewport[]) {
   );
 }
 
-export function cleanupTimers(roomId: string) {
-  const timer = saveTimers.get(roomId);
+export async function flushPendingSave(roomId: string) {
+  const keys = [`${roomId}:url`, `${roomId}:viewports`];
+  const flushPromises: Promise<void>[] = [];
 
-  if (timer) {
-    clearTimeout(timer);
-    saveTimers.delete(roomId);
+  for (const key of keys) {
+    const entry = pendingSaves.get(key);
+
+    if (entry) {
+      clearTimeout(entry.timer);
+      pendingSaves.delete(key);
+      flushPromises.push(
+        entry.saveFn().catch((err) => {
+          console.error(
+            `[room-persistence] Flush save failed for ${key}:`,
+            err,
+          );
+        }),
+      );
+    }
   }
+
+  await Promise.all(flushPromises);
 }
