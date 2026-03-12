@@ -1,5 +1,5 @@
 import { CanvasViewport } from "./canvas";
-import { WorkspaceUser } from "./room";
+import { WorkspaceUser } from "./workspace";
 
 // 클라이언트 → 서버
 export interface ClientToServerEvents {
