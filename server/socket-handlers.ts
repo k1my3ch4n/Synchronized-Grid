@@ -271,6 +271,59 @@ export function setupSocketHandlers(io: TypedServer) {
       }
     });
 
+    // 멤버 역할 변경
+    socket.on("member:role-change", async ({ userId, newRole }) => {
+      if (!currentWorkspaceId) {
+        return;
+      }
+
+      const active = activeWorkspaces.get(currentWorkspaceId);
+      const requester = active?.users.get(socket.id);
+
+      if (!requester || requester.role !== WORKSPACE_ROLES.OWNER) {
+        return;
+      }
+
+      // active.users에서 대상 유저 찾기 (userId 기준)
+      const targetEntry = [...active!.users.entries()].find(
+        ([, u]) => u.userId === userId,
+      );
+
+      if (!targetEntry) {
+        return;
+      }
+
+      const [targetSocketId, targetUser] = targetEntry;
+
+      if (newRole === WORKSPACE_ROLES.OWNER) {
+        // 소유권 이전: 대상 → OWNER, 요청자 → EDITOR
+        active!.users.set(targetSocketId, {
+          ...targetUser,
+          role: WORKSPACE_ROLES.OWNER,
+        });
+        active!.users.set(socket.id, {
+          ...requester,
+          role: WORKSPACE_ROLES.EDITOR,
+        });
+
+        io.to(currentWorkspaceId).emit("member:role-changed", {
+          userId,
+          newRole: WORKSPACE_ROLES.OWNER,
+        });
+        io.to(currentWorkspaceId).emit("member:role-changed", {
+          userId: requester.userId,
+          newRole: WORKSPACE_ROLES.EDITOR,
+        });
+      } else {
+        active!.users.set(targetSocketId, { ...targetUser, role: newRole });
+
+        io.to(currentWorkspaceId).emit("member:role-changed", {
+          userId,
+          newRole,
+        });
+      }
+    });
+
     // 커서 이동
     socket.on("cursor:move", ({ x, y }) => {
       if (!currentWorkspaceId) {

@@ -1,4 +1,8 @@
-import { WorkspaceUser, CanvasViewport } from "@shared/types";
+import {
+  WorkspaceUser,
+  type WorkspaceRole,
+  CanvasViewport,
+} from "@shared/types";
 import { getSocket } from "@shared/lib/socket";
 import { useCanvasStore } from "@features/canvas/model/store";
 import { useUrlStore } from "@features/url-input/model/store";
@@ -15,6 +19,7 @@ const SOCKET_EVENTS = [
   "url:changed",
   "cursor:moved",
   "workspace:renamed",
+  "member:role-changed",
 ] as const;
 
 export function setupSocketListeners(
@@ -84,6 +89,22 @@ export function setupSocketListeners(
   socket.on("workspace:renamed", ({ name }: { name: string }) => {
     set(() => ({ workspaceName: name }));
   });
+
+  // 멤버 역할 변경
+  socket.on(
+    "member:role-changed",
+    ({ userId, newRole }: { userId: string; newRole: WorkspaceRole }) => {
+      set((state: WorkspaceStoreState) => ({
+        users: state.users.map((u) =>
+          u.userId === userId ? { ...u, role: newRole } : u,
+        ),
+        currentUser:
+          state.currentUser?.userId === userId
+            ? { ...state.currentUser, role: newRole }
+            : state.currentUser,
+      }));
+    },
+  );
 
   // 커서 이동
   socket.on("cursor:moved", ({ userId, x, y }) => {

@@ -3,7 +3,12 @@
 import { useState } from "react";
 import type { WorkspaceRole, WorkspaceUser } from "@shared/types";
 import { toast } from "sonner";
-import { ROLE_LABELS, ASSIGNABLE_ROLES, WORKSPACE_ROLES } from "@shared/constants";
+import {
+  ROLE_LABELS,
+  ASSIGNABLE_ROLES,
+  WORKSPACE_ROLES,
+} from "@shared/constants";
+import { getSocket } from "@shared/lib/socket";
 
 interface UserRowProps {
   user: WorkspaceUser;
@@ -20,7 +25,8 @@ export function UserRow({
 }: UserRowProps) {
   const [loading, setLoading] = useState(false);
 
-  const canManage = isOwner && !isCurrentUser && user.role !== WORKSPACE_ROLES.OWNER;
+  const canManage =
+    isOwner && !isCurrentUser && user.role !== WORKSPACE_ROLES.OWNER;
 
   const handleRoleChange = async (newRole: WorkspaceRole) => {
     if (!workspaceId || loading) {
@@ -48,6 +54,11 @@ export function UserRow({
       );
 
       if (res.ok) {
+        getSocket().emit("member:role-change", {
+          userId: user.userId,
+          newRole,
+        });
+
         if (newRole === WORKSPACE_ROLES.OWNER) {
           toast.success(`${user.name}에게 소유권이 이전되었습니다`);
         } else {

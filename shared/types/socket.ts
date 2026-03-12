@@ -1,5 +1,5 @@
 import { CanvasViewport } from "./canvas";
-import { WorkspaceUser } from "./workspace";
+import { WorkspaceUser, WorkspaceRole } from "./workspace";
 
 // 클라이언트 → 서버
 export interface ClientToServerEvents {
@@ -22,6 +22,10 @@ export interface ClientToServerEvents {
   "viewport:zindex": (data: { id: string; zIndex: number }) => void;
   "cursor:move": (data: { x: number; y: number }) => void;
   "workspace:rename": (data: { name: string }) => void;
+  "member:role-change": (data: {
+    userId: string;
+    newRole: WorkspaceRole;
+  }) => void;
 }
 
 // 서버 → 클라이언트
@@ -40,6 +44,10 @@ export interface ServerToClientEvents {
   "url:changed": (data: { url: string }) => void;
   "cursor:moved": (data: { userId: string; x: number; y: number }) => void;
   "workspace:renamed": (data: { name: string }) => void;
+  "member:role-changed": (data: {
+    userId: string;
+    newRole: WorkspaceRole;
+  }) => void;
 }
 
 // workspace:join 콜백 결과 타입
