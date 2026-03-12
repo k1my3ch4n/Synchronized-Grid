@@ -7,8 +7,8 @@ interface CanvasItemHeaderProps {
   width: number;
   height: number;
   listeners: Record<string, unknown>;
-  attributes: DraggableAttributes;
-  onRemove: () => void;
+  attributes: DraggableAttributes | Record<string, never>;
+  onRemove?: () => void;
 }
 
 export function CanvasItemHeader({
@@ -33,7 +33,7 @@ export function CanvasItemHeader({
           {width}×{height}
         </span>
       </div>
-      <CloseButton onClick={onRemove} />
+      {onRemove && <CloseButton onClick={onRemove} />}
     </div>
   );
 }

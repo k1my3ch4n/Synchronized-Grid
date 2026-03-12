@@ -7,9 +7,12 @@ export function useSyncedCanvas() {
 
   const canvasStore = useCanvasStore();
   const workspaceStore = useWorkspaceStore();
+  const role = workspaceStore.currentUser?.role;
+  const canEdit = !isInWorkspace || role === "OWNER" || role === "EDITOR";
 
   if (isInWorkspace) {
     return {
+      canEdit,
       viewport: canvasStore.viewport,
       addViewport: workspaceStore.syncAddViewport,
       updatePosition: workspaceStore.syncUpdatePosition,
@@ -19,5 +22,5 @@ export function useSyncedCanvas() {
     };
   }
 
-  return canvasStore;
+  return { ...canvasStore, canEdit };
 }

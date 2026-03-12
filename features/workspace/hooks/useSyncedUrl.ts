@@ -5,14 +5,17 @@ import { useWorkspaceStore } from "../model/store";
 export function useSyncedUrl() {
   const { isInWorkspace } = useWorkspaceContext();
   const urlStore = useUrlStore();
-  const { syncChangeUrl } = useWorkspaceStore();
+  const workspaceStore = useWorkspaceStore();
+  const role = workspaceStore.currentUser?.role;
+  const canEdit = !isInWorkspace || role === "OWNER" || role === "EDITOR";
 
   if (isInWorkspace) {
     return {
+      canEdit,
       url: urlStore.url,
-      setUrl: syncChangeUrl,
+      setUrl: workspaceStore.syncChangeUrl,
     };
   }
 
-  return urlStore;
+  return { ...urlStore, canEdit };
 }

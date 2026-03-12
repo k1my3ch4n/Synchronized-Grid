@@ -3,6 +3,7 @@ import {
   ClientToServerEvents,
   ServerToClientEvents,
   WorkspaceUser,
+  WorkspaceRole,
   CanvasViewport,
 } from "@shared/types";
 import {
@@ -11,6 +12,8 @@ import {
   saveWorkspaceViewports,
   flushPendingSave,
 } from "./workspace-persistence";
+import { prisma } from "../lib/prisma";
+import type { SocketUser } from "./socket-auth";
 
 type TypedServer = Server<ClientToServerEvents, ServerToClientEvents>;
 type TypedSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
@@ -20,6 +23,8 @@ interface ActiveWorkspaceState {
   viewports: CanvasViewport[];
   users: Map<string, WorkspaceUser>;
 }
+
+const EDIT_ROLES: WorkspaceRole[] = ["OWNER", "EDITOR"];
 
 const COLORS = [
   "#FF6B6B",
@@ -59,16 +64,39 @@ export function setupSocketHandlers(io: TypedServer) {
           activeWorkspaces.set(workspaceId, active);
         }
 
-        const socketData = socket.data as {
-          user?: { name?: string; image?: string };
-        };
-        const userName =
-          socketData?.user?.name || `User-${socket.id.slice(0, 4)}`;
+        const socketUser = (socket.data as { user?: SocketUser }).user;
+        const userName = socketUser?.name || `User-${socket.id.slice(0, 4)}`;
+
+        // DB에서 멤버 역할 조회
+        let role: WorkspaceRole = "VIEWER";
+        if (socketUser?.id) {
+          const workspace = await prisma.workspace.findUnique({
+            where: { id: workspaceId },
+            select: { ownerId: true },
+          });
+
+          if (workspace?.ownerId === socketUser.id) {
+            role = "OWNER";
+          } else {
+            const member = await prisma.workspaceMember.findUnique({
+              where: {
+                workspaceId_userId: {
+                  workspaceId,
+                  userId: socketUser.id,
+                },
+              },
+            });
+            if (member) {
+              role = member.role as WorkspaceRole;
+            }
+          }
+        }
 
         const user: WorkspaceUser = {
           id: socket.id,
           name: userName,
           color: COLORS[active.users.size % COLORS.length],
+          role,
         };
 
         active.users.set(socket.id, user);
@@ -91,38 +119,50 @@ export function setupSocketHandlers(io: TypedServer) {
       }
     });
 
-    // URL 변경
-    socket.on("url:change", ({ url }) => {
+    // 현재 유저가 편집 권한이 있는지 확인
+    const canEdit = () => {
       if (!currentWorkspaceId) {
-        return;
+        return false;
       }
 
       const active = activeWorkspaces.get(currentWorkspaceId);
+      const user = active?.users.get(socket.id);
+
+      return user ? EDIT_ROLES.includes(user.role) : false;
+    };
+
+    // URL 변경
+    socket.on("url:change", ({ url }) => {
+      if (!canEdit()) {
+        return;
+      }
+
+      const active = activeWorkspaces.get(currentWorkspaceId!);
 
       if (active) {
         active.url = url;
-        saveWorkspaceUrl(currentWorkspaceId, url);
+        saveWorkspaceUrl(currentWorkspaceId!, url);
       }
 
-      socket.to(currentWorkspaceId).emit("url:changed", { url });
+      socket.to(currentWorkspaceId!).emit("url:changed", { url });
     });
 
     // 뷰포트 추가
     socket.on("viewport:add", ({ viewport }, callback) => {
-      if (!currentWorkspaceId) {
+      if (!canEdit()) {
         return;
       }
 
-      const active = activeWorkspaces.get(currentWorkspaceId);
+      const active = activeWorkspaces.get(currentWorkspaceId!);
 
       if (!active) {
         return;
       }
 
       active.viewports.push(viewport);
-      saveWorkspaceViewports(currentWorkspaceId, active.viewports);
+      saveWorkspaceViewports(currentWorkspaceId!, active.viewports);
 
-      socket.to(currentWorkspaceId).emit("viewport:added", { viewport });
+      socket.to(currentWorkspaceId!).emit("viewport:added", { viewport });
 
       if (callback) {
         callback({ success: true });
@@ -131,72 +171,72 @@ export function setupSocketHandlers(io: TypedServer) {
 
     // 뷰포트 이동
     socket.on("viewport:move", ({ id, x, y }) => {
-      if (!currentWorkspaceId) {
+      if (!canEdit()) {
         return;
       }
 
-      const active = activeWorkspaces.get(currentWorkspaceId);
+      const active = activeWorkspaces.get(currentWorkspaceId!);
       const vp = active?.viewports.find((v) => v.id === id);
 
       if (vp) {
         vp.x = x;
         vp.y = y;
-        saveWorkspaceViewports(currentWorkspaceId, active!.viewports);
+        saveWorkspaceViewports(currentWorkspaceId!, active!.viewports);
       }
 
-      socket.to(currentWorkspaceId).emit("viewport:moved", { id, x, y });
+      socket.to(currentWorkspaceId!).emit("viewport:moved", { id, x, y });
     });
 
     // 뷰포트 리사이즈
     socket.on("viewport:resize", ({ id, width, height }) => {
-      if (!currentWorkspaceId) {
+      if (!canEdit()) {
         return;
       }
 
-      const active = activeWorkspaces.get(currentWorkspaceId);
+      const active = activeWorkspaces.get(currentWorkspaceId!);
       const vp = active?.viewports.find((v) => v.id === id);
 
       if (vp) {
         vp.width = width;
         vp.height = height;
-        saveWorkspaceViewports(currentWorkspaceId, active!.viewports);
+        saveWorkspaceViewports(currentWorkspaceId!, active!.viewports);
       }
 
       socket
-        .to(currentWorkspaceId)
+        .to(currentWorkspaceId!)
         .emit("viewport:resized", { id, width, height });
     });
 
     // 뷰포트 삭제
     socket.on("viewport:remove", ({ id }) => {
-      if (!currentWorkspaceId) {
+      if (!canEdit()) {
         return;
       }
 
-      const active = activeWorkspaces.get(currentWorkspaceId);
+      const active = activeWorkspaces.get(currentWorkspaceId!);
       if (active) {
         active.viewports = active.viewports.filter((v) => v.id !== id);
-        saveWorkspaceViewports(currentWorkspaceId, active.viewports);
+        saveWorkspaceViewports(currentWorkspaceId!, active.viewports);
       }
 
-      socket.to(currentWorkspaceId).emit("viewport:removed", { id });
+      socket.to(currentWorkspaceId!).emit("viewport:removed", { id });
     });
 
     // 뷰포트 Z-index 변경
     socket.on("viewport:zindex", ({ id, zIndex }) => {
-      if (!currentWorkspaceId) {
+      if (!canEdit()) {
         return;
       }
 
-      const active = activeWorkspaces.get(currentWorkspaceId);
+      const active = activeWorkspaces.get(currentWorkspaceId!);
       const vp = active?.viewports.find((v) => v.id === id);
 
       if (vp) {
         vp.zIndex = zIndex;
-        saveWorkspaceViewports(currentWorkspaceId, active!.viewports);
+        saveWorkspaceViewports(currentWorkspaceId!, active!.viewports);
       }
 
-      socket.to(currentWorkspaceId).emit("viewport:zindexed", { id, zIndex });
+      socket.to(currentWorkspaceId!).emit("viewport:zindexed", { id, zIndex });
     });
 
     // 커서 이동

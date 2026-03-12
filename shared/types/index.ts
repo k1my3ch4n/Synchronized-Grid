@@ -1,5 +1,5 @@
 export type { Viewport, CanvasViewport } from "./canvas";
-export type { WorkspaceUser } from "./room";
+export type { WorkspaceUser, WorkspaceRole } from "./room";
 export type {
   ClientToServerEvents,
   ServerToClientEvents,
