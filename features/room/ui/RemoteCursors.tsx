@@ -13,7 +13,7 @@ export function RemoteCursors() {
       {remoteUsers.map((user) => (
         <div
           key={user.id}
-          className="absolute pointer-events-none z-[9999]"
+          className="absolute pointer-events-none z-[9999] transition-[left,top] duration-150 ease-out"
           style={{
             left: user.cursor!.x,
             top: user.cursor!.y,
