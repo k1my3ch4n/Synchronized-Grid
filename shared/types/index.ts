@@ -1,8 +1,8 @@
 export type { Viewport, CanvasViewport } from "./canvas";
-export type { RoomUser } from "./room";
+export type { WorkspaceUser } from "./room";
 export type {
   ClientToServerEvents,
   ServerToClientEvents,
-  RoomJoinResult,
+  WorkspaceJoinResult,
 } from "./socket";
 export type { WorkspaceResponse } from "./workspace";

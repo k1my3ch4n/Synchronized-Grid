@@ -1,11 +1,11 @@
 import { CanvasViewport } from "./canvas";
-import { RoomUser } from "./room";
+import { WorkspaceUser } from "./room";
 
 // 클라이언트 → 서버
 export interface ClientToServerEvents {
-  "room:join": (
-    data: { roomId: string },
-    callback: (result: RoomJoinResult) => void,
+  "workspace:join": (
+    data: { workspaceId: string },
+    callback: (result: WorkspaceJoinResult) => void,
   ) => void;
   "url:change": (data: { url: string }) => void;
   "viewport:add": (
@@ -25,7 +25,7 @@ export interface ClientToServerEvents {
 
 // 서버 → 클라이언트
 export interface ServerToClientEvents {
-  "user:joined": (user: RoomUser) => void;
+  "user:joined": (user: WorkspaceUser) => void;
   "user:left": (data: { userId: string }) => void;
   "viewport:added": (data: { viewport: CanvasViewport }) => void;
   "viewport:moved": (data: { id: string; x: number; y: number }) => void;
@@ -40,15 +40,14 @@ export interface ServerToClientEvents {
   "cursor:moved": (data: { userId: string; x: number; y: number }) => void;
 }
 
-// room:join 콜백 결과 타입
-export type RoomJoinResult =
+// workspace:join 콜백 결과 타입
+export type WorkspaceJoinResult =
   | { error: string }
   | {
-      user: RoomUser;
-      workspaceId: string;
+      user: WorkspaceUser;
       state: {
         url: string;
         viewports: CanvasViewport[];
-        users: RoomUser[];
+        users: WorkspaceUser[];
       };
     };

@@ -5,6 +5,5 @@ export interface WorkspaceResponse {
   ownerId: string;
   createdAt: string;
   updatedAt: string;
-  defaultRoomId: string | null;
   _count?: { members: number };
 }

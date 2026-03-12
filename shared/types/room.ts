@@ -1,11 +1,4 @@
-export interface RoomInfo {
-  id: string;
-  name: string;
-  userCount: number;
-  createdAt: Date;
-}
-
-export interface RoomUser {
+export interface WorkspaceUser {
   id: string;
   name: string;
   color: string;
