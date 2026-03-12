@@ -108,9 +108,7 @@ export function WorkspaceListPage() {
                     workspace={ws}
                     currentUserId={user?.id}
                     onClick={() => {
-                      if (ws.defaultRoomId) {
-                        router.push(`/room/${ws.defaultRoomId}`);
-                      }
+                      router.push(`/workspace/${ws.id}`);
                     }}
                     onDelete={(id) =>
                       setDeleteTarget(

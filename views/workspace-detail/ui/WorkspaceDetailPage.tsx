@@ -3,24 +3,24 @@
 import { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useUrlStore } from "@features/url-input";
-import { useRoomStore, RoomContext } from "@features/room";
+import { useWorkspaceStore, WorkspaceContext } from "@features/workspace";
 import { CanvasEditor } from "@widgets/canvas";
 import { UrlInput } from "@features/url-input";
 
-export function RoomPage() {
-  const { roomId } = useParams<{ roomId: string }>();
+export function WorkspaceDetailPage() {
+  const { workspaceId } = useParams<{ workspaceId: string }>();
   const { url } = useUrlStore();
-  const isConnected = useRoomStore((state) => state.isConnected);
-  const error = useRoomStore((state) => state.error);
+  const isConnected = useWorkspaceStore((state) => state.isConnected);
+  const error = useWorkspaceStore((state) => state.error);
 
   useEffect(() => {
-    useRoomStore.getState().joinRoom(roomId);
+    useWorkspaceStore.getState().joinWorkspace(workspaceId);
 
     return () => {
-      useRoomStore.getState().leaveRoom();
+      useWorkspaceStore.getState().leaveWorkspace();
       useUrlStore.getState().setUrl("");
     };
-  }, [roomId]);
+  }, [workspaceId]);
 
   if (error) {
     return (
@@ -40,13 +40,13 @@ export function RoomPage() {
     return (
       <main className="page-height flex flex-col items-center justify-center gap-3">
         <div className="loading-spinner" />
-        <p className="text-sm text-text-secondary">방에 접속 중...</p>
+        <p className="text-sm text-text-secondary">워크스페이스에 접속 중...</p>
       </main>
     );
   }
 
   return (
-    <RoomContext.Provider value={{ isInRoom: true, roomId }}>
+    <WorkspaceContext.Provider value={{ isInWorkspace: true, workspaceId }}>
       <main className="page-height">
         {!url ? (
           <div className="flex items-center justify-center page-height">
@@ -56,6 +56,6 @@ export function RoomPage() {
           <CanvasEditor />
         )}
       </main>
-    </RoomContext.Provider>
+    </WorkspaceContext.Provider>
   );
 }
