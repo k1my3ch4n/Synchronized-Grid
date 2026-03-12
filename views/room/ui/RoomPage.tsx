@@ -18,6 +18,7 @@ export function RoomPage() {
 
     return () => {
       useRoomStore.getState().leaveRoom();
+      useUrlStore.getState().setUrl("");
     };
   }, [roomId]);
 
