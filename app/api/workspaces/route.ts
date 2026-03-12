@@ -9,7 +9,6 @@ export async function GET() {
     const workspaces = await prisma.workspace.findMany({
       where: { members: { some: { userId: user.id } } },
       include: {
-        rooms: { take: 1, orderBy: { createdAt: "asc" } },
         _count: { select: { members: true } },
       },
       orderBy: { createdAt: "desc" },
@@ -22,7 +21,6 @@ export async function GET() {
       ownerId: ws.ownerId,
       createdAt: ws.createdAt,
       updatedAt: ws.updatedAt,
-      defaultRoomId: ws.rooms[0]?.id ?? null,
       _count: { members: ws._count.members },
     }));
 
@@ -61,6 +59,7 @@ export async function POST(request: NextRequest) {
         where: { slug: candidate },
         select: { id: true },
       });
+
       if (!existing) {
         slug = candidate;
         break;
@@ -82,15 +81,8 @@ export async function POST(request: NextRequest) {
         members: {
           create: { userId: user.id!, role: "OWNER" },
         },
-        rooms: {
-          create: {
-            name: "기본 룸",
-            createdById: user.id!,
-          },
-        },
       },
       include: {
-        rooms: { take: 1, orderBy: { createdAt: "asc" } },
         _count: { select: { members: true } },
       },
     });
@@ -103,7 +95,6 @@ export async function POST(request: NextRequest) {
         ownerId: workspace.ownerId,
         createdAt: workspace.createdAt,
         updatedAt: workspace.updatedAt,
-        defaultRoomId: workspace.rooms[0]?.id ?? null,
         _count: { members: workspace._count.members },
       },
       { status: 201 },

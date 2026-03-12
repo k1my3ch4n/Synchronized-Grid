@@ -31,8 +31,8 @@ export default function InvitePage() {
             return;
           }
 
-          if (data.defaultRoomId) {
-            router.replace(`/room/${data.defaultRoomId}`);
+          if (data.workspaceId) {
+            router.replace(`/workspace/${data.workspaceId}`);
           } else {
             router.replace("/workspaces");
           }

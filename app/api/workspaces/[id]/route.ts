@@ -23,7 +23,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
             user: { select: { id: true, name: true, image: true } },
           },
         },
-        _count: { select: { rooms: true } },
+        _count: { select: { members: true } },
       },
     });
 
@@ -104,7 +104,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       where: { id },
       data: updateData,
       include: {
-        _count: { select: { rooms: true, members: true } },
+        _count: { select: { members: true } },
       },
     });
 

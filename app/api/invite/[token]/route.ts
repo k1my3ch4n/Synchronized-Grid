@@ -12,13 +12,6 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
 
     const invite = await prisma.workspaceInvite.findUnique({
       where: { token },
-      include: {
-        workspace: {
-          include: {
-            rooms: { take: 1, orderBy: { createdAt: "asc" } },
-          },
-        },
-      },
     });
 
     if (!invite) {
@@ -54,13 +47,10 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    const defaultRoomId = invite.workspace.rooms[0]?.id ?? null;
-
     if (existingMember) {
       return NextResponse.json({
         alreadyMember: true,
         workspaceId: invite.workspaceId,
-        defaultRoomId,
       });
     }
 
@@ -82,7 +72,6 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({
       joined: true,
       workspaceId: invite.workspaceId,
-      defaultRoomId,
     });
   } catch (error) {
     if (error instanceof Error && error.message === "Unauthorized") {
