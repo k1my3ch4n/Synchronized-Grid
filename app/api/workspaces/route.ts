@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-helpers";
+import { WORKSPACE_NAME_MAX_LENGTH, WORKSPACE_ROLES } from "@shared/constants";
 
 export async function GET() {
   try {
@@ -44,9 +45,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (name.length > 50) {
+    if (name.length > WORKSPACE_NAME_MAX_LENGTH) {
       return NextResponse.json(
-        { error: "워크스페이스 이름은 50자 이하여야 합니다" },
+        {
+          error: `워크스페이스 이름은 ${WORKSPACE_NAME_MAX_LENGTH}자 이하여야 합니다`,
+        },
         { status: 400 },
       );
     }
@@ -79,7 +82,7 @@ export async function POST(request: NextRequest) {
         slug,
         ownerId: user.id!,
         members: {
-          create: { userId: user.id!, role: "OWNER" },
+          create: { userId: user.id!, role: WORKSPACE_ROLES.OWNER },
         },
       },
       include: {

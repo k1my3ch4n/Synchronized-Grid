@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { WORKSPACE_NAME_MAX_LENGTH } from "@shared/constants";
 
 interface CreateWorkspaceModalProps {
   onSubmit: (data: { name: string }) => Promise<void>;
@@ -50,7 +51,7 @@ export function CreateWorkspaceModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="내 워크스페이스"
-              maxLength={50}
+              maxLength={WORKSPACE_NAME_MAX_LENGTH}
               className="glass-input w-full px-4 py-3 text-sm rounded-glass"
               autoFocus
             />

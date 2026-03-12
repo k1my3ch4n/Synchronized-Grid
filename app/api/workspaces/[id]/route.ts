@@ -5,6 +5,7 @@ import {
   requireWorkspaceMember,
   hasPermission,
 } from "@/lib/auth-helpers";
+import { WORKSPACE_NAME_MAX_LENGTH, WORKSPACE_ROLES } from "@shared/constants";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -55,7 +56,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const member = await requireWorkspaceMember(id, user.id!);
 
-    if (!hasPermission(member.role, "OWNER")) {
+    if (!hasPermission(member.role, WORKSPACE_ROLES.OWNER)) {
       return NextResponse.json(
         { error: "OWNER 권한이 필요합니다" },
         { status: 403 },
@@ -74,9 +75,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
           { status: 400 },
         );
       }
-      if (name.length > 50) {
+      if (name.length > WORKSPACE_NAME_MAX_LENGTH) {
         return NextResponse.json(
-          { error: "워크스페이스 이름은 50자 이하여야 합니다" },
+          {
+            error: `워크스페이스 이름은 ${WORKSPACE_NAME_MAX_LENGTH}자 이하여야 합니다`,
+          },
           { status: 400 },
         );
       }
@@ -129,7 +132,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 
     const member = await requireWorkspaceMember(id, user.id!);
 
-    if (!hasPermission(member.role, "OWNER")) {
+    if (!hasPermission(member.role, WORKSPACE_ROLES.OWNER)) {
       return NextResponse.json(
         { error: "OWNER 권한이 필요합니다" },
         { status: 403 },
