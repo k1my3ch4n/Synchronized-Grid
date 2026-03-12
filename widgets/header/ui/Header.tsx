@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useSyncedUrl } from "@features/room/hooks/useSyncedUrl";
-import { UserPresence } from "@features/room/ui/UserPresence";
-import { InviteButton } from "@features/room/ui/InviteButton";
-import { ConnectionStatus } from "@features/room/ui/ConnectionStatus";
+import { useSyncedUrl } from "@features/workspace/hooks/useSyncedUrl";
+import { UserPresence } from "@features/workspace/ui/UserPresence";
+import { InviteButton } from "@features/workspace/ui/InviteButton";
+import { ConnectionStatus } from "@features/workspace/ui/ConnectionStatus";
 import { UserMenu } from "@features/auth";
 import { EditableUrl } from "./EditableUrl";
 

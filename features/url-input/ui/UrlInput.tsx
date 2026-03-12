@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSyncedUrl } from "@features/room/hooks/useSyncedUrl";
+import { useSyncedUrl } from "@features/workspace/hooks/useSyncedUrl";
 
 export function UrlInput() {
   const { url, setUrl } = useSyncedUrl();

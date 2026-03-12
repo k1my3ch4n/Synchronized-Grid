@@ -1,8 +1,8 @@
-import { RoomUser, CanvasViewport } from "@shared/types";
+import { WorkspaceUser, CanvasViewport } from "@shared/types";
 import { getSocket } from "@shared/lib/socket";
 import { useCanvasStore } from "@features/canvas/model/store";
 import { useUrlStore } from "@features/url-input/model/store";
-import type { RoomStoreState } from "./store";
+import type { WorkspaceStoreState } from "./store";
 
 const SOCKET_EVENTS = [
   "user:joined",
@@ -18,19 +18,23 @@ const SOCKET_EVENTS = [
 
 export function setupSocketListeners(
   socket: ReturnType<typeof getSocket>,
-  set: (fn: (state: RoomStoreState) => Partial<RoomStoreState>) => void,
+  set: (
+    fn: (state: WorkspaceStoreState) => Partial<WorkspaceStoreState>,
+  ) => void,
 ) {
   // 기존 리스너 제거 (중복 등록 방지)
   SOCKET_EVENTS.forEach((event) => socket.off(event));
 
   // 유저 입장
-  socket.on("user:joined", (user: RoomUser) => {
-    set((state: RoomStoreState) => ({ users: [...state.users, user] }));
+  socket.on("user:joined", (user: WorkspaceUser) => {
+    set((state: WorkspaceStoreState) => ({
+      users: [...state.users, user],
+    }));
   });
 
   // 유저 퇴장
   socket.on("user:left", ({ userId }: { userId: string }) => {
-    set((state: RoomStoreState) => ({
+    set((state: WorkspaceStoreState) => ({
       users: state.users.filter((u) => u.id !== userId),
     }));
   });
@@ -75,7 +79,7 @@ export function setupSocketListeners(
 
   // 커서 이동
   socket.on("cursor:moved", ({ userId, x, y }) => {
-    set((state: RoomStoreState) => ({
+    set((state: WorkspaceStoreState) => ({
       users: state.users.map((u) =>
         u.id === userId ? { ...u, cursor: { x, y } } : u,
       ),

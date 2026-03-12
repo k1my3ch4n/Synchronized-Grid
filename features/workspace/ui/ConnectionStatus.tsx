@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { getSocket } from "@shared/lib/socket";
-import { useRoomStore } from "../model/store";
+import { useWorkspaceStore } from "../model/store";
 import { toast } from "sonner";
 
 export function ConnectionStatus() {
-  const isConnected = useRoomStore((s) => s.isConnected);
+  const isConnected = useWorkspaceStore((s) => s.isConnected);
   const [socketConnected, setSocketConnected] = useState(true);
 
   useEffect(() => {

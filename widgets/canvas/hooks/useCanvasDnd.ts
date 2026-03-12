@@ -6,7 +6,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useSyncedCanvas } from "@features/room/hooks/useSyncedCanvas";
+import { useSyncedCanvas } from "@features/workspace/hooks/useSyncedCanvas";
 import { Viewport, CanvasViewport } from "@shared/types";
 import { snapToGrid } from "@shared/lib/grid";
 

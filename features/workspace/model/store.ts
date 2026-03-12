@@ -1,20 +1,23 @@
 import { create } from "zustand";
-import { RoomUser, CanvasViewport, RoomJoinResult } from "@shared/types";
+import {
+  WorkspaceUser,
+  CanvasViewport,
+  WorkspaceJoinResult,
+} from "@shared/types";
 import { connectSocket, getSocket, disconnectSocket } from "@shared/lib/socket";
 import { useCanvasStore } from "@features/canvas/model/store";
 import { useUrlStore } from "@features/url-input/model/store";
 import { setupSocketListeners } from "./socket-listeners";
 
-export interface RoomStoreState {
-  roomId: string | null;
+export interface WorkspaceStoreState {
   workspaceId: string | null;
   isConnected: boolean;
-  currentUser: RoomUser | null;
-  users: RoomUser[];
+  currentUser: WorkspaceUser | null;
+  users: WorkspaceUser[];
   error: string | null;
 
-  joinRoom: (roomId: string) => void;
-  leaveRoom: () => void;
+  joinWorkspace: (workspaceId: string) => void;
+  leaveWorkspace: () => void;
 
   syncAddViewport: (viewport: Omit<CanvasViewport, "id" | "zIndex">) => void;
   syncUpdatePosition: (id: string, x: number, y: number) => void;
@@ -24,48 +27,49 @@ export interface RoomStoreState {
   syncChangeUrl: (url: string) => void;
 }
 
-export const useRoomStore = create<RoomStoreState>((set, get) => ({
-  roomId: null,
+export const useWorkspaceStore = create<WorkspaceStoreState>((set, get) => ({
   workspaceId: null,
   isConnected: false,
   currentUser: null,
   users: [],
   error: null,
 
-  joinRoom: (roomId) => {
+  joinWorkspace: (workspaceId) => {
     set({ error: null });
     const socket = connectSocket();
 
-    socket.emit("room:join", { roomId }, (result: RoomJoinResult) => {
-      if ("error" in result) {
-        set({ error: result.error });
-        return;
-      }
+    socket.emit(
+      "workspace:join",
+      { workspaceId },
+      (result: WorkspaceJoinResult) => {
+        if ("error" in result) {
+          set({ error: result.error });
+          return;
+        }
 
-      set({
-        roomId,
-        workspaceId: result.workspaceId,
-        isConnected: true,
-        currentUser: result.user,
-        users: result.state.users,
-      });
+        set({
+          workspaceId,
+          isConnected: true,
+          currentUser: result.user,
+          users: result.state.users,
+        });
 
-      // 서버 상태로 Canvas Store 초기화
-      useCanvasStore.setState({ viewport: result.state.viewports });
+        // 서버 상태로 Canvas Store 초기화
+        useCanvasStore.setState({ viewport: result.state.viewports });
 
-      if (result.state.url) {
-        useUrlStore.getState().setUrl(result.state.url);
-      }
+        if (result.state.url) {
+          useUrlStore.getState().setUrl(result.state.url);
+        }
 
-      // 소켓 리스너 등록
-      setupSocketListeners(socket, set);
-    });
+        // 소켓 리스너 등록
+        setupSocketListeners(socket, set);
+      },
+    );
   },
 
-  leaveRoom: () => {
+  leaveWorkspace: () => {
     disconnectSocket();
     set({
-      roomId: null,
       workspaceId: null,
       isConnected: false,
       currentUser: null,

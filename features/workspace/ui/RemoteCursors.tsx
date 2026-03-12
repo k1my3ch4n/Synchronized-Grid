@@ -1,10 +1,10 @@
 "use client";
 
-import { useRoomStore } from "../model/store";
+import { useWorkspaceStore } from "../model/store";
 import { getTextColorForBg } from "@shared/lib/color";
 
 export function RemoteCursors() {
-  const { users, currentUser } = useRoomStore();
+  const { users, currentUser } = useWorkspaceStore();
 
   const remoteUsers = users.filter((u) => u.id !== currentUser?.id && u.cursor);
 

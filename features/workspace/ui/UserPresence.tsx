@@ -1,9 +1,9 @@
 "use client";
 
-import { useRoomStore } from "../model/store";
+import { useWorkspaceStore } from "../model/store";
 
 export function UserPresence() {
-  const { users, currentUser } = useRoomStore();
+  const { users, currentUser } = useWorkspaceStore();
 
   if (!currentUser) {
     return null;
