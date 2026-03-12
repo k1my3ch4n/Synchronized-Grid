@@ -40,7 +40,7 @@ export function CanvasItem({ item }: CanvasItemProps) {
         zIndex: item.zIndex,
         visibility: isDragging ? "hidden" : "visible",
       }}
-      onPointerDown={() => updateZIndex(item.id)}
+      onPointerDownCapture={() => updateZIndex(item.id)}
     >
       <CanvasItemHeader
         label={item.label}
@@ -58,7 +58,8 @@ export function CanvasItem({ item }: CanvasItemProps) {
           height: displayHeight * CANVAS_SCALE,
         }}
       >
-        {isResizing && <div className="absolute inset-0 z-10" />}
+        <div className="absolute inset-0 z-10" />
+        {isResizing && <div className="absolute inset-0 z-20" />}
         <ViewportFrame
           url={url}
           width={displayWidth}
