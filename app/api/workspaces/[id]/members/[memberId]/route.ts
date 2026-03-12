@@ -5,6 +5,7 @@ import {
   requireWorkspaceMember,
   hasPermission,
 } from "@/lib/auth-helpers";
+import { ALL_ROLES, WORKSPACE_ROLES } from "@shared/constants";
 
 type RouteParams = { params: Promise<{ id: string; memberId: string }> };
 
@@ -33,7 +34,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const currentMember = await requireWorkspaceMember(id, user.id!);
 
-    if (!hasPermission(currentMember.role, "OWNER")) {
+    if (!hasPermission(currentMember.role, WORKSPACE_ROLES.OWNER)) {
       return NextResponse.json(
         { error: "OWNER 권한이 필요합니다" },
         { status: 403 },
@@ -43,7 +44,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const body = await request.json();
     const { role } = body;
 
-    if (!["OWNER", "EDITOR", "VIEWER"].includes(role)) {
+    if (!ALL_ROLES.includes(role)) {
       return NextResponse.json(
         { error: "유효하지 않은 역할입니다" },
         { status: 400 },
@@ -67,7 +68,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     // 소유권 이전
-    if (role === "OWNER") {
+    if (role === WORKSPACE_ROLES.OWNER) {
       await prisma.$transaction([
         // 워크스페이스 소유자 변경
         prisma.workspace.update({
@@ -77,18 +78,18 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         // 새 소유자를 멤버에서 OWNER로 변경
         prisma.workspaceMember.update({
           where: { id: targetMember.id },
-          data: { role: "OWNER" },
+          data: { role: WORKSPACE_ROLES.OWNER },
         }),
         // 기존 소유자를 EDITOR 멤버로 추가 (없으면 생성)
         prisma.workspaceMember.upsert({
           where: {
             workspaceId_userId: { workspaceId: id, userId: user.id! },
           },
-          update: { role: "EDITOR" },
+          update: { role: WORKSPACE_ROLES.EDITOR },
           create: {
             workspaceId: id,
             userId: user.id!,
-            role: "EDITOR",
+            role: WORKSPACE_ROLES.EDITOR,
           },
         }),
       ]);
@@ -126,7 +127,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 
     const currentMember = await requireWorkspaceMember(id, user.id!);
 
-    if (!hasPermission(currentMember.role, "OWNER")) {
+    if (!hasPermission(currentMember.role, WORKSPACE_ROLES.OWNER)) {
       return NextResponse.json(
         { error: "OWNER 권한이 필요합니다" },
         { status: 403 },

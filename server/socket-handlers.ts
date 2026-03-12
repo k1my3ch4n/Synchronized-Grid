@@ -14,6 +14,7 @@ import {
 } from "./workspace-persistence";
 import { prisma } from "../lib/prisma";
 import type { SocketUser } from "./socket-auth";
+import { EDIT_ROLES, USER_COLORS, WORKSPACE_ROLES } from "@shared/constants";
 
 type TypedServer = Server<ClientToServerEvents, ServerToClientEvents>;
 type TypedSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
@@ -23,19 +24,6 @@ interface ActiveWorkspaceState {
   viewports: CanvasViewport[];
   users: Map<string, WorkspaceUser>;
 }
-
-const EDIT_ROLES: WorkspaceRole[] = ["OWNER", "EDITOR"];
-
-const COLORS = [
-  "#FF6B6B",
-  "#4ECDC4",
-  "#45B7D1",
-  "#96CEB4",
-  "#FFEAA7",
-  "#DDA0DD",
-  "#98D8C8",
-  "#F7DC6F",
-];
 
 // 접속 중인 워크스페이스의 활성 상태 (ephemeral)
 const activeWorkspaces = new Map<string, ActiveWorkspaceState>();
@@ -68,7 +56,7 @@ export function setupSocketHandlers(io: TypedServer) {
         const userName = socketUser?.name || `User-${socket.id.slice(0, 4)}`;
 
         // DB에서 멤버 역할 조회
-        let role: WorkspaceRole = "VIEWER";
+        let role: WorkspaceRole = WORKSPACE_ROLES.VIEWER;
         if (socketUser?.id) {
           const workspace = await prisma.workspace.findUnique({
             where: { id: workspaceId },
@@ -76,7 +64,7 @@ export function setupSocketHandlers(io: TypedServer) {
           });
 
           if (workspace?.ownerId === socketUser.id) {
-            role = "OWNER";
+            role = WORKSPACE_ROLES.OWNER;
           } else {
             const member = await prisma.workspaceMember.findUnique({
               where: {
@@ -97,7 +85,7 @@ export function setupSocketHandlers(io: TypedServer) {
           id: socket.id,
           userId: socketUser?.id ?? "",
           name: userName,
-          color: COLORS[active.users.size % COLORS.length],
+          color: USER_COLORS[active.users.size % USER_COLORS.length],
           role,
         };
 

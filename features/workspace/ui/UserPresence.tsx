@@ -3,11 +3,12 @@
 import { useWorkspaceStore } from "../model/store";
 import { useWorkspaceContext } from "../hooks/useWorkspaceContext";
 import { UserRow } from "./UserRow";
+import { WORKSPACE_ROLES } from "@shared/constants";
 
 export function UserPresence() {
   const { users, currentUser } = useWorkspaceStore();
   const { workspaceId } = useWorkspaceContext();
-  const isOwner = currentUser?.role === "OWNER";
+  const isOwner = currentUser?.role === WORKSPACE_ROLES.OWNER;
 
   if (!currentUser) {
     return null;

@@ -1,6 +1,7 @@
 import { useWorkspaceContext } from "./useWorkspaceContext";
 import { useCanvasStore } from "@features/canvas/model/store";
 import { useWorkspaceStore } from "../model/store";
+import { EDIT_ROLES } from "@shared/constants";
 
 export function useSyncedCanvas() {
   const { isInWorkspace } = useWorkspaceContext();
@@ -8,7 +9,7 @@ export function useSyncedCanvas() {
   const canvasStore = useCanvasStore();
   const workspaceStore = useWorkspaceStore();
   const role = workspaceStore.currentUser?.role;
-  const canEdit = !isInWorkspace || role === "OWNER" || role === "EDITOR";
+  const canEdit = !isInWorkspace || (!!role && EDIT_ROLES.includes(role));
 
   if (isInWorkspace) {
     return {

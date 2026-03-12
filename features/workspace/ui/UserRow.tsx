@@ -3,12 +3,7 @@
 import { useState } from "react";
 import type { WorkspaceRole, WorkspaceUser } from "@shared/types";
 import { toast } from "sonner";
-
-const ROLE_LABELS: Record<WorkspaceRole, string> = {
-  OWNER: "소유자",
-  EDITOR: "편집자",
-  VIEWER: "뷰어",
-};
+import { ROLE_LABELS, ASSIGNABLE_ROLES, WORKSPACE_ROLES } from "@shared/constants";
 
 interface UserRowProps {
   user: WorkspaceUser;
@@ -25,7 +20,7 @@ export function UserRow({
 }: UserRowProps) {
   const [loading, setLoading] = useState(false);
 
-  const canManage = isOwner && !isCurrentUser && user.role !== "OWNER";
+  const canManage = isOwner && !isCurrentUser && user.role !== WORKSPACE_ROLES.OWNER;
 
   const handleRoleChange = async (newRole: WorkspaceRole) => {
     if (!workspaceId || loading) {
@@ -33,7 +28,7 @@ export function UserRow({
     }
 
     if (
-      newRole === "OWNER" &&
+      newRole === WORKSPACE_ROLES.OWNER &&
       !confirm(
         `${user.name}에게 소유권을 이전하시겠습니까? 본인은 편집자로 변경됩니다.`,
       )
@@ -53,7 +48,7 @@ export function UserRow({
       );
 
       if (res.ok) {
-        if (newRole === "OWNER") {
+        if (newRole === WORKSPACE_ROLES.OWNER) {
           toast.success(`${user.name}에게 소유권이 이전되었습니다`);
         } else {
           toast.success(
@@ -116,9 +111,11 @@ export function UserRow({
               disabled={loading}
               className="text-[10px] bg-transparent text-text-muted border border-glass-border rounded px-1 py-0.5 cursor-pointer disabled:opacity-50"
             >
-              <option value="OWNER">OWNER</option>
-              <option value="EDITOR">EDITOR</option>
-              <option value="VIEWER">VIEWER</option>
+              {ASSIGNABLE_ROLES.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
             </select>
             <button
               onClick={handleKick}

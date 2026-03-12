@@ -1,6 +1,7 @@
 import { auth } from "./auth";
 import { prisma } from "./prisma";
 import type { WorkspaceRole } from "@prisma/client";
+import { WORKSPACE_ROLES } from "@shared/constants";
 
 export async function getSession() {
   return auth();
@@ -40,7 +41,7 @@ export async function requireWorkspaceMember(
       id: "owner",
       workspaceId,
       userId,
-      role: "OWNER" as const,
+      role: WORKSPACE_ROLES.OWNER,
       joinedAt: new Date(),
     };
   }
