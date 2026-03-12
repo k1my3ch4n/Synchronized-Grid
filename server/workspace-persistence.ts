@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { prisma } from "../lib/prisma";
+import { prisma } from "@/lib/prisma";
 import type { CanvasViewport } from "@shared/types";
 import { DEBOUNCE_SAVE_MS } from "@shared/constants";
 

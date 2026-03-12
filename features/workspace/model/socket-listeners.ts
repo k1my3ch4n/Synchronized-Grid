@@ -20,6 +20,8 @@ const SOCKET_EVENTS = [
   "cursor:moved",
   "workspace:renamed",
   "member:role-changed",
+  "member:kicked",
+  "workspace:deleted",
 ] as const;
 
 export function setupSocketListeners(
@@ -105,6 +107,16 @@ export function setupSocketListeners(
       }));
     },
   );
+
+  // 추방 당함
+  socket.on("member:kicked", ({ reason }: { reason: string }) => {
+    set(() => ({ kickReason: reason }));
+  });
+
+  // 워크스페이스 삭제됨
+  socket.on("workspace:deleted", () => {
+    set(() => ({ kickReason: "워크스페이스가 삭제되었습니다" }));
+  });
 
   // 커서 이동
   socket.on("cursor:moved", ({ userId, x, y }) => {

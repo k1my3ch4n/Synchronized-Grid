@@ -121,6 +121,7 @@ export function UserRow({
       );
 
       if (res.ok) {
+        getSocket().emit("member:kick", { userId: user.userId });
         toast.success(`${user.name}을(를) 추방했습니다`);
       } else {
         const data = await res.json();

@@ -12,7 +12,7 @@ import {
   saveWorkspaceViewports,
   flushPendingSave,
 } from "./workspace-persistence";
-import { prisma } from "../lib/prisma";
+import { prisma } from "@/lib/prisma";
 import type { SocketUser } from "./socket-auth";
 import {
   EDIT_ROLES,
@@ -33,6 +33,30 @@ interface ActiveWorkspaceState {
 
 // 접속 중인 워크스페이스의 활성 상태 (ephemeral)
 const activeWorkspaces = new Map<string, ActiveWorkspaceState>();
+
+/**
+ * API 라우트에서 워크스페이스 삭제 시 호출
+ * 접속 중인 모든 소켓에 workspace:deleted 알림 후 정리
+ */
+export async function notifyWorkspaceDeleted(
+  io: TypedServer,
+  workspaceId: string,
+) {
+  const active = activeWorkspaces.get(workspaceId);
+  if (!active) {
+    return;
+  }
+
+  io.to(workspaceId).emit("workspace:deleted");
+
+  const sockets = await io.in(workspaceId).fetchSockets();
+  for (const s of sockets) {
+    s.leave(workspaceId);
+  }
+
+  await flushPendingSave(workspaceId);
+  activeWorkspaces.delete(workspaceId);
+}
 
 export function setupSocketHandlers(io: TypedServer) {
   io.on("connection", (socket: TypedSocket) => {
@@ -322,6 +346,77 @@ export function setupSocketHandlers(io: TypedServer) {
           newRole,
         });
       }
+    });
+
+    // 멤버 추방 (소켓 강제 퇴장)
+    socket.on("member:kick", ({ userId }) => {
+      if (!currentWorkspaceId) {
+        return;
+      }
+
+      const active = activeWorkspaces.get(currentWorkspaceId);
+      const requester = active?.users.get(socket.id);
+
+      if (!requester || requester.role !== WORKSPACE_ROLES.OWNER) {
+        return;
+      }
+
+      // 대상 유저의 소켓 찾기
+      const targetEntry = [...active!.users.entries()].find(
+        ([, u]) => u.userId === userId,
+      );
+
+      if (!targetEntry) {
+        return;
+      }
+
+      const [targetSocketId] = targetEntry;
+
+      // 대상에게 추방 알림
+      io.to(targetSocketId).emit("member:kicked", {
+        reason: "워크스페이스에서 추방되었습니다",
+      });
+
+      // 대상을 룸에서 제거
+      const targetSocket = io.sockets.sockets.get(targetSocketId);
+      if (targetSocket) {
+        targetSocket.leave(currentWorkspaceId);
+      }
+
+      // 인메모리 상태에서 제거
+      active!.users.delete(targetSocketId);
+
+      // 나머지 유저에게 퇴장 알림
+      socket
+        .to(currentWorkspaceId)
+        .emit("user:left", { userId: targetSocketId });
+    });
+
+    // 워크스페이스 삭제 (소켓 정리)
+    socket.on("workspace:delete", async () => {
+      if (!currentWorkspaceId) {
+        return;
+      }
+
+      const active = activeWorkspaces.get(currentWorkspaceId);
+      const requester = active?.users.get(socket.id);
+
+      if (!requester || requester.role !== WORKSPACE_ROLES.OWNER) {
+        return;
+      }
+
+      // 본인 제외 모든 유저에게 삭제 알림
+      socket.to(currentWorkspaceId).emit("workspace:deleted");
+
+      // 모든 소켓을 룸에서 제거
+      const sockets = await io.in(currentWorkspaceId).fetchSockets();
+      for (const s of sockets) {
+        s.leave(currentWorkspaceId);
+      }
+
+      // 인메모리 상태 정리
+      await flushPendingSave(currentWorkspaceId);
+      activeWorkspaces.delete(currentWorkspaceId);
     });
 
     // 커서 이동

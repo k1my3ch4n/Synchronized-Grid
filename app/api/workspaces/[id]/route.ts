@@ -6,6 +6,8 @@ import {
   hasPermission,
 } from "@/lib/auth-helpers";
 import { WORKSPACE_NAME_MAX_LENGTH, WORKSPACE_ROLES } from "@shared/constants";
+import { getIO } from "@server/io";
+import { notifyWorkspaceDeleted } from "@server/socket-handlers";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -137,6 +139,14 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
         { error: "OWNER 권한이 필요합니다" },
         { status: 403 },
       );
+    }
+
+    // 접속 중인 유저에게 삭제 알림 후 소켓 정리
+    try {
+      const io = getIO();
+      await notifyWorkspaceDeleted(io, id);
+    } catch {
+      // 소켓 서버 미초기화 시 무시 (테스트 환경 등)
     }
 
     await prisma.workspace.delete({ where: { id } });

@@ -4,6 +4,7 @@ import next from "next";
 import { Server as SocketIOServer } from "socket.io";
 import { setupSocketHandlers } from "./server/socket-handlers";
 import { setupSocketAuth } from "./server/socket-auth";
+import { setIO } from "./server/io";
 import "dotenv/config";
 
 const dev = process.env.NODE_ENV !== "production";
@@ -22,6 +23,7 @@ app.prepare().then(() => {
     path: "/api/socket",
   });
 
+  setIO(io);
   setupSocketAuth(io);
   setupSocketHandlers(io);
 

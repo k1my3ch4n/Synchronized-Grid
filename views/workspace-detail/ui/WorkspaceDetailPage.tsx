@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { useUrlStore } from "@features/url-input";
 import { useWorkspaceStore, WorkspaceContext } from "@features/workspace";
 import { CanvasEditor } from "@widgets/canvas";
@@ -10,8 +11,10 @@ import { UrlInput } from "@features/url-input";
 export function WorkspaceDetailPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const { url } = useUrlStore();
+  const router = useRouter();
   const isConnected = useWorkspaceStore((state) => state.isConnected);
   const error = useWorkspaceStore((state) => state.error);
+  const kickReason = useWorkspaceStore((state) => state.kickReason);
 
   useEffect(() => {
     useWorkspaceStore.getState().joinWorkspace(workspaceId);
@@ -21,6 +24,15 @@ export function WorkspaceDetailPage() {
       useUrlStore.getState().setUrl("");
     };
   }, [workspaceId]);
+
+  // 추방 또는 워크스페이스 삭제 시 리다이렉트
+  useEffect(() => {
+    if (kickReason) {
+      toast.error(kickReason);
+      useWorkspaceStore.getState().leaveWorkspace();
+      router.push("/workspaces");
+    }
+  }, [kickReason, router]);
 
   if (error) {
     return (

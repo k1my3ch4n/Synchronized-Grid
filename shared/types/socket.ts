@@ -26,6 +26,8 @@ export interface ClientToServerEvents {
     userId: string;
     newRole: WorkspaceRole;
   }) => void;
+  "member:kick": (data: { userId: string }) => void;
+  "workspace:delete": () => void;
 }
 
 // 서버 → 클라이언트
@@ -48,6 +50,8 @@ export interface ServerToClientEvents {
     userId: string;
     newRole: WorkspaceRole;
   }) => void;
+  "member:kicked": (data: { reason: string }) => void;
+  "workspace:deleted": () => void;
 }
 
 // workspace:join 콜백 결과 타입

@@ -24,7 +24,8 @@
       "@entities/*": ["./entities/*"],
       "@shared/*": ["./shared/*"],
       "@features/*": ["./features/*"],
-      "@widgets/*": ["./widgets/*"]
+      "@widgets/*": ["./widgets/*"],
+      "@server/*": ["./server/*"]
     }
   },
   "include": [

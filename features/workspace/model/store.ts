@@ -16,6 +16,7 @@ export interface WorkspaceStoreState {
   currentUser: WorkspaceUser | null;
   users: WorkspaceUser[];
   error: string | null;
+  kickReason: string | null;
 
   joinWorkspace: (workspaceId: string) => void;
   leaveWorkspace: () => void;
@@ -36,9 +37,10 @@ export const useWorkspaceStore = create<WorkspaceStoreState>((set, get) => ({
   currentUser: null,
   users: [],
   error: null,
+  kickReason: null,
 
   joinWorkspace: (workspaceId) => {
-    set({ error: null });
+    set({ error: null, kickReason: null });
     const socket = connectSocket();
 
     const handleJoin = () => {
@@ -95,6 +97,7 @@ export const useWorkspaceStore = create<WorkspaceStoreState>((set, get) => ({
       currentUser: null,
       users: [],
       error: null,
+      kickReason: null,
     });
   },
 
