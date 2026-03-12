@@ -46,6 +46,7 @@ export type WorkspaceJoinResult =
   | {
       user: WorkspaceUser;
       state: {
+        name: string;
         url: string;
         viewports: CanvasViewport[];
         users: WorkspaceUser[];

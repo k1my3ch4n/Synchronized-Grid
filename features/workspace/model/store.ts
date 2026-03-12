@@ -11,6 +11,7 @@ import { setupSocketListeners } from "./socket-listeners";
 
 export interface WorkspaceStoreState {
   workspaceId: string | null;
+  workspaceName: string | null;
   isConnected: boolean;
   currentUser: WorkspaceUser | null;
   users: WorkspaceUser[];
@@ -29,6 +30,7 @@ export interface WorkspaceStoreState {
 
 export const useWorkspaceStore = create<WorkspaceStoreState>((set, get) => ({
   workspaceId: null,
+  workspaceName: null,
   isConnected: false,
   currentUser: null,
   users: [],
@@ -50,6 +52,7 @@ export const useWorkspaceStore = create<WorkspaceStoreState>((set, get) => ({
 
           set({
             workspaceId,
+            workspaceName: result.state.name,
             isConnected: true,
             currentUser: result.user,
             users: result.state.users,
@@ -86,6 +89,7 @@ export const useWorkspaceStore = create<WorkspaceStoreState>((set, get) => ({
     disconnectSocket();
     set({
       workspaceId: null,
+      workspaceName: null,
       isConnected: false,
       currentUser: null,
       users: [],
