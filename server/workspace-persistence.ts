@@ -20,48 +20,54 @@ function debouncedSave(key: string, saveFn: () => Promise<void>, delay = 500) {
     try {
       await saveFn();
     } catch (err) {
-      console.error(`[room-persistence] Save failed for ${key}:`, err);
+      console.error(`[workspace-persistence] Save failed for ${key}:`, err);
     }
   }, delay);
 
   pendingSaves.set(key, { timer, saveFn });
 }
 
-export async function loadRoomFromDB(roomId: string) {
-  const room = await prisma.room.findUnique({ where: { id: roomId } });
+export async function loadWorkspaceFromDB(workspaceId: string) {
+  const workspace = await prisma.workspace.findUnique({
+    where: { id: workspaceId },
+  });
 
-  if (!room) {
+  if (!workspace) {
     return null;
   }
 
   return {
-    id: room.id,
-    name: room.name,
-    url: room.url,
-    viewports: (room.viewports as unknown as CanvasViewport[]) || [],
-    workspaceId: room.workspaceId,
+    id: workspace.id,
+    name: workspace.name,
+    url: workspace.url,
+    viewports: (workspace.viewports as unknown as CanvasViewport[]) || [],
   };
 }
 
-export function saveRoomUrl(roomId: string, url: string) {
-  debouncedSave(`${roomId}:url`, () =>
-    prisma.room.update({ where: { id: roomId }, data: { url } }).then(() => {}),
+export function saveWorkspaceUrl(workspaceId: string, url: string) {
+  debouncedSave(`${workspaceId}:url`, () =>
+    prisma.workspace
+      .update({ where: { id: workspaceId }, data: { url } })
+      .then(() => {}),
   );
 }
 
-export function saveRoomViewports(roomId: string, viewports: CanvasViewport[]) {
-  debouncedSave(`${roomId}:viewports`, () =>
-    prisma.room
+export function saveWorkspaceViewports(
+  workspaceId: string,
+  viewports: CanvasViewport[],
+) {
+  debouncedSave(`${workspaceId}:viewports`, () =>
+    prisma.workspace
       .update({
-        where: { id: roomId },
+        where: { id: workspaceId },
         data: { viewports: viewports as unknown as Prisma.InputJsonValue },
       })
       .then(() => {}),
   );
 }
 
-export async function flushPendingSave(roomId: string) {
-  const keys = [`${roomId}:url`, `${roomId}:viewports`];
+export async function flushPendingSave(workspaceId: string) {
+  const keys = [`${workspaceId}:url`, `${workspaceId}:viewports`];
   const flushPromises: Promise<void>[] = [];
 
   for (const key of keys) {
@@ -73,7 +79,7 @@ export async function flushPendingSave(roomId: string) {
       flushPromises.push(
         entry.saveFn().catch((err) => {
           console.error(
-            `[room-persistence] Flush save failed for ${key}:`,
+            `[workspace-persistence] Flush save failed for ${key}:`,
             err,
           );
         }),
