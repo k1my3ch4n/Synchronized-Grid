@@ -5,7 +5,7 @@ import throttle from "lodash.throttle";
 import { useDroppable } from "@dnd-kit/core";
 import { useCanvasStore } from "../model/store";
 import { CanvasItem } from "./CanvasItem";
-import { GRID_SIZE } from "@shared/constants";
+import { GRID_SIZE, THROTTLE_CURSOR_MS } from "@shared/constants";
 import { useWorkspaceContext } from "@features/workspace/hooks/useWorkspaceContext";
 import { RemoteCursors } from "@features/workspace/ui/RemoteCursors";
 import { getSocket } from "@shared/lib/socket";
@@ -18,7 +18,7 @@ export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
     () =>
       throttle((x: number, y: number) => {
         getSocket().emit("cursor:move", { x, y });
-      }, 50),
+      }, THROTTLE_CURSOR_MS),
     [],
   );
 

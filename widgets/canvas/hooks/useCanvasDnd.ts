@@ -9,6 +9,7 @@ import {
 import { useSyncedCanvas } from "@features/workspace/hooks/useSyncedCanvas";
 import { Viewport, CanvasViewport } from "@shared/types";
 import { snapToGrid } from "@shared/lib/grid";
+import { DND_ACTIVATION_DISTANCE } from "@shared/constants";
 
 export function useCanvasDnd() {
   const { addViewport, updatePosition } = useSyncedCanvas();
@@ -76,7 +77,7 @@ export function useCanvasDnd() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 5 },
+      activationConstraint: { distance: DND_ACTIVATION_DISTANCE },
     }),
   );
 

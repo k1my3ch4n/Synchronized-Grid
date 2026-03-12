@@ -1,13 +1,14 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import type { CanvasViewport } from "@shared/types";
+import { DEBOUNCE_SAVE_MS } from "@shared/constants";
 
 const pendingSaves = new Map<
   string,
   { timer: NodeJS.Timeout; saveFn: () => Promise<void> }
 >();
 
-function debouncedSave(key: string, saveFn: () => Promise<void>, delay = 500) {
+function debouncedSave(key: string, saveFn: () => Promise<void>, delay = DEBOUNCE_SAVE_MS) {
   const existing = pendingSaves.get(key);
 
   if (existing) {

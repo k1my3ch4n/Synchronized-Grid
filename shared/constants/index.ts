@@ -1,2 +1,42 @@
+import type { WorkspaceRole } from "@shared/types";
+
+// ─── 캔버스 ───
 export const CANVAS_SCALE = 0.45;
 export const GRID_SIZE = 20;
+
+// ─── 워크스페이스 역할 ───
+export const WORKSPACE_ROLES = {
+  OWNER: "OWNER" as const,
+  EDITOR: "EDITOR" as const,
+  VIEWER: "VIEWER" as const,
+};
+
+export const ROLE_LABELS: Record<WorkspaceRole, string> = {
+  OWNER: "소유자",
+  EDITOR: "편집자",
+  VIEWER: "뷰어",
+};
+
+export const EDIT_ROLES: WorkspaceRole[] = ["OWNER", "EDITOR"];
+export const ALL_ROLES: WorkspaceRole[] = ["OWNER", "EDITOR", "VIEWER"];
+export const ASSIGNABLE_ROLES: WorkspaceRole[] = ["OWNER", "EDITOR", "VIEWER"];
+
+// ─── 타이밍 ───
+export const DEBOUNCE_SAVE_MS = 500;
+export const THROTTLE_CURSOR_MS = 50;
+export const DND_ACTIVATION_DISTANCE = 5;
+
+// ─── 유효성 검사 ───
+export const WORKSPACE_NAME_MAX_LENGTH = 50;
+
+// ─── 유저 색상 ───
+export const USER_COLORS = [
+  "#FF6B6B",
+  "#4ECDC4",
+  "#45B7D1",
+  "#96CEB4",
+  "#FFEAA7",
+  "#DDA0DD",
+  "#98D8C8",
+  "#F7DC6F",
+];
