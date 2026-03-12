@@ -25,10 +25,12 @@ export function setupSocketListeners(
   // 기존 리스너 제거 (중복 등록 방지)
   SOCKET_EVENTS.forEach((event) => socket.off(event));
 
-  // 유저 입장
+  // 유저 입장 (중복 방지)
   socket.on("user:joined", (user: WorkspaceUser) => {
     set((state: WorkspaceStoreState) => ({
-      users: [...state.users, user],
+      users: state.users.some((u) => u.id === user.id)
+        ? state.users
+        : [...state.users, user],
     }));
   });
 
