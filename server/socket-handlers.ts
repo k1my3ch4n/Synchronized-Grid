@@ -14,7 +14,12 @@ import {
 } from "./workspace-persistence";
 import { prisma } from "../lib/prisma";
 import type { SocketUser } from "./socket-auth";
-import { EDIT_ROLES, USER_COLORS, WORKSPACE_ROLES } from "@shared/constants";
+import {
+  EDIT_ROLES,
+  USER_COLORS,
+  WORKSPACE_ROLES,
+  WORKSPACE_NAME_MAX_LENGTH,
+} from "@shared/constants";
 
 type TypedServer = Server<ClientToServerEvents, ServerToClientEvents>;
 type TypedSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
@@ -230,6 +235,40 @@ export function setupSocketHandlers(io: TypedServer) {
       }
 
       socket.to(currentWorkspaceId!).emit("viewport:zindexed", { id, zIndex });
+    });
+
+    // 워크스페이스 이름 변경
+    socket.on("workspace:rename", async ({ name }) => {
+      if (!currentWorkspaceId) {
+        return;
+      }
+
+      const active = activeWorkspaces.get(currentWorkspaceId);
+      const user = active?.users.get(socket.id);
+
+      if (!user || user.role !== WORKSPACE_ROLES.OWNER) {
+        return;
+      }
+
+      const trimmed = name.trim();
+
+      if (!trimmed || trimmed.length > WORKSPACE_NAME_MAX_LENGTH) {
+        return;
+      }
+
+      try {
+        await prisma.workspace.update({
+          where: { id: currentWorkspaceId },
+          data: { name: trimmed },
+        });
+
+        active!.name = trimmed;
+        socket
+          .to(currentWorkspaceId)
+          .emit("workspace:renamed", { name: trimmed });
+      } catch {
+        // DB 업데이트 실패 시 무시
+      }
     });
 
     // 커서 이동

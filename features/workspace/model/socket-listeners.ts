@@ -14,6 +14,7 @@ const SOCKET_EVENTS = [
   "viewport:zindexed",
   "url:changed",
   "cursor:moved",
+  "workspace:renamed",
 ] as const;
 
 export function setupSocketListeners(
@@ -77,6 +78,11 @@ export function setupSocketListeners(
   // URL 변경
   socket.on("url:changed", ({ url }: { url: string }) => {
     useUrlStore.getState().setUrl(url);
+  });
+
+  // 워크스페이스 이름 변경
+  socket.on("workspace:renamed", ({ name }: { name: string }) => {
+    set(() => ({ workspaceName: name }));
   });
 
   // 커서 이동

@@ -26,6 +26,7 @@ export interface WorkspaceStoreState {
   syncRemoveViewport: (id: string) => void;
   syncUpdateZIndex: (id: string) => void;
   syncChangeUrl: (url: string) => void;
+  syncRenameWorkspace: (name: string) => void;
 }
 
 export const useWorkspaceStore = create<WorkspaceStoreState>((set, get) => ({
@@ -144,5 +145,10 @@ export const useWorkspaceStore = create<WorkspaceStoreState>((set, get) => ({
   syncChangeUrl: (url) => {
     useUrlStore.getState().setUrl(url);
     getSocket().emit("url:change", { url });
+  },
+
+  syncRenameWorkspace: (name) => {
+    set({ workspaceName: name });
+    getSocket().emit("workspace:rename", { name });
   },
 }));

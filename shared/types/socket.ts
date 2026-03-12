@@ -21,6 +21,7 @@ export interface ClientToServerEvents {
   "viewport:remove": (data: { id: string }) => void;
   "viewport:zindex": (data: { id: string; zIndex: number }) => void;
   "cursor:move": (data: { x: number; y: number }) => void;
+  "workspace:rename": (data: { name: string }) => void;
 }
 
 // 서버 → 클라이언트
@@ -38,6 +39,7 @@ export interface ServerToClientEvents {
   "viewport:zindexed": (data: { id: string; zIndex: number }) => void;
   "url:changed": (data: { url: string }) => void;
   "cursor:moved": (data: { userId: string; x: number; y: number }) => void;
+  "workspace:renamed": (data: { name: string }) => void;
 }
 
 // workspace:join 콜백 결과 타입
