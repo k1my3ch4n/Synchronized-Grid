@@ -8,6 +8,23 @@ import {
 
 type RouteParams = { params: Promise<{ id: string; memberId: string }> };
 
+// memberId 또는 userId로 멤버 조회
+async function findMember(workspaceId: string, memberId: string) {
+  // 먼저 memberId(PK)로 조회
+  const byId = await prisma.workspaceMember.findUnique({
+    where: { id: memberId },
+  });
+
+  if (byId && byId.workspaceId === workspaceId) return byId;
+
+  // userId로 조회 (소켓에서 userId를 전달하는 경우)
+  const byUserId = await prisma.workspaceMember.findUnique({
+    where: { workspaceId_userId: { workspaceId, userId: memberId } },
+  });
+
+  return byUserId;
+}
+
 // 멤버 역할 변경
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
@@ -33,19 +50,15 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // 대상 멤버 확인
-    const targetMember = await prisma.workspaceMember.findUnique({
-      where: { id: memberId },
-    });
+    const targetMember = await findMember(id, memberId);
 
-    if (!targetMember || targetMember.workspaceId !== id) {
+    if (!targetMember) {
       return NextResponse.json(
         { error: "멤버를 찾을 수 없습니다" },
         { status: 404 },
       );
     }
 
-    // 자기 자신의 역할은 변경 불가
     if (targetMember.userId === user.id) {
       return NextResponse.json(
         { error: "자신의 역할은 변경할 수 없습니다" },
@@ -54,7 +67,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     const updated = await prisma.workspaceMember.update({
-      where: { id: memberId },
+      where: { id: targetMember.id },
       data: { role },
       include: {
         user: { select: { id: true, name: true, image: true } },
@@ -90,11 +103,9 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const targetMember = await prisma.workspaceMember.findUnique({
-      where: { id: memberId },
-    });
+    const targetMember = await findMember(id, memberId);
 
-    if (!targetMember || targetMember.workspaceId !== id) {
+    if (!targetMember) {
       return NextResponse.json(
         { error: "멤버를 찾을 수 없습니다" },
         { status: 404 },
@@ -108,7 +119,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    await prisma.workspaceMember.delete({ where: { id: memberId } });
+    await prisma.workspaceMember.delete({ where: { id: targetMember.id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {

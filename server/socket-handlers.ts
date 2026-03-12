@@ -86,6 +86,7 @@ export function setupSocketHandlers(io: TypedServer) {
                 },
               },
             });
+
             if (member) {
               role = member.role as WorkspaceRole;
             }
@@ -94,6 +95,7 @@ export function setupSocketHandlers(io: TypedServer) {
 
         const user: WorkspaceUser = {
           id: socket.id,
+          userId: socketUser?.id ?? "",
           name: userName,
           color: COLORS[active.users.size % COLORS.length],
           role,
