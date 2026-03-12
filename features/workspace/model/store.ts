@@ -38,36 +38,51 @@ export const useWorkspaceStore = create<WorkspaceStoreState>((set, get) => ({
     set({ error: null });
     const socket = connectSocket();
 
-    socket.emit(
-      "workspace:join",
-      { workspaceId },
-      (result: WorkspaceJoinResult) => {
-        if ("error" in result) {
-          set({ error: result.error });
-          return;
-        }
+    const handleJoin = () => {
+      socket.emit(
+        "workspace:join",
+        { workspaceId },
+        (result: WorkspaceJoinResult) => {
+          if ("error" in result) {
+            set({ error: result.error });
+            return;
+          }
 
-        set({
-          workspaceId,
-          isConnected: true,
-          currentUser: result.user,
-          users: result.state.users,
-        });
+          set({
+            workspaceId,
+            isConnected: true,
+            currentUser: result.user,
+            users: result.state.users,
+          });
 
-        // 서버 상태로 Canvas Store 초기화
-        useCanvasStore.setState({ viewport: result.state.viewports });
+          // 서버 상태로 Canvas Store 초기화
+          useCanvasStore.setState({ viewport: result.state.viewports });
 
-        if (result.state.url) {
-          useUrlStore.getState().setUrl(result.state.url);
-        }
+          if (result.state.url) {
+            useUrlStore.getState().setUrl(result.state.url);
+          }
 
-        // 소켓 리스너 등록
-        setupSocketListeners(socket, set);
-      },
-    );
+          // 소켓 리스너 등록 (재연결 시에도 다시 등록)
+          setupSocketListeners(socket, set);
+        },
+      );
+    };
+
+    // 최초 join
+    handleJoin();
+
+    // 재연결 시 자동으로 workspace에 다시 참가
+    socket.on("connect", () => {
+      const state = get();
+      if (state.workspaceId) {
+        handleJoin();
+      }
+    });
   },
 
   leaveWorkspace: () => {
+    const socket = getSocket();
+    socket.off("connect");
     disconnectSocket();
     set({
       workspaceId: null,

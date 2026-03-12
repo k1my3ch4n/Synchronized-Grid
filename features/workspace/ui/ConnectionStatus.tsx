@@ -23,7 +23,7 @@ export function ConnectionStatus() {
 
     const handleReconnect = () => {
       setSocketConnected(true);
-      toast.success("서버에 다시 연결되었습니다");
+      toast.success("서버에 다시 연결되었습니다. 워크스페이스에 재참가 중...");
     };
 
     socket.on("disconnect", handleDisconnect);
