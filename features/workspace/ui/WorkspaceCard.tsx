@@ -16,7 +16,7 @@ export function WorkspaceCard({
   onClick,
   onDelete,
 }: WorkspaceCardProps) {
-  const { copied, copyInviteLink } = useInviteLink(workspace.id);
+  const { copied, loading, copyInviteLink } = useInviteLink(workspace.id);
 
   const handleInvite = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -35,9 +35,10 @@ export function WorkspaceCard({
         <div className="flex items-center gap-1">
           <button
             onClick={handleInvite}
-            className="text-xs text-text-muted hover:text-accent transition-colors px-2 py-1 rounded"
+            disabled={loading}
+            className="text-xs text-text-muted hover:text-accent transition-colors px-2 py-1 rounded disabled:opacity-50"
           >
-            {copied ? "복사됨!" : "초대 링크"}
+            {loading ? "생성 중..." : copied ? "복사됨!" : "초대 링크"}
           </button>
           {onDelete && currentUserId === workspace.ownerId && (
             <button
