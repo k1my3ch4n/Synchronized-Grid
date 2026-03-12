@@ -32,6 +32,15 @@ export function UserRow({
       return;
     }
 
+    if (
+      newRole === "OWNER" &&
+      !confirm(
+        `${user.name}에게 소유권을 이전하시겠습니까? 본인은 편집자로 변경됩니다.`,
+      )
+    ) {
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch(
@@ -44,9 +53,13 @@ export function UserRow({
       );
 
       if (res.ok) {
-        toast.success(
-          `${user.name}의 역할이 ${ROLE_LABELS[newRole]}(으)로 변경되었습니다`,
-        );
+        if (newRole === "OWNER") {
+          toast.success(`${user.name}에게 소유권이 이전되었습니다`);
+        } else {
+          toast.success(
+            `${user.name}의 역할이 ${ROLE_LABELS[newRole]}(으)로 변경되었습니다`,
+          );
+        }
       } else {
         const data = await res.json();
         toast.error(data.error || "역할 변경 실패");
@@ -103,8 +116,9 @@ export function UserRow({
               disabled={loading}
               className="text-[10px] bg-transparent text-text-muted border border-glass-border rounded px-1 py-0.5 cursor-pointer disabled:opacity-50"
             >
-              <option value="EDITOR">편집자</option>
-              <option value="VIEWER">뷰어</option>
+              <option value="OWNER">OWNER</option>
+              <option value="EDITOR">EDITOR</option>
+              <option value="VIEWER">VIEWER</option>
             </select>
             <button
               onClick={handleKick}

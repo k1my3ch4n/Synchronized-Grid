@@ -43,7 +43,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const body = await request.json();
     const { role } = body;
 
-    if (!["EDITOR", "VIEWER"].includes(role)) {
+    if (!["OWNER", "EDITOR", "VIEWER"].includes(role)) {
       return NextResponse.json(
         { error: "유효하지 않은 역할입니다" },
         { status: 400 },
@@ -64,6 +64,36 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         { error: "자신의 역할은 변경할 수 없습니다" },
         { status: 400 },
       );
+    }
+
+    // 소유권 이전
+    if (role === "OWNER") {
+      await prisma.$transaction([
+        // 워크스페이스 소유자 변경
+        prisma.workspace.update({
+          where: { id },
+          data: { ownerId: targetMember.userId },
+        }),
+        // 새 소유자를 멤버에서 OWNER로 변경
+        prisma.workspaceMember.update({
+          where: { id: targetMember.id },
+          data: { role: "OWNER" },
+        }),
+        // 기존 소유자를 EDITOR 멤버로 추가 (없으면 생성)
+        prisma.workspaceMember.upsert({
+          where: {
+            workspaceId_userId: { workspaceId: id, userId: user.id! },
+          },
+          update: { role: "EDITOR" },
+          create: {
+            workspaceId: id,
+            userId: user.id!,
+            role: "EDITOR",
+          },
+        }),
+      ]);
+
+      return NextResponse.json({ transferred: true });
     }
 
     const updated = await prisma.workspaceMember.update({
