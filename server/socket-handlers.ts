@@ -19,7 +19,14 @@ import {
   USER_COLORS,
   WORKSPACE_ROLES,
   WORKSPACE_NAME_MAX_LENGTH,
+  URL_MAX_LENGTH,
+  VIEWPORT_MIN_SIZE,
+  VIEWPORT_MAX_SIZE,
+  VIEWPORT_MAX_POSITION,
+  VIEWPORT_MAX_ZINDEX,
+  VIEWPORT_LABEL_MAX_LENGTH,
 } from "@shared/constants";
+import { isValidNumber, isInRange } from "./validation";
 
 type TypedServer = Server<ClientToServerEvents, ServerToClientEvents>;
 type TypedSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
@@ -159,6 +166,10 @@ export function setupSocketHandlers(io: TypedServer) {
         return;
       }
 
+      if (typeof url !== "string" || url.length > URL_MAX_LENGTH) {
+        return;
+      }
+
       const active = activeWorkspaces.get(currentWorkspaceId!);
 
       if (active) {
@@ -172,6 +183,18 @@ export function setupSocketHandlers(io: TypedServer) {
     // 뷰포트 추가
     socket.on("viewport:add", ({ viewport }, callback) => {
       if (!canEdit()) {
+        return;
+      }
+
+      if (
+        !isValidNumber(viewport.width) ||
+        !isValidNumber(viewport.height) ||
+        !isInRange(viewport.width, VIEWPORT_MIN_SIZE, VIEWPORT_MAX_SIZE) ||
+        !isInRange(viewport.height, VIEWPORT_MIN_SIZE, VIEWPORT_MAX_SIZE) ||
+        (viewport.label &&
+          typeof viewport.label === "string" &&
+          viewport.label.length > VIEWPORT_LABEL_MAX_LENGTH)
+      ) {
         return;
       }
 
@@ -197,6 +220,15 @@ export function setupSocketHandlers(io: TypedServer) {
         return;
       }
 
+      if (
+        !isValidNumber(x) ||
+        !isValidNumber(y) ||
+        !isInRange(x, -VIEWPORT_MAX_POSITION, VIEWPORT_MAX_POSITION) ||
+        !isInRange(y, -VIEWPORT_MAX_POSITION, VIEWPORT_MAX_POSITION)
+      ) {
+        return;
+      }
+
       const active = activeWorkspaces.get(currentWorkspaceId!);
       const vp = active?.viewports.find((v) => v.id === id);
 
@@ -212,6 +244,15 @@ export function setupSocketHandlers(io: TypedServer) {
     // 뷰포트 리사이즈
     socket.on("viewport:resize", ({ id, width, height }) => {
       if (!canEdit()) {
+        return;
+      }
+
+      if (
+        !isValidNumber(width) ||
+        !isValidNumber(height) ||
+        !isInRange(width, VIEWPORT_MIN_SIZE, VIEWPORT_MAX_SIZE) ||
+        !isInRange(height, VIEWPORT_MIN_SIZE, VIEWPORT_MAX_SIZE)
+      ) {
         return;
       }
 
@@ -247,6 +288,13 @@ export function setupSocketHandlers(io: TypedServer) {
     // 뷰포트 Z-index 변경
     socket.on("viewport:zindex", ({ id, zIndex }) => {
       if (!canEdit()) {
+        return;
+      }
+
+      if (
+        !isValidNumber(zIndex) ||
+        !isInRange(zIndex, 0, VIEWPORT_MAX_ZINDEX)
+      ) {
         return;
       }
 
@@ -422,6 +470,10 @@ export function setupSocketHandlers(io: TypedServer) {
     // 커서 이동
     socket.on("cursor:move", ({ x, y }) => {
       if (!currentWorkspaceId) {
+        return;
+      }
+
+      if (!isValidNumber(x) || !isValidNumber(y)) {
         return;
       }
 
