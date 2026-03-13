@@ -445,32 +445,40 @@ export function setupSocketHandlers(io: TypedServer) {
 
       const [targetSocketId, targetUser] = targetEntry;
 
-      if (newRole === WORKSPACE_ROLES.OWNER) {
-        // 소유권 이전: 대상 → OWNER, 요청자 → EDITOR
-        ctx.active.users.set(targetSocketId, {
-          ...targetUser,
-          role: WORKSPACE_ROLES.OWNER,
-        });
-        ctx.active.users.set(socket.id, {
-          ...ctx.user,
-          role: WORKSPACE_ROLES.EDITOR,
-        });
+      try {
+        if (newRole === WORKSPACE_ROLES.OWNER) {
+          // 소유권 이전: 대상 → OWNER, 요청자 → EDITOR
+          ctx.active.users.set(targetSocketId, {
+            ...targetUser,
+            role: WORKSPACE_ROLES.OWNER,
+          });
+          ctx.active.users.set(socket.id, {
+            ...ctx.user,
+            role: WORKSPACE_ROLES.EDITOR,
+          });
 
-        io.to(ctx.workspaceId).emit("member:role-changed", {
-          userId,
-          newRole: WORKSPACE_ROLES.OWNER,
-        });
-        io.to(ctx.workspaceId).emit("member:role-changed", {
-          userId: ctx.user.userId,
-          newRole: WORKSPACE_ROLES.EDITOR,
-        });
-      } else {
-        ctx.active.users.set(targetSocketId, { ...targetUser, role: newRole });
+          io.to(ctx.workspaceId).emit("member:role-changed", {
+            userId,
+            newRole: WORKSPACE_ROLES.OWNER,
+          });
+          io.to(ctx.workspaceId).emit("member:role-changed", {
+            userId: ctx.user.userId,
+            newRole: WORKSPACE_ROLES.EDITOR,
+          });
+        } else {
+          ctx.active.users.set(targetSocketId, { ...targetUser, role: newRole });
 
-        io.to(ctx.workspaceId).emit("member:role-changed", {
-          userId,
-          newRole,
-        });
+          io.to(ctx.workspaceId).emit("member:role-changed", {
+            userId,
+            newRole,
+          });
+        }
+      } catch (err) {
+        logger.error(
+          "socket-handlers",
+          "member:role-change failed",
+          err,
+        );
       }
 
       logger.info("socket-handlers", "member:role-change", {
