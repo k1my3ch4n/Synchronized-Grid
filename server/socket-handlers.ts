@@ -26,7 +26,11 @@ import {
   VIEWPORT_MAX_ZINDEX,
   VIEWPORT_LABEL_MAX_LENGTH,
 } from "@shared/constants";
-import { isValidNumber, isInRange } from "./validation";
+import { isValidNumber, isInRange, createRateLimiter } from "./validation";
+
+// Rate limiters: 고빈도 이벤트(커서/뷰포트 이동)와 일반 이벤트 분리
+const cursorLimiter = createRateLimiter(1000, 30); // 1초에 30회
+const eventLimiter = createRateLimiter(1000, 10); // 1초에 10회
 
 type TypedServer = Server<ClientToServerEvents, ServerToClientEvents>;
 type TypedSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
@@ -162,7 +166,7 @@ export function setupSocketHandlers(io: TypedServer) {
 
     // URL 변경
     socket.on("url:change", ({ url }) => {
-      if (!canEdit()) {
+      if (!canEdit() || !eventLimiter(socket.id)) {
         return;
       }
 
@@ -182,7 +186,7 @@ export function setupSocketHandlers(io: TypedServer) {
 
     // 뷰포트 추가
     socket.on("viewport:add", ({ viewport }, callback) => {
-      if (!canEdit()) {
+      if (!canEdit() || !eventLimiter(socket.id)) {
         return;
       }
 
@@ -216,7 +220,7 @@ export function setupSocketHandlers(io: TypedServer) {
 
     // 뷰포트 이동
     socket.on("viewport:move", ({ id, x, y }) => {
-      if (!canEdit()) {
+      if (!canEdit() || !cursorLimiter(socket.id)) {
         return;
       }
 
@@ -243,7 +247,7 @@ export function setupSocketHandlers(io: TypedServer) {
 
     // 뷰포트 리사이즈
     socket.on("viewport:resize", ({ id, width, height }) => {
-      if (!canEdit()) {
+      if (!canEdit() || !cursorLimiter(socket.id)) {
         return;
       }
 
@@ -272,7 +276,7 @@ export function setupSocketHandlers(io: TypedServer) {
 
     // 뷰포트 삭제
     socket.on("viewport:remove", ({ id }) => {
-      if (!canEdit()) {
+      if (!canEdit() || !eventLimiter(socket.id)) {
         return;
       }
 
@@ -287,7 +291,7 @@ export function setupSocketHandlers(io: TypedServer) {
 
     // 뷰포트 Z-index 변경
     socket.on("viewport:zindex", ({ id, zIndex }) => {
-      if (!canEdit()) {
+      if (!canEdit() || !cursorLimiter(socket.id)) {
         return;
       }
 
@@ -469,7 +473,7 @@ export function setupSocketHandlers(io: TypedServer) {
 
     // 커서 이동
     socket.on("cursor:move", ({ x, y }) => {
-      if (!currentWorkspaceId) {
+      if (!currentWorkspaceId || !cursorLimiter(socket.id)) {
         return;
       }
 
