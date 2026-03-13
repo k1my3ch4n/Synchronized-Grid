@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { CanvasViewport } from "@shared/types";
 import { DEBOUNCE_SAVE_MS } from "@shared/constants";
+import { logger } from "./logger";
 
 const pendingSaves = new Map<
   string,
@@ -21,7 +22,7 @@ function debouncedSave(key: string, saveFn: () => Promise<void>, delay = DEBOUNC
     try {
       await saveFn();
     } catch (err) {
-      console.error(`[workspace-persistence] Save failed for ${key}:`, err);
+      logger.error("workspace-persistence", `Save failed for ${key}`, err);
     }
   }, delay);
 
@@ -75,10 +76,7 @@ export async function flushAllPendingSaves() {
     pendingSaves.delete(key);
     flushPromises.push(
       entry.saveFn().catch((err) => {
-        console.error(
-          `[workspace-persistence] Flush save failed for ${key}:`,
-          err,
-        );
+        logger.error("workspace-persistence", `Flush save failed for ${key}`, err);
       }),
     );
   }

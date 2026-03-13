@@ -1,6 +1,7 @@
 import { Server as SocketIOServer } from "socket.io";
 import { decode } from "next-auth/jwt";
 import { parse as parseCookie } from "cookie";
+import { logger } from "./logger";
 
 export interface SocketUser {
   id: string;
@@ -59,7 +60,7 @@ export function setupSocketAuth(io: SocketIOServer) {
 
       next();
     } catch (err) {
-      console.error("[socket-auth] Authentication failed:", err);
+      logger.error("socket-auth", "Authentication failed", err);
       next(new Error("인증 실패"));
     }
   });

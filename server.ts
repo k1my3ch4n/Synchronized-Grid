@@ -6,6 +6,7 @@ import { setupSocketHandlers } from "./server/socket-handlers";
 import { setupSocketAuth } from "./server/socket-auth";
 import { setIO } from "./server/io";
 import { flushAllPendingSaves } from "./server/workspace-persistence";
+import { logger } from "./server/logger";
 import "dotenv/config";
 
 const dev = process.env.NODE_ENV !== "production";
@@ -35,30 +36,30 @@ app.prepare().then(() => {
   const PORT = process.env.PORT || 3000;
 
   httpServer.listen(PORT, () => {
-    console.log(`> Ready on http://localhost:${PORT}`);
+    logger.info("server", `Ready on http://localhost:${PORT}`);
   });
 
   // Graceful shutdown
   const shutdown = async (signal: string) => {
-    console.log(`\n> ${signal} received. Shutting down gracefully...`);
+    logger.info("server", `${signal} received. Shutting down gracefully...`);
 
     // 1. pending save flush
     await flushAllPendingSaves();
-    console.log("> Pending saves flushed.");
+    logger.info("server", "Pending saves flushed");
 
     // 2. 소켓 연결 종료
     io.close();
-    console.log("> Socket.IO closed.");
+    logger.info("server", "Socket.IO closed");
 
     // 3. HTTP 서버 종료
     httpServer.close(() => {
-      console.log("> HTTP server closed.");
+      logger.info("server", "HTTP server closed");
       process.exit(0);
     });
 
     // 강제 종료 타임아웃 (10초)
     setTimeout(() => {
-      console.error("> Forced shutdown after timeout.");
+      logger.error("server", "Forced shutdown after timeout");
       process.exit(1);
     }, 10000);
   };
