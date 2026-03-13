@@ -326,6 +326,10 @@ export function setupSocketHandlers(io: TypedServer) {
         return;
       }
 
+      if (typeof name !== "string") {
+        return;
+      }
+
       const trimmed = name.trim();
 
       if (!trimmed || trimmed.length > WORKSPACE_NAME_MAX_LENGTH) {
