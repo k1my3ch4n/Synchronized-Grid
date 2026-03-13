@@ -96,10 +96,7 @@ export async function flushPendingSave(workspaceId: string) {
       pendingSaves.delete(key);
       flushPromises.push(
         entry.saveFn().catch((err) => {
-          console.error(
-            `[workspace-persistence] Flush save failed for ${key}:`,
-            err,
-          );
+          logger.error("workspace-persistence", `Flush save failed for ${key}`, err);
         }),
       );
     }

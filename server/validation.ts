@@ -10,6 +10,17 @@ export const isInRange = (v: number, min: number, max: number) =>
 export function createRateLimiter(windowMs: number, maxEvents: number) {
   const counters = new Map<string, { count: number; resetAt: number }>();
 
+  // 만료된 엔트리 주기적 정리 (60초마다)
+  const GC_INTERVAL = 60_000;
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, entry] of counters) {
+      if (now >= entry.resetAt) {
+        counters.delete(key);
+      }
+    }
+  }, GC_INTERVAL).unref();
+
   return (socketId: string): boolean => {
     const now = Date.now();
     const entry = counters.get(socketId);
