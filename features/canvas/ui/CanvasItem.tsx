@@ -1,7 +1,7 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CanvasViewport } from "@shared/types";
 import { ViewportFrame } from "@entities/viewport";
-import { useSyncedCanvas } from "@features/room/hooks/useSyncedCanvas";
+import { useSyncedCanvas } from "@features/workspace/hooks/useSyncedCanvas";
 import { useUrlStore } from "@features/url-input";
 import { useResize } from "../hooks/useResize";
 import { CanvasItemHeader } from "./CanvasItemHeader";
@@ -16,12 +16,13 @@ interface CanvasItemProps {
 
 export function CanvasItem({ item }: CanvasItemProps) {
   const { url } = useUrlStore();
-  const { addViewport, removeViewport, updateSize, updateZIndex } =
+  const { canEdit, addViewport, removeViewport, updateSize, updateZIndex } =
     useSyncedCanvas();
 
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: item.id,
     data: { item, fromCanvas: true },
+    disabled: !canEdit,
   });
 
   const { displayWidth, displayHeight, isResizing, handleResizePointerDown } =
@@ -48,17 +49,21 @@ export function CanvasItem({ item }: CanvasItemProps) {
         label={item.label}
         width={displayWidth}
         height={displayHeight}
-        listeners={listeners ?? {}}
-        attributes={attributes}
-        onRemove={() => {
-          removeViewport(item.id);
-          toast(`"${item.label}" 뷰포트가 삭제되었습니다`, {
-            action: {
-              label: "되돌리기",
-              onClick: () => addViewport(item),
-            },
-          });
-        }}
+        listeners={canEdit ? (listeners ?? {}) : {}}
+        attributes={canEdit ? attributes : {}}
+        onRemove={
+          canEdit
+            ? () => {
+                removeViewport(item.id);
+                toast(`"${item.label}" 뷰포트가 삭제되었습니다`, {
+                  action: {
+                    label: "되돌리기",
+                    onClick: () => addViewport(item),
+                  },
+                });
+              }
+            : undefined
+        }
       />
 
       <div
@@ -78,7 +83,7 @@ export function CanvasItem({ item }: CanvasItemProps) {
           scale={CANVAS_SCALE}
           onSizeChange={(w, h) => updateSize(item.id, w, h)}
         />
-        <ResizeHandle onPointerDown={handleResizePointerDown} />
+        {canEdit && <ResizeHandle onPointerDown={handleResizePointerDown} />}
       </div>
     </div>
   );

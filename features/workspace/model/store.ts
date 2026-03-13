@@ -1,20 +1,25 @@
 import { create } from "zustand";
-import { RoomUser, CanvasViewport, RoomJoinResult } from "@shared/types";
+import {
+  WorkspaceUser,
+  CanvasViewport,
+  WorkspaceJoinResult,
+} from "@shared/types";
 import { connectSocket, getSocket, disconnectSocket } from "@shared/lib/socket";
 import { useCanvasStore } from "@features/canvas/model/store";
 import { useUrlStore } from "@features/url-input/model/store";
 import { setupSocketListeners } from "./socket-listeners";
 
-export interface RoomStoreState {
-  roomId: string | null;
+export interface WorkspaceStoreState {
   workspaceId: string | null;
+  workspaceName: string | null;
   isConnected: boolean;
-  currentUser: RoomUser | null;
-  users: RoomUser[];
+  currentUser: WorkspaceUser | null;
+  users: WorkspaceUser[];
   error: string | null;
+  kickReason: string | null;
 
-  joinRoom: (roomId: string) => void;
-  leaveRoom: () => void;
+  joinWorkspace: (workspaceId: string) => void;
+  leaveWorkspace: () => void;
 
   syncAddViewport: (viewport: Omit<CanvasViewport, "id" | "zIndex">) => void;
   syncUpdatePosition: (id: string, x: number, y: number) => void;
@@ -22,55 +27,77 @@ export interface RoomStoreState {
   syncRemoveViewport: (id: string) => void;
   syncUpdateZIndex: (id: string) => void;
   syncChangeUrl: (url: string) => void;
+  syncRenameWorkspace: (name: string) => void;
 }
 
-export const useRoomStore = create<RoomStoreState>((set, get) => ({
-  roomId: null,
+export const useWorkspaceStore = create<WorkspaceStoreState>((set, get) => ({
   workspaceId: null,
+  workspaceName: null,
   isConnected: false,
   currentUser: null,
   users: [],
   error: null,
+  kickReason: null,
 
-  joinRoom: (roomId) => {
-    set({ error: null });
+  joinWorkspace: (workspaceId) => {
+    set({ error: null, kickReason: null });
     const socket = connectSocket();
 
-    socket.emit("room:join", { roomId }, (result: RoomJoinResult) => {
-      if ("error" in result) {
-        set({ error: result.error });
-        return;
+    const handleJoin = () => {
+      socket.emit(
+        "workspace:join",
+        { workspaceId },
+        (result: WorkspaceJoinResult) => {
+          if ("error" in result) {
+            set({ error: result.error });
+            return;
+          }
+
+          set({
+            workspaceId,
+            workspaceName: result.state.name,
+            isConnected: true,
+            currentUser: result.user,
+            users: result.state.users,
+          });
+
+          // 서버 상태로 Canvas Store 초기화
+          useCanvasStore.setState({ viewport: result.state.viewports });
+
+          if (result.state.url) {
+            useUrlStore.getState().setUrl(result.state.url);
+          }
+
+          // 소켓 리스너 등록 (재연결 시에도 다시 등록)
+          setupSocketListeners(socket, set);
+        },
+      );
+    };
+
+    // 최초 join
+    handleJoin();
+
+    // 재연결 시 자동으로 workspace에 다시 참가
+    socket.on("connect", () => {
+      const state = get();
+      if (state.workspaceId) {
+        handleJoin();
       }
-
-      set({
-        roomId,
-        workspaceId: result.workspaceId,
-        isConnected: true,
-        currentUser: result.user,
-        users: result.state.users,
-      });
-
-      // 서버 상태로 Canvas Store 초기화
-      useCanvasStore.setState({ viewport: result.state.viewports });
-
-      if (result.state.url) {
-        useUrlStore.getState().setUrl(result.state.url);
-      }
-
-      // 소켓 리스너 등록
-      setupSocketListeners(socket, set);
     });
   },
 
-  leaveRoom: () => {
+  leaveWorkspace: () => {
+    const socket = getSocket();
+    socket.off("connect");
     disconnectSocket();
     set({
-      roomId: null,
       workspaceId: null,
+      workspaceName: null,
       isConnected: false,
       currentUser: null,
       users: [],
       error: null,
+      kickReason: null,
     });
   },
 
@@ -121,5 +148,10 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
   syncChangeUrl: (url) => {
     useUrlStore.getState().setUrl(url);
     getSocket().emit("url:change", { url });
+  },
+
+  syncRenameWorkspace: (name) => {
+    set({ workspaceName: name });
+    getSocket().emit("workspace:rename", { name });
   },
 }));

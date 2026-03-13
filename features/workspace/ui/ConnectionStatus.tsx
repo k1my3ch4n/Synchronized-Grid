@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { getSocket } from "@shared/lib/socket";
-import { useRoomStore } from "../model/store";
+import { useWorkspaceStore } from "../model/store";
 import { toast } from "sonner";
 
 export function ConnectionStatus() {
-  const isConnected = useRoomStore((s) => s.isConnected);
+  const isConnected = useWorkspaceStore((s) => s.isConnected);
   const [socketConnected, setSocketConnected] = useState(true);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export function ConnectionStatus() {
 
     const handleReconnect = () => {
       setSocketConnected(true);
-      toast.success("서버에 다시 연결되었습니다");
+      toast.success("서버에 다시 연결되었습니다. 워크스페이스에 재참가 중...");
     };
 
     socket.on("disconnect", handleDisconnect);

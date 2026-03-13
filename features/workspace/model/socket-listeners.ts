@@ -1,8 +1,12 @@
-import { RoomUser, CanvasViewport } from "@shared/types";
+import {
+  WorkspaceUser,
+  type WorkspaceRole,
+  CanvasViewport,
+} from "@shared/types";
 import { getSocket } from "@shared/lib/socket";
 import { useCanvasStore } from "@features/canvas/model/store";
 import { useUrlStore } from "@features/url-input/model/store";
-import type { RoomStoreState } from "./store";
+import type { WorkspaceStoreState } from "./store";
 
 const SOCKET_EVENTS = [
   "user:joined",
@@ -14,23 +18,33 @@ const SOCKET_EVENTS = [
   "viewport:zindexed",
   "url:changed",
   "cursor:moved",
+  "workspace:renamed",
+  "member:role-changed",
+  "member:kicked",
+  "workspace:deleted",
 ] as const;
 
 export function setupSocketListeners(
   socket: ReturnType<typeof getSocket>,
-  set: (fn: (state: RoomStoreState) => Partial<RoomStoreState>) => void,
+  set: (
+    fn: (state: WorkspaceStoreState) => Partial<WorkspaceStoreState>,
+  ) => void,
 ) {
   // 기존 리스너 제거 (중복 등록 방지)
   SOCKET_EVENTS.forEach((event) => socket.off(event));
 
-  // 유저 입장
-  socket.on("user:joined", (user: RoomUser) => {
-    set((state: RoomStoreState) => ({ users: [...state.users, user] }));
+  // 유저 입장 (중복 방지)
+  socket.on("user:joined", (user: WorkspaceUser) => {
+    set((state: WorkspaceStoreState) => ({
+      users: state.users.some((u) => u.id === user.id)
+        ? state.users
+        : [...state.users, user],
+    }));
   });
 
   // 유저 퇴장
   socket.on("user:left", ({ userId }: { userId: string }) => {
-    set((state: RoomStoreState) => ({
+    set((state: WorkspaceStoreState) => ({
       users: state.users.filter((u) => u.id !== userId),
     }));
   });
@@ -73,9 +87,40 @@ export function setupSocketListeners(
     useUrlStore.getState().setUrl(url);
   });
 
+  // 워크스페이스 이름 변경
+  socket.on("workspace:renamed", ({ name }: { name: string }) => {
+    set(() => ({ workspaceName: name }));
+  });
+
+  // 멤버 역할 변경
+  socket.on(
+    "member:role-changed",
+    ({ userId, newRole }: { userId: string; newRole: WorkspaceRole }) => {
+      set((state: WorkspaceStoreState) => ({
+        users: state.users.map((u) =>
+          u.userId === userId ? { ...u, role: newRole } : u,
+        ),
+        currentUser:
+          state.currentUser?.userId === userId
+            ? { ...state.currentUser, role: newRole }
+            : state.currentUser,
+      }));
+    },
+  );
+
+  // 추방 당함
+  socket.on("member:kicked", ({ reason }: { reason: string }) => {
+    set(() => ({ kickReason: reason }));
+  });
+
+  // 워크스페이스 삭제됨
+  socket.on("workspace:deleted", () => {
+    set(() => ({ kickReason: "워크스페이스가 삭제되었습니다" }));
+  });
+
   // 커서 이동
   socket.on("cursor:moved", ({ userId, x, y }) => {
-    set((state: RoomStoreState) => ({
+    set((state: WorkspaceStoreState) => ({
       users: state.users.map((u) =>
         u.id === userId ? { ...u, cursor: { x, y } } : u,
       ),

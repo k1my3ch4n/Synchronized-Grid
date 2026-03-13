@@ -5,26 +5,26 @@ import throttle from "lodash.throttle";
 import { useDroppable } from "@dnd-kit/core";
 import { useCanvasStore } from "../model/store";
 import { CanvasItem } from "./CanvasItem";
-import { GRID_SIZE } from "@shared/constants";
-import { useRoomContext } from "@features/room/hooks/useRoomContext";
-import { RemoteCursors } from "@features/room/ui/RemoteCursors";
+import { GRID_SIZE, THROTTLE_CURSOR_MS } from "@shared/constants";
+import { useWorkspaceContext } from "@features/workspace/hooks/useWorkspaceContext";
+import { RemoteCursors } from "@features/workspace/ui/RemoteCursors";
 import { getSocket } from "@shared/lib/socket";
 
 export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
   const { viewport } = useCanvasStore();
-  const { isInRoom } = useRoomContext();
+  const { isInWorkspace } = useWorkspaceContext();
 
   const throttledEmit = useMemo(
     () =>
       throttle((x: number, y: number) => {
         getSocket().emit("cursor:move", { x, y });
-      }, 50),
+      }, THROTTLE_CURSOR_MS),
     [],
   );
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!isInRoom) {
+      if (!isInWorkspace) {
         return;
       }
 
@@ -34,7 +34,7 @@ export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
 
       throttledEmit(x, y);
     },
-    [isInRoom, throttledEmit],
+    [isInWorkspace, throttledEmit],
   );
 
   const { setNodeRef, isOver } = useDroppable({
@@ -77,7 +77,7 @@ export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
       {viewport.map((item) => (
         <CanvasItem key={item.id} item={item} />
       ))}
-      {isInRoom && <RemoteCursors />}
+      {isInWorkspace && <RemoteCursors />}
     </div>
   );
 });

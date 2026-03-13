@@ -41,7 +41,7 @@ export function DeleteWorkspaceModal({
             워크스페이스를 삭제하시겠습니까?
           </p>
           <p className="text-xs text-gd-rose">
-            이 작업은 되돌릴 수 없으며, 모든 룸과 데이터가 삭제됩니다.
+            이 작업은 되돌릴 수 없으며, 모든 워크스페이스 데이터가 삭제됩니다.
           </p>
           <div className="flex gap-3 pt-2">
             <button

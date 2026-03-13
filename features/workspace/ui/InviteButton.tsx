@@ -1,10 +1,10 @@
 "use client";
 
-import { useRoomStore } from "../model/store";
+import { useWorkspaceStore } from "../model/store";
 import { useInviteLink } from "@shared/hooks/useInviteLink";
 
 export function InviteButton() {
-  const workspaceId = useRoomStore((s) => s.workspaceId);
+  const workspaceId = useWorkspaceStore((s) => s.workspaceId);
   const { copied, loading, copyInviteLink } = useInviteLink(workspaceId ?? "");
 
   if (!workspaceId) {

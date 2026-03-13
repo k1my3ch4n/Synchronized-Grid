@@ -1,15 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { useSyncedUrl } from "@features/room/hooks/useSyncedUrl";
+import { useSyncedUrl } from "@features/workspace/hooks/useSyncedUrl";
 
 export function UrlInput() {
-  const { url, setUrl } = useSyncedUrl();
+  const { url, setUrl, canEdit } = useSyncedUrl();
   const [inputUrl, setInputUrl] = useState(url);
 
   const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
-    setUrl(inputUrl);
+
+    if (canEdit) {
+      setUrl(inputUrl);
+    }
   };
 
   return (
@@ -22,9 +25,14 @@ export function UrlInput() {
         value={inputUrl}
         onChange={(e) => setInputUrl(e.target.value)}
         placeholder="https://example.com"
-        className="flex-1 px-4 py-2.5 glass-input text-sm rounded-glass font-mono"
+        disabled={!canEdit}
+        className="flex-1 px-4 py-2.5 glass-input text-sm rounded-glass font-mono disabled:opacity-50"
       />
-      <button type="submit" className="glass-btn px-6 py-2.5 text-sm">
+      <button
+        type="submit"
+        disabled={!canEdit}
+        className="glass-btn px-6 py-2.5 text-sm disabled:opacity-50"
+      >
         Load
       </button>
     </form>

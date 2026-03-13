@@ -59,9 +59,12 @@ model Workspace {
   slug    String @unique
   ownerId String
 
+  // 소켓 동기화 상태 (기존 Room 필드 병합)
+  url       String @default("")
+  viewports Json   @default("[]")
+
   owner   User               @relation("owner", fields: [ownerId], references: [id], onDelete: Cascade)
   members WorkspaceMember[]
-  rooms   Room[]
   invites WorkspaceInvite[]
 
   createdAt DateTime @default(now())
@@ -103,16 +106,3 @@ model WorkspaceInvite {
   createdAt DateTime @default(now())
 }
 
-model Room {
-  id          String @id @default(cuid())
-  name        String @db.VarChar(50)
-  workspaceId String
-  url         String @default("")
-  viewports   Json   @default("[]")
-  createdById String
-
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
