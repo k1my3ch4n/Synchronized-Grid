@@ -67,6 +67,25 @@ export function saveWorkspaceViewports(
   );
 }
 
+export async function flushAllPendingSaves() {
+  const flushPromises: Promise<void>[] = [];
+
+  for (const [key, entry] of pendingSaves) {
+    clearTimeout(entry.timer);
+    pendingSaves.delete(key);
+    flushPromises.push(
+      entry.saveFn().catch((err) => {
+        console.error(
+          `[workspace-persistence] Flush save failed for ${key}:`,
+          err,
+        );
+      }),
+    );
+  }
+
+  await Promise.all(flushPromises);
+}
+
 export async function flushPendingSave(workspaceId: string) {
   const keys = [`${workspaceId}:url`, `${workspaceId}:viewports`];
   const flushPromises: Promise<void>[] = [];
