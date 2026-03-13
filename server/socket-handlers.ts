@@ -145,6 +145,11 @@ export function setupSocketHandlers(io: TypedServer) {
           role,
         };
 
+        // 같은 userId가 이미 접속 중인지 확인 (다른 탭 등)
+        const alreadyConnected = [...active.users.values()].some(
+          (u) => u.userId === user.userId,
+        );
+
         active.users.set(socket.id, user);
 
         socket.join(workspaceId);
@@ -160,7 +165,10 @@ export function setupSocketHandlers(io: TypedServer) {
           },
         });
 
-        socket.to(workspaceId).emit("user:joined", user);
+        // 이미 접속 중인 유저의 재접속은 브로드캐스트하지 않음
+        if (!alreadyConnected) {
+          socket.to(workspaceId).emit("user:joined", user);
+        }
       } catch (err) {
         logger.error(
           "socket-handlers",
