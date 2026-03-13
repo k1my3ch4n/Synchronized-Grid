@@ -18,8 +18,12 @@ app.prepare().then(() => {
     handle(req, res, parsedUrl);
   });
 
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [
+    `http://localhost:${process.env.PORT || 3000}`,
+  ];
+
   const io = new SocketIOServer(httpServer, {
-    cors: { origin: "*" },
+    cors: { origin: allowedOrigins, credentials: true },
     path: "/api/socket",
   });
 
