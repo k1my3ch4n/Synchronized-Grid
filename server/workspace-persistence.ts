@@ -2,13 +2,18 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { CanvasViewport } from "@shared/types";
 import { DEBOUNCE_SAVE_MS } from "@shared/constants";
+import { logger } from "./logger";
 
 const pendingSaves = new Map<
   string,
   { timer: NodeJS.Timeout; saveFn: () => Promise<void> }
 >();
 
-function debouncedSave(key: string, saveFn: () => Promise<void>, delay = DEBOUNCE_SAVE_MS) {
+function debouncedSave(
+  key: string,
+  saveFn: () => Promise<void>,
+  delay = DEBOUNCE_SAVE_MS,
+) {
   const existing = pendingSaves.get(key);
 
   if (existing) {
@@ -21,7 +26,7 @@ function debouncedSave(key: string, saveFn: () => Promise<void>, delay = DEBOUNC
     try {
       await saveFn();
     } catch (err) {
-      console.error(`[workspace-persistence] Save failed for ${key}:`, err);
+      logger.error("workspace-persistence", `Save failed for ${key}`, err);
     }
   }, delay);
 
@@ -67,26 +72,33 @@ export function saveWorkspaceViewports(
   );
 }
 
-export async function flushPendingSave(workspaceId: string) {
-  const keys = [`${workspaceId}:url`, `${workspaceId}:viewports`];
-  const flushPromises: Promise<void>[] = [];
+function flushEntries(keys: string[]) {
+  return Promise.all(
+    keys.map((key) => {
+      const entry = pendingSaves.get(key);
 
-  for (const key of keys) {
-    const entry = pendingSaves.get(key);
+      if (!entry) {
+        return;
+      }
 
-    if (entry) {
       clearTimeout(entry.timer);
       pendingSaves.delete(key);
-      flushPromises.push(
-        entry.saveFn().catch((err) => {
-          console.error(
-            `[workspace-persistence] Flush save failed for ${key}:`,
-            err,
-          );
-        }),
-      );
-    }
-  }
 
-  await Promise.all(flushPromises);
+      return entry.saveFn().catch((err) => {
+        logger.error(
+          "workspace-persistence",
+          `Flush save failed for ${key}`,
+          err,
+        );
+      });
+    }),
+  );
+}
+
+export function flushAllPendingSaves() {
+  return flushEntries([...pendingSaves.keys()]);
+}
+
+export function flushPendingSave(workspaceId: string) {
+  return flushEntries([`${workspaceId}:url`, `${workspaceId}:viewports`]);
 }

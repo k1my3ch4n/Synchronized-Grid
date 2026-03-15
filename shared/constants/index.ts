@@ -28,6 +28,14 @@ export const DND_ACTIVATION_DISTANCE = 5;
 
 // ─── 유효성 검사 ───
 export const WORKSPACE_NAME_MAX_LENGTH = 50;
+export const URL_MAX_LENGTH = 2048;
+
+// ─── 뷰포트 제한 ───
+export const VIEWPORT_MIN_SIZE = 100;
+export const VIEWPORT_MAX_SIZE = 2000;
+export const VIEWPORT_MAX_POSITION = 10000;
+export const VIEWPORT_MAX_ZINDEX = 10000;
+export const VIEWPORT_LABEL_MAX_LENGTH = 100;
 
 // ─── 유저 색상 ───
 export const USER_COLORS = [

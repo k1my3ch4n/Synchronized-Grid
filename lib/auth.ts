@@ -11,11 +11,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
-    // Naver는 OAuth 키 발급 후 추가
-    // Naver({
-    //   clientId: process.env.NAVER_CLIENT_ID,
-    //   clientSecret: process.env.NAVER_CLIENT_SECRET,
-    // }),
   ],
   pages: {
     signIn: "/login",

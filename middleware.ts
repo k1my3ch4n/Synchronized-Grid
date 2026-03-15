@@ -5,10 +5,11 @@ import { getToken } from "next-auth/jwt";
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // 공개 경로
+  // 공개 경로 (인증 불필요)
   const isPublicPath =
     pathname === "/login" ||
-    pathname.startsWith("/api/") ||
+    pathname.startsWith("/api/auth/") ||
+    pathname === "/api/health" ||
     pathname.startsWith("/_next/") ||
     pathname === "/favicon.ico";
 
@@ -23,7 +24,12 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const isLoggedIn = !!token;
 
-  // 미인증 사용자 → 로그인
+  // 미인증 API 요청 → 401 반환
+  if (!isLoggedIn && pathname.startsWith("/api/")) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // 미인증 페이지 요청 → 로그인 리다이렉트
   if (!isLoggedIn) {
     const loginUrl = new URL("/login", req.nextUrl.origin);
     loginUrl.searchParams.set("callbackUrl", pathname);

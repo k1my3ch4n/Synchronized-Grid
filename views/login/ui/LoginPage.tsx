@@ -50,17 +50,6 @@ export function LoginPage() {
             </svg>
             Google로 계속하기
           </button>
-
-          <button
-            disabled
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg bg-[#03C75A] text-white font-medium text-sm opacity-50 cursor-not-allowed"
-            title="준비 중"
-          >
-            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-              <path d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727z" />
-            </svg>
-            네이버로 계속하기 (준비 중)
-          </button>
         </div>
 
         <p className="text-xs text-text-muted text-center">

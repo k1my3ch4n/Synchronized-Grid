@@ -16,10 +16,28 @@ import { prisma } from "@/lib/prisma";
 import type { SocketUser } from "./socket-auth";
 import {
   EDIT_ROLES,
+  ALL_ROLES,
   USER_COLORS,
   WORKSPACE_ROLES,
   WORKSPACE_NAME_MAX_LENGTH,
+  URL_MAX_LENGTH,
+  VIEWPORT_MIN_SIZE,
+  VIEWPORT_MAX_SIZE,
+  VIEWPORT_MAX_POSITION,
+  VIEWPORT_MAX_ZINDEX,
+  VIEWPORT_LABEL_MAX_LENGTH,
 } from "@shared/constants";
+import {
+  isValidString,
+  isValidNumber,
+  isInRange,
+  createRateLimiter,
+} from "./validation";
+import { logger } from "./logger";
+
+// Rate limiters: 고빈도 이벤트(커서/뷰포트 이동)와 일반 이벤트 분리
+const cursorLimiter = createRateLimiter(1000, 30); // 1초에 30회
+const eventLimiter = createRateLimiter(1000, 10); // 1초에 10회
 
 type TypedServer = Server<ClientToServerEvents, ServerToClientEvents>;
 type TypedSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
@@ -65,6 +83,10 @@ export function setupSocketHandlers(io: TypedServer) {
     // 워크스페이스 입장 — DB에서 로드
     socket.on("workspace:join", async ({ workspaceId }, callback) => {
       try {
+        if (!isValidString(workspaceId)) {
+          return callback({ error: "Invalid workspace ID" });
+        }
+
         let active = activeWorkspaces.get(workspaceId);
 
         if (!active) {
@@ -136,26 +158,77 @@ export function setupSocketHandlers(io: TypedServer) {
         });
 
         socket.to(workspaceId).emit("user:joined", user);
-      } catch {
+      } catch (err) {
+        logger.error(
+          "socket-handlers",
+          `workspace:join failed for ${workspaceId}`,
+          err,
+        );
         callback({ error: "Failed to join workspace" });
       }
     });
 
-    // 현재 유저가 편집 권한이 있는지 확인
-    const canEdit = () => {
+    // 현재 워크스페이스의 활성 상태와 요청 유저를 반환
+    const getActiveAndUser = () => {
       if (!currentWorkspaceId) {
-        return false;
+        return null;
       }
 
       const active = activeWorkspaces.get(currentWorkspaceId);
       const user = active?.users.get(socket.id);
 
-      return user ? EDIT_ROLES.includes(user.role) : false;
+      if (!active || !user) {
+        return null;
+      }
+
+      return { active, user, workspaceId: currentWorkspaceId };
     };
+
+    // 현재 유저가 편집 권한이 있는지 확인
+    const canEdit = () => {
+      const ctx = getActiveAndUser();
+      return ctx ? EDIT_ROLES.includes(ctx.user.role) : false;
+    };
+
+    // 현재 유저가 소유자인지 확인
+    const requireOwner = () => {
+      const ctx = getActiveAndUser();
+
+      if (!ctx || ctx.user.role !== WORKSPACE_ROLES.OWNER) {
+        return null;
+      }
+
+      return ctx;
+    };
+
+    // userId로 접속 중인 유저의 [socketId, user] 엔트리 검색
+    const findUserByUserId = (active: ActiveWorkspaceState, userId: string) =>
+      [...active.users.entries()].find(([, u]) => u.userId === userId) ?? null;
 
     // URL 변경
     socket.on("url:change", ({ url }) => {
-      if (!canEdit()) {
+      if (!canEdit() || !eventLimiter(socket.id)) {
+        return;
+      }
+
+      if (typeof url !== "string" || url.length > URL_MAX_LENGTH) {
+        return;
+      }
+
+      // 위험한 프로토콜 차단 (javascript:, data: 등)
+      try {
+        const parsed = new URL(url);
+        if (!["http:", "https:"].includes(parsed.protocol)) {
+          logger.warn("socket-handlers", "Blocked invalid URL protocol", {
+            socketId: socket.id,
+            protocol: parsed.protocol,
+          });
+          return;
+        }
+      } catch {
+        logger.warn("socket-handlers", "Blocked malformed URL", {
+          socketId: socket.id,
+        });
         return;
       }
 
@@ -171,7 +244,19 @@ export function setupSocketHandlers(io: TypedServer) {
 
     // 뷰포트 추가
     socket.on("viewport:add", ({ viewport }, callback) => {
-      if (!canEdit()) {
+      if (!canEdit() || !eventLimiter(socket.id)) {
+        return;
+      }
+
+      if (
+        !isValidNumber(viewport.width) ||
+        !isValidNumber(viewport.height) ||
+        !isInRange(viewport.width, VIEWPORT_MIN_SIZE, VIEWPORT_MAX_SIZE) ||
+        !isInRange(viewport.height, VIEWPORT_MIN_SIZE, VIEWPORT_MAX_SIZE) ||
+        (viewport.label !== undefined &&
+          (typeof viewport.label !== "string" ||
+            viewport.label.length > VIEWPORT_LABEL_MAX_LENGTH))
+      ) {
         return;
       }
 
@@ -193,7 +278,20 @@ export function setupSocketHandlers(io: TypedServer) {
 
     // 뷰포트 이동
     socket.on("viewport:move", ({ id, x, y }) => {
-      if (!canEdit()) {
+      if (!canEdit() || !cursorLimiter(socket.id)) {
+        return;
+      }
+
+      if (!isValidString(id)) {
+        return;
+      }
+
+      if (
+        !isValidNumber(x) ||
+        !isValidNumber(y) ||
+        !isInRange(x, -VIEWPORT_MAX_POSITION, VIEWPORT_MAX_POSITION) ||
+        !isInRange(y, -VIEWPORT_MAX_POSITION, VIEWPORT_MAX_POSITION)
+      ) {
         return;
       }
 
@@ -211,7 +309,20 @@ export function setupSocketHandlers(io: TypedServer) {
 
     // 뷰포트 리사이즈
     socket.on("viewport:resize", ({ id, width, height }) => {
-      if (!canEdit()) {
+      if (!canEdit() || !cursorLimiter(socket.id)) {
+        return;
+      }
+
+      if (!isValidString(id)) {
+        return;
+      }
+
+      if (
+        !isValidNumber(width) ||
+        !isValidNumber(height) ||
+        !isInRange(width, VIEWPORT_MIN_SIZE, VIEWPORT_MAX_SIZE) ||
+        !isInRange(height, VIEWPORT_MIN_SIZE, VIEWPORT_MAX_SIZE)
+      ) {
         return;
       }
 
@@ -231,7 +342,11 @@ export function setupSocketHandlers(io: TypedServer) {
 
     // 뷰포트 삭제
     socket.on("viewport:remove", ({ id }) => {
-      if (!canEdit()) {
+      if (!canEdit() || !eventLimiter(socket.id)) {
+        return;
+      }
+
+      if (!isValidString(id)) {
         return;
       }
 
@@ -246,7 +361,18 @@ export function setupSocketHandlers(io: TypedServer) {
 
     // 뷰포트 Z-index 변경
     socket.on("viewport:zindex", ({ id, zIndex }) => {
-      if (!canEdit()) {
+      if (!canEdit() || !cursorLimiter(socket.id)) {
+        return;
+      }
+
+      if (!isValidString(id)) {
+        return;
+      }
+
+      if (
+        !isValidNumber(zIndex) ||
+        !isInRange(zIndex, 0, VIEWPORT_MAX_ZINDEX)
+      ) {
         return;
       }
 
@@ -263,14 +389,12 @@ export function setupSocketHandlers(io: TypedServer) {
 
     // 워크스페이스 이름 변경
     socket.on("workspace:rename", async ({ name }) => {
-      if (!currentWorkspaceId) {
+      const ctx = requireOwner();
+      if (!ctx) {
         return;
       }
 
-      const active = activeWorkspaces.get(currentWorkspaceId);
-      const user = active?.users.get(socket.id);
-
-      if (!user || user.role !== WORKSPACE_ROLES.OWNER) {
+      if (typeof name !== "string") {
         return;
       }
 
@@ -282,37 +406,36 @@ export function setupSocketHandlers(io: TypedServer) {
 
       try {
         await prisma.workspace.update({
-          where: { id: currentWorkspaceId },
+          where: { id: ctx.workspaceId },
           data: { name: trimmed },
         });
 
-        active!.name = trimmed;
-        socket
-          .to(currentWorkspaceId)
-          .emit("workspace:renamed", { name: trimmed });
-      } catch {
-        // DB 업데이트 실패 시 무시
+        ctx.active.name = trimmed;
+        socket.to(ctx.workspaceId).emit("workspace:renamed", { name: trimmed });
+      } catch (err) {
+        logger.error(
+          "socket-handlers",
+          "workspace:rename DB update failed",
+          err,
+        );
       }
     });
 
     // 멤버 역할 변경
     socket.on("member:role-change", async ({ userId, newRole }) => {
-      if (!currentWorkspaceId) {
+      if (!isValidString(userId)) {
+        return;
+      }
+      if (!ALL_ROLES.includes(newRole)) {
         return;
       }
 
-      const active = activeWorkspaces.get(currentWorkspaceId);
-      const requester = active?.users.get(socket.id);
-
-      if (!requester || requester.role !== WORKSPACE_ROLES.OWNER) {
+      const ctx = requireOwner();
+      if (!ctx) {
         return;
       }
 
-      // active.users에서 대상 유저 찾기 (userId 기준)
-      const targetEntry = [...active!.users.entries()].find(
-        ([, u]) => u.userId === userId,
-      );
-
+      const targetEntry = findUserByUserId(ctx.active, userId);
       if (!targetEntry) {
         return;
       }
@@ -321,51 +444,52 @@ export function setupSocketHandlers(io: TypedServer) {
 
       if (newRole === WORKSPACE_ROLES.OWNER) {
         // 소유권 이전: 대상 → OWNER, 요청자 → EDITOR
-        active!.users.set(targetSocketId, {
+        ctx.active.users.set(targetSocketId, {
           ...targetUser,
           role: WORKSPACE_ROLES.OWNER,
         });
-        active!.users.set(socket.id, {
-          ...requester,
+        ctx.active.users.set(socket.id, {
+          ...ctx.user,
           role: WORKSPACE_ROLES.EDITOR,
         });
 
-        io.to(currentWorkspaceId).emit("member:role-changed", {
+        io.to(ctx.workspaceId).emit("member:role-changed", {
           userId,
           newRole: WORKSPACE_ROLES.OWNER,
         });
-        io.to(currentWorkspaceId).emit("member:role-changed", {
-          userId: requester.userId,
+        io.to(ctx.workspaceId).emit("member:role-changed", {
+          userId: ctx.user.userId,
           newRole: WORKSPACE_ROLES.EDITOR,
         });
       } else {
-        active!.users.set(targetSocketId, { ...targetUser, role: newRole });
+        ctx.active.users.set(targetSocketId, { ...targetUser, role: newRole });
 
-        io.to(currentWorkspaceId).emit("member:role-changed", {
+        io.to(ctx.workspaceId).emit("member:role-changed", {
           userId,
           newRole,
         });
       }
+
+      logger.info("socket-handlers", "member:role-change", {
+        workspaceId: ctx.workspaceId,
+        changedBy: ctx.user.userId,
+        targetUserId: userId,
+        newRole,
+      });
     });
 
     // 멤버 추방 (소켓 강제 퇴장)
     socket.on("member:kick", ({ userId }) => {
-      if (!currentWorkspaceId) {
+      if (!isValidString(userId)) {
         return;
       }
 
-      const active = activeWorkspaces.get(currentWorkspaceId);
-      const requester = active?.users.get(socket.id);
-
-      if (!requester || requester.role !== WORKSPACE_ROLES.OWNER) {
+      const ctx = requireOwner();
+      if (!ctx) {
         return;
       }
 
-      // 대상 유저의 소켓 찾기
-      const targetEntry = [...active!.users.entries()].find(
-        ([, u]) => u.userId === userId,
-      );
-
+      const targetEntry = findUserByUserId(ctx.active, userId);
       if (!targetEntry) {
         return;
       }
@@ -380,48 +504,55 @@ export function setupSocketHandlers(io: TypedServer) {
       // 대상을 룸에서 제거
       const targetSocket = io.sockets.sockets.get(targetSocketId);
       if (targetSocket) {
-        targetSocket.leave(currentWorkspaceId);
+        targetSocket.leave(ctx.workspaceId);
       }
 
       // 인메모리 상태에서 제거
-      active!.users.delete(targetSocketId);
+      ctx.active.users.delete(targetSocketId);
 
       // 나머지 유저에게 퇴장 알림
-      socket
-        .to(currentWorkspaceId)
-        .emit("user:left", { userId: targetSocketId });
+      socket.to(ctx.workspaceId).emit("user:left", { userId: targetSocketId });
+
+      logger.info("socket-handlers", "member:kick", {
+        workspaceId: ctx.workspaceId,
+        kickedBy: ctx.user.userId,
+        targetUserId: userId,
+      });
     });
 
     // 워크스페이스 삭제 (소켓 정리)
     socket.on("workspace:delete", async () => {
-      if (!currentWorkspaceId) {
-        return;
-      }
-
-      const active = activeWorkspaces.get(currentWorkspaceId);
-      const requester = active?.users.get(socket.id);
-
-      if (!requester || requester.role !== WORKSPACE_ROLES.OWNER) {
+      const ctx = requireOwner();
+      if (!ctx) {
         return;
       }
 
       // 본인 제외 모든 유저에게 삭제 알림
-      socket.to(currentWorkspaceId).emit("workspace:deleted");
+      socket.to(ctx.workspaceId).emit("workspace:deleted");
 
       // 모든 소켓을 룸에서 제거
-      const sockets = await io.in(currentWorkspaceId).fetchSockets();
+      const sockets = await io.in(ctx.workspaceId).fetchSockets();
       for (const s of sockets) {
-        s.leave(currentWorkspaceId);
+        s.leave(ctx.workspaceId);
       }
 
       // 인메모리 상태 정리
-      await flushPendingSave(currentWorkspaceId);
-      activeWorkspaces.delete(currentWorkspaceId);
+      await flushPendingSave(ctx.workspaceId);
+      activeWorkspaces.delete(ctx.workspaceId);
+
+      logger.info("socket-handlers", "workspace:delete", {
+        workspaceId: ctx.workspaceId,
+        deletedBy: ctx.user.userId,
+      });
     });
 
     // 커서 이동
     socket.on("cursor:move", ({ x, y }) => {
-      if (!currentWorkspaceId) {
+      if (!currentWorkspaceId || !cursorLimiter(socket.id)) {
+        return;
+      }
+
+      if (!isValidNumber(x) || !isValidNumber(y)) {
         return;
       }
 
