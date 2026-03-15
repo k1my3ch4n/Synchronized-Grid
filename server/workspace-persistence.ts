@@ -9,7 +9,11 @@ const pendingSaves = new Map<
   { timer: NodeJS.Timeout; saveFn: () => Promise<void> }
 >();
 
-function debouncedSave(key: string, saveFn: () => Promise<void>, delay = DEBOUNCE_SAVE_MS) {
+function debouncedSave(
+  key: string,
+  saveFn: () => Promise<void>,
+  delay = DEBOUNCE_SAVE_MS,
+) {
   const existing = pendingSaves.get(key);
 
   if (existing) {
@@ -68,39 +72,33 @@ export function saveWorkspaceViewports(
   );
 }
 
-export async function flushAllPendingSaves() {
-  const flushPromises: Promise<void>[] = [];
+function flushEntries(keys: string[]) {
+  return Promise.all(
+    keys.map((key) => {
+      const entry = pendingSaves.get(key);
 
-  for (const [key, entry] of pendingSaves) {
-    clearTimeout(entry.timer);
-    pendingSaves.delete(key);
-    flushPromises.push(
-      entry.saveFn().catch((err) => {
-        logger.error("workspace-persistence", `Flush save failed for ${key}`, err);
-      }),
-    );
-  }
+      if (!entry) {
+        return;
+      }
 
-  await Promise.all(flushPromises);
-}
-
-export async function flushPendingSave(workspaceId: string) {
-  const keys = [`${workspaceId}:url`, `${workspaceId}:viewports`];
-  const flushPromises: Promise<void>[] = [];
-
-  for (const key of keys) {
-    const entry = pendingSaves.get(key);
-
-    if (entry) {
       clearTimeout(entry.timer);
       pendingSaves.delete(key);
-      flushPromises.push(
-        entry.saveFn().catch((err) => {
-          logger.error("workspace-persistence", `Flush save failed for ${key}`, err);
-        }),
-      );
-    }
-  }
 
-  await Promise.all(flushPromises);
+      return entry.saveFn().catch((err) => {
+        logger.error(
+          "workspace-persistence",
+          `Flush save failed for ${key}`,
+          err,
+        );
+      });
+    }),
+  );
+}
+
+export function flushAllPendingSaves() {
+  return flushEntries([...pendingSaves.keys()]);
+}
+
+export function flushPendingSave(workspaceId: string) {
+  return flushEntries([`${workspaceId}:url`, `${workspaceId}:viewports`]);
 }

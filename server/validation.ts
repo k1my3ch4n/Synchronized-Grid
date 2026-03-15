@@ -1,3 +1,7 @@
+// 문자열 검증 헬퍼 (non-empty string)
+export const isValidString = (v: unknown): v is string =>
+  typeof v === "string" && v.trim().length > 0;
+
 // 숫자 검증 헬퍼
 export const isValidNumber = (v: unknown): v is number =>
   typeof v === "number" && Number.isFinite(v);

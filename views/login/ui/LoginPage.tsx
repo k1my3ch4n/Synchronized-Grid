@@ -50,8 +50,6 @@ export function LoginPage() {
             </svg>
             Google로 계속하기
           </button>
-
-
         </div>
 
         <p className="text-xs text-text-muted text-center">
