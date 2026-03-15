@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getIO } from "@server/io";
+import { logger } from "@server/logger";
 
 export async function GET() {
   const checks: Record<string, "ok" | "error"> = {
@@ -12,8 +13,8 @@ export async function GET() {
   try {
     await prisma.$queryRaw`SELECT 1`;
     checks.db = "ok";
-  } catch {
-    // DB 연결 실패
+  } catch (err) {
+    logger.error("health-check", "DB connection failed", err);
   }
 
   // Socket.IO 서버 확인
@@ -22,8 +23,8 @@ export async function GET() {
     if (io) {
       checks.socket = "ok";
     }
-  } catch {
-    // Socket.IO 미초기화
+  } catch (err) {
+    logger.error("health-check", "Socket.IO check failed", err);
   }
 
   const healthy = Object.values(checks).every((v) => v === "ok");

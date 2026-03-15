@@ -219,9 +219,16 @@ export function setupSocketHandlers(io: TypedServer) {
       try {
         const parsed = new URL(url);
         if (!["http:", "https:"].includes(parsed.protocol)) {
+          logger.warn("socket-handlers", "Blocked invalid URL protocol", {
+            socketId: socket.id,
+            protocol: parsed.protocol,
+          });
           return;
         }
       } catch {
+        logger.warn("socket-handlers", "Blocked malformed URL", {
+          socketId: socket.id,
+        });
         return;
       }
 
@@ -246,9 +253,9 @@ export function setupSocketHandlers(io: TypedServer) {
         !isValidNumber(viewport.height) ||
         !isInRange(viewport.width, VIEWPORT_MIN_SIZE, VIEWPORT_MAX_SIZE) ||
         !isInRange(viewport.height, VIEWPORT_MIN_SIZE, VIEWPORT_MAX_SIZE) ||
-        (viewport.label &&
-          typeof viewport.label === "string" &&
-          viewport.label.length > VIEWPORT_LABEL_MAX_LENGTH)
+        (viewport.label !== undefined &&
+          (typeof viewport.label !== "string" ||
+            viewport.label.length > VIEWPORT_LABEL_MAX_LENGTH))
       ) {
         return;
       }

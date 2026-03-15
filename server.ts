@@ -20,9 +20,13 @@ app.prepare().then(() => {
     handle(req, res, parsedUrl);
   });
 
-  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [
-    `http://localhost:${process.env.PORT || 3000}`,
-  ];
+  const allowedOrigins = (process.env.ALLOWED_ORIGINS?.split(",") || [])
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  if (allowedOrigins.length === 0) {
+    allowedOrigins.push(`http://localhost:${process.env.PORT || 3000}`);
+  }
 
   const io = new SocketIOServer(httpServer, {
     cors: { origin: allowedOrigins, credentials: true },
