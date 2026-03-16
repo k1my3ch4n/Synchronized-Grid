@@ -10,6 +10,7 @@ import { RenameWorkspaceModal } from "@features/workspace/ui/RenameWorkspaceModa
 import { UserMenu } from "@features/auth";
 import { useWorkspaceStore } from "@features/workspace/model/store";
 import { WORKSPACE_ROLES } from "@shared/constants";
+import { ExternalLinks } from "@shared/ui/ExternalLinks";
 import { EditableUrl } from "./EditableUrl";
 
 interface HeaderProps {
@@ -60,9 +61,15 @@ export function Header({ title }: HeaderProps) {
       )}
 
       <div className="ml-auto flex items-center gap-3">
-        <ConnectionStatus />
-        <InviteButton />
-        <UserPresence />
+        {workspaceName ? (
+          <>
+            <ConnectionStatus />
+            <InviteButton />
+            <UserPresence />
+          </>
+        ) : (
+          <ExternalLinks />
+        )}
         <UserMenu />
       </div>
       {showRename && workspaceName && (

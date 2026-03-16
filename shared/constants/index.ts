@@ -37,6 +37,11 @@ export const VIEWPORT_MAX_POSITION = 10000;
 export const VIEWPORT_MAX_ZINDEX = 10000;
 export const VIEWPORT_LABEL_MAX_LENGTH = 100;
 
+// ─── 외부 링크 ───
+export const GITHUB_URL =
+  "https://github.com/k1my3ch4n/Synchronized-Grid";
+export const NOTION_URL = "https://notion.so";
+
 // ─── 유저 색상 ───
 export const USER_COLORS = [
   "#FF6B6B",

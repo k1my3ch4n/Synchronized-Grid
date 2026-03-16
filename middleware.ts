@@ -7,6 +7,7 @@ export async function middleware(req: NextRequest) {
 
   // 공개 경로 (인증 불필요)
   const isPublicPath =
+    pathname === "/" ||
     pathname === "/login" ||
     pathname.startsWith("/api/auth/") ||
     pathname === "/api/health" ||
