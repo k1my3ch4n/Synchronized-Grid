@@ -42,6 +42,7 @@ export function WorkspaceCard({
           </button>
           {onDelete && currentUserId === workspace.ownerId && (
             <button
+              data-testid="delete-workspace-button"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(workspace.id);

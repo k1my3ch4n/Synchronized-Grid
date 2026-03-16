@@ -6,6 +6,7 @@ interface CloseButtonProps {
 export function CloseButton({ onClick, className = "" }: CloseButtonProps) {
   return (
     <button
+      data-testid="viewport-close-button"
       onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => {
         e.stopPropagation();

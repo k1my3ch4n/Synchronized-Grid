@@ -51,6 +51,7 @@ export function DeleteWorkspaceModal({
               취소
             </button>
             <button
+              data-testid="delete-workspace-confirm"
               onClick={handleConfirm}
               disabled={loading}
               className="flex-1 px-4 py-3 text-sm rounded-glass bg-gd-rose/20 text-gd-rose border border-gd-rose/30 hover:bg-gd-rose/30 transition-colors disabled:opacity-50"
