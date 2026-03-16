@@ -90,6 +90,7 @@ test.describe("Real-time Collaboration", () => {
     );
   });
 
-  // Note: 뷰포트 배치 동기화 테스트는 드래그 인터랙션이 필요하여
-  // 현재 단계에서는 제외. URL 동기화 + 유저 프레즌스로 소켓 동기화를 검증.
+  test.skip("kicked member gets redirected to workspace list", async () => {
+    // TODO: Owner가 멤버 추방 시 해당 멤버 리다이렉트 검증
+  });
 });

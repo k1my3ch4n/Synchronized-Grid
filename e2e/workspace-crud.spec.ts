@@ -65,4 +65,8 @@ test.describe("Workspace CRUD", () => {
       page.getByRole("heading", { name: "삭제 테스트" }),
     ).not.toBeVisible();
   });
+
+  test.skip("workspace name exceeding 50 chars shows error", async () => {
+    // TODO: 50자 초과 워크스페이스 이름 입력 시 에러 메시지 검증
+  });
 });

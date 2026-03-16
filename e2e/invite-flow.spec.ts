@@ -92,6 +92,10 @@ test.describe("Invite Flow", () => {
     await contextB.close();
   });
 
+  test.skip("expired invite token returns 410", async () => {
+    // TODO: 만료된 초대 토큰으로 수락 시도 → 410 검증
+  });
+
   test("invalid invite token returns 404", async ({ browser }) => {
     const contextB = await browser.newContext({
       storageState: "e2e/.auth/user-b.json",

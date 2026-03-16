@@ -83,6 +83,14 @@ test.describe("Workspace Detail & Viewport", () => {
     await expect(page.getByText("삭제할 뷰포트")).not.toBeVisible();
   });
 
+  test.skip("VIEWER cannot change URL or add viewport", async () => {
+    // TODO: VIEWER 역할로 접속 시 URL 변경/뷰포트 추가 불가 검증
+  });
+
+  test.skip("viewport drag placement syncs between users", async () => {
+    // TODO: 드래그로 캔버스에 뷰포트 배치 시 다른 유저에게 동기화 검증
+  });
+
   test("shows error for invalid workspace ID", async ({ page }) => {
     await page.goto("/workspace/nonexistent-invalid-id");
 
