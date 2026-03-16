@@ -1,4 +1,8 @@
 import { defineConfig } from "@playwright/test";
+import dotenv from "dotenv";
+import path from "path";
+
+dotenv.config({ path: path.resolve(__dirname, ".env.test") });
 
 export default defineConfig({
   testDir: "./e2e",
@@ -18,10 +22,18 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `cross-env NODE_ENV=test PORT=3001 tsx server.ts`,
-    port: 3001,
+    command: "tsx server.ts",
+    port: Number(process.env.PORT) || 3001,
     reuseExistingServer: !process.env.CI,
     timeout: 30000,
+    env: {
+      NODE_ENV: "test",
+      DATABASE_URL: process.env.DATABASE_URL!,
+      NEXTAUTH_URL: process.env.NEXTAUTH_URL!,
+      NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET!,
+      ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS!,
+      PORT: process.env.PORT || "3001",
+    },
   },
   globalSetup: "./e2e/global-setup.ts",
   globalTeardown: "./e2e/global-teardown.ts",
