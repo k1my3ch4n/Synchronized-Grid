@@ -33,6 +33,7 @@ export default defineConfig({
       NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET!,
       ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS!,
       PORT: process.env.PORT || "3001",
+      E2E_TEST: "true",
     },
   },
   globalSetup: "./e2e/global-setup.ts",

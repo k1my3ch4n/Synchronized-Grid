@@ -12,27 +12,25 @@ test.describe("Auth Guards", () => {
     await expect(page).toHaveURL(/\/login/);
   });
 
-  test("non-member cannot access workspace API", async ({ request }) => {
+  test("non-member cannot access workspace API", async ({ browser }) => {
     // User A가 워크스페이스 생성
-    const contextA = await request.newContext({
+    const contextA = await browser.newContext({
       storageState: "e2e/.auth/user-a.json",
     });
-    await cleanupWorkspaces(contextA);
-    const res = await contextA.post("/api/workspaces", {
-      data: { name: "접근 제한 테스트" },
-    });
-    const workspace = await res.json();
+    await cleanupWorkspaces(contextA.request);
+    const ws = await createWorkspaceViaAPI(
+      contextA.request,
+      "접근 제한 테스트",
+    );
 
     // User B가 해당 워크스페이스에 접근 시도
-    const contextB = await request.newContext({
+    const contextB = await browser.newContext({
       storageState: "e2e/.auth/user-b.json",
     });
-    const forbidden = await contextB.get(
-      `/api/workspaces/${workspace.id}`,
-    );
+    const forbidden = await contextB.request.get(`/api/workspaces/${ws.id}`);
     expect(forbidden.status()).toBe(403);
 
-    await contextA.dispose();
-    await contextB.dispose();
+    await contextA.close();
+    await contextB.close();
   });
 });

@@ -4,23 +4,25 @@ import { createWorkspaceViaAPI, cleanupWorkspaces } from "./helpers";
 test.describe("Invite Flow", () => {
   let workspaceId: string;
 
-  test.beforeEach(async ({ request }) => {
-    // User A로 워크스페이스 정리 및 생성
-    const contextA = await request.newContext({
+  test.beforeEach(async ({ browser }) => {
+    const contextA = await browser.newContext({
       storageState: "e2e/.auth/user-a.json",
     });
-    await cleanupWorkspaces(contextA);
-    const ws = await createWorkspaceViaAPI(contextA, "초대 테스트");
+
+    await cleanupWorkspaces(contextA.request);
+
+    const ws = await createWorkspaceViaAPI(contextA.request, "초대 테스트");
     workspaceId = ws.id;
-    await contextA.dispose();
+
+    await contextA.close();
   });
 
-  test("owner can generate invite token", async ({ request }) => {
-    const contextA = await request.newContext({
+  test("owner can generate invite token", async ({ browser }) => {
+    const contextA = await browser.newContext({
       storageState: "e2e/.auth/user-a.json",
     });
 
-    const res = await contextA.post(
+    const res = await contextA.request.post(
       `/api/workspaces/${workspaceId}/invite`,
     );
     expect(res.ok()).toBeTruthy();
@@ -29,26 +31,26 @@ test.describe("Invite Flow", () => {
     expect(body.token).toBeDefined();
     expect(typeof body.token).toBe("string");
 
-    await contextA.dispose();
+    await contextA.close();
   });
 
   test("invited user can accept invite and join workspace", async ({
-    request,
+    browser,
   }) => {
     // User A가 초대 토큰 생성
-    const contextA = await request.newContext({
+    const contextA = await browser.newContext({
       storageState: "e2e/.auth/user-a.json",
     });
-    const inviteRes = await contextA.post(
+    const inviteRes = await contextA.request.post(
       `/api/workspaces/${workspaceId}/invite`,
     );
     const { token } = await inviteRes.json();
 
     // User B가 초대 수락
-    const contextB = await request.newContext({
+    const contextB = await browser.newContext({
       storageState: "e2e/.auth/user-b.json",
     });
-    const acceptRes = await contextB.post(`/api/invite/${token}`);
+    const acceptRes = await contextB.request.post(`/api/invite/${token}`);
     expect(acceptRes.ok()).toBeTruthy();
 
     const body = await acceptRes.json();
@@ -56,37 +58,37 @@ test.describe("Invite Flow", () => {
     expect(body.workspaceId).toBe(workspaceId);
 
     // User B가 이제 워크스페이스 접근 가능
-    const accessRes = await contextB.get(
+    const accessRes = await contextB.request.get(
       `/api/workspaces/${workspaceId}`,
     );
     expect(accessRes.ok()).toBeTruthy();
 
-    await contextA.dispose();
-    await contextB.dispose();
+    await contextA.close();
+    await contextB.close();
   });
 
-  test("already-member gets alreadyMember response", async ({ request }) => {
+  test("already-member gets alreadyMember response", async ({ browser }) => {
     // User A가 초대 토큰 생성
-    const contextA = await request.newContext({
+    const contextA = await browser.newContext({
       storageState: "e2e/.auth/user-a.json",
     });
-    const inviteRes = await contextA.post(
+    const inviteRes = await contextA.request.post(
       `/api/workspaces/${workspaceId}/invite`,
     );
     const { token } = await inviteRes.json();
 
     // User B가 초대 수락
-    const contextB = await request.newContext({
+    const contextB = await browser.newContext({
       storageState: "e2e/.auth/user-b.json",
     });
-    await contextB.post(`/api/invite/${token}`);
+    await contextB.request.post(`/api/invite/${token}`);
 
     // User B가 다시 초대 수락 시도
-    const duplicateRes = await contextB.post(`/api/invite/${token}`);
+    const duplicateRes = await contextB.request.post(`/api/invite/${token}`);
     const body = await duplicateRes.json();
     expect(body.alreadyMember).toBe(true);
 
-    await contextA.dispose();
-    await contextB.dispose();
+    await contextA.close();
+    await contextB.close();
   });
 });

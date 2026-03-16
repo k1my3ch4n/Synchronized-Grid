@@ -10,16 +10,14 @@ test.describe("Workspace CRUD", () => {
 
   test("shows empty state when no workspaces exist", async ({ page }) => {
     await page.goto("/workspaces");
-    await expect(
-      page.getByText("아직 워크스페이스가 없습니다"),
-    ).toBeVisible();
+    await expect(page.getByText("아직 워크스페이스가 없습니다")).toBeVisible();
   });
 
   test("can create a workspace", async ({ page }) => {
     await page.goto("/workspaces");
 
     // 모달 열기
-    await page.getByText("+ 새로 만들기").click();
+    await page.getByRole("button", { name: "+ 새로 만들기" }).click();
     await expect(page.getByText("이름")).toBeVisible();
 
     // 이름 입력 후 생성
@@ -52,17 +50,19 @@ test.describe("Workspace CRUD", () => {
     await page.goto("/workspaces");
     await expect(page.getByText("삭제 테스트")).toBeVisible();
 
-    // 삭제 버튼 클릭
-    await page.getByRole("button", { name: "삭제" }).click();
-
-    // 삭제 확인 모달
-    await expect(page.getByText("워크스페이스 삭제")).toBeVisible();
+    // 카드의 삭제 버튼 클릭 (목록 내)
     await page
+      .getByRole("listitem")
       .getByRole("button", { name: "삭제" })
-      .filter({ hasNotText: "취소" })
       .click();
 
+    // 삭제 확인 모달에서 삭제 버튼 클릭
+    await expect(page.getByText("워크스페이스 삭제")).toBeVisible();
+    await page.getByRole("button", { name: "삭제" }).nth(1).click();
+
     // 목록에서 사라짐 확인
-    await expect(page.getByText("삭제 테스트")).not.toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "삭제 테스트" }),
+    ).not.toBeVisible();
   });
 });

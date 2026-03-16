@@ -12,7 +12,7 @@ const providers: Provider[] = [
   }),
 ];
 
-if (process.env.NODE_ENV === "test") {
+if (process.env.E2E_TEST === "true") {
   providers.push(
     Credentials({
       id: "test-credentials",
