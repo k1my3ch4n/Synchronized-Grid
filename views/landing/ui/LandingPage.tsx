@@ -39,7 +39,7 @@ export function LandingPage() {
           {LANDING_FEATURES.map((feature) => (
             <div
               key={feature.title}
-              className="glass-surface rounded-glass p-5 space-y-2"
+              className="glass-surface rounded-glass p-5 space-y-2 transition-all duration-200 hover:-translate-y-1 hover:border-glass-glow hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)]"
             >
               <h3 className="text-base font-semibold text-text-primary">
                 {feature.title}
