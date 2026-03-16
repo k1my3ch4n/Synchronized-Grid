@@ -75,11 +75,8 @@ test.describe("Workspace Detail & Viewport", () => {
     await page.getByRole("button", { name: "OK" }).click();
     await expect(page.getByText("삭제할 뷰포트")).toBeVisible();
 
-    // 뷰포트 삭제 (해당 뷰포트의 삭제 버튼만 타겟)
-    await page
-      .getByRole("button", { name: "삭제할 뷰포트 400×300 삭제" })
-      .getByLabel("삭제")
-      .click();
+    // 뷰포트 삭제 (해당 뷰포트의 삭제 버튼)
+    await page.locator('[data-testid="viewport-close-button"]').last().click();
     await expect(page.getByText("삭제할 뷰포트")).not.toBeVisible();
   });
 

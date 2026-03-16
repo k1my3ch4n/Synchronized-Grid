@@ -58,10 +58,7 @@ test.describe("Real-time Collaboration", () => {
     });
 
     // User A 화면에서 유저 아바타가 2개 표시되는지 확인
-    // (첫 글자 이니셜: "T" for Test User A/B)
-    const avatarsA = pageA.locator(
-      "div.rounded-full.flex.items-center.justify-center",
-    );
+    const avatarsA = pageA.locator('[data-testid="user-avatar"]');
     await expect(avatarsA).toHaveCount(2, { timeout: 5000 });
   });
 

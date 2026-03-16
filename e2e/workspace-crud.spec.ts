@@ -51,14 +51,11 @@ test.describe("Workspace CRUD", () => {
     await expect(page.getByText("삭제 테스트")).toBeVisible();
 
     // 카드의 삭제 버튼 클릭 (목록 내)
-    await page
-      .getByRole("listitem")
-      .getByRole("button", { name: "삭제" })
-      .click();
+    await page.locator('[data-testid="delete-workspace-button"]').click();
 
     // 삭제 확인 모달에서 삭제 버튼 클릭
     await expect(page.getByText("워크스페이스 삭제")).toBeVisible();
-    await page.getByRole("button", { name: "삭제" }).nth(1).click();
+    await page.locator('[data-testid="delete-workspace-confirm"]').click();
 
     // 목록에서 사라짐 확인
     await expect(

@@ -7,7 +7,7 @@ export default async function globalTeardown() {
       'npx prisma db execute --stdin <<< "TRUNCATE \\"WorkspaceInvite\\", \\"WorkspaceMember\\", \\"Workspace\\", \\"Account\\", \\"User\\", \\"VerificationToken\\" CASCADE;"',
       { stdio: "pipe", env: { ...process.env, NODE_ENV: "test" } },
     );
-  } catch {
-    // DB가 이미 정리되었거나 연결할 수 없는 경우 무시
+  } catch (err) {
+    console.warn("[global-teardown] DB cleanup failed:", err);
   }
 }
