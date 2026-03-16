@@ -19,7 +19,7 @@ export function LandingPage() {
           <div className="flex items-center justify-center gap-4 pt-2">
             <Link
               href="/login"
-              className="glass-btn px-8 py-3 text-base rounded-glass"
+              className="glass-btn px-8 py-3 text-base rounded-glass transition-all duration-200 hover:scale-105 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]"
             >
               시작하기
             </Link>
