@@ -280,3 +280,20 @@ body::after {
 .animate-fade-in-up {
   animation: fade-in-up 0.6s ease-out both;
 }
+
+/* Interaction: hover utilities */
+.hover-scale {
+  transition: all 0.2s ease;
+}
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.hover-lift {
+  transition: all 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  border-color: var(--glass-border-glow);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}

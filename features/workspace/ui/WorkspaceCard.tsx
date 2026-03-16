@@ -26,7 +26,7 @@ export function WorkspaceCard({
   return (
     <li
       onClick={onClick}
-      className="glass-surface rounded-glass p-5 cursor-pointer flex flex-col gap-3 transition-all duration-200 hover:-translate-y-0.5 hover:bg-glass-hover hover:border-glass-glow hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] border-l-2 border-l-accent/40 hover:border-l-accent"
+      className="glass-surface rounded-glass p-5 cursor-pointer flex flex-col gap-3 hover-lift hover:bg-glass-hover border-l-2 border-l-accent/40 hover:border-l-accent"
     >
       <div className="flex justify-between items-center">
         <h3 className="font-medium text-sm text-text-primary">

@@ -27,7 +27,7 @@ export function LandingPage() {
           >
             <Link
               href="/login"
-              className="glass-btn px-8 py-3 text-base rounded-glass transition-all duration-200 hover:scale-105 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]"
+              className="glass-btn px-8 py-3 text-base rounded-glass hover-scale hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]"
             >
               시작하기
             </Link>
@@ -35,7 +35,7 @@ export function LandingPage() {
               href={GITHUB_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="glass-surface px-8 py-3 text-base rounded-glass text-text-secondary hover:text-text-primary hover:bg-glass-hover transition-all duration-200 hover:scale-105"
+              className="glass-surface px-8 py-3 text-base rounded-glass text-text-secondary hover:text-text-primary hover:bg-glass-hover hover-scale"
             >
               GitHub
             </a>
@@ -47,7 +47,7 @@ export function LandingPage() {
           {LANDING_FEATURES.map((feature, index) => (
             <div
               key={feature.title}
-              className="glass-surface rounded-glass p-5 space-y-2 transition-all duration-200 hover:-translate-y-1 hover:border-glass-glow hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] animate-fade-in-up"
+              className="glass-surface rounded-glass p-5 space-y-2 hover-lift animate-fade-in-up"
               style={{ animationDelay: `${0.45 + index * 0.1}s` }}
             >
               <h3 className="text-base font-semibold text-text-primary">
