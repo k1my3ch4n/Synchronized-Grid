@@ -82,4 +82,13 @@ test.describe("Workspace Detail & Viewport", () => {
       .click();
     await expect(page.getByText("삭제할 뷰포트")).not.toBeVisible();
   });
+
+  test("shows error for invalid workspace ID", async ({ page }) => {
+    await page.goto("/workspace/nonexistent-invalid-id");
+
+    // 에러 메시지 또는 돌아가기 버튼 표시
+    await expect(page.getByText("← 돌아가기")).toBeVisible({
+      timeout: 10000,
+    });
+  });
 });

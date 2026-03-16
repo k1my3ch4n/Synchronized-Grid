@@ -91,4 +91,20 @@ test.describe("Invite Flow", () => {
     await contextA.close();
     await contextB.close();
   });
+
+  test("invalid invite token returns 404", async ({ browser }) => {
+    const contextB = await browser.newContext({
+      storageState: "e2e/.auth/user-b.json",
+    });
+
+    const res = await contextB.request.post(
+      "/api/invite/00000000-0000-0000-0000-000000000000",
+    );
+    expect(res.status()).toBe(404);
+
+    const body = await res.json();
+    expect(body.error).toBeDefined();
+
+    await contextB.close();
+  });
 });
