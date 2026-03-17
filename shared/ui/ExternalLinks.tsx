@@ -23,7 +23,7 @@ export function ExternalLinks() {
         href={GITHUB_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-text-muted hover:text-text-primary transition-colors"
+        className="text-text-muted hover:text-text-primary transition-colors hover-scale"
         aria-label="GitHub"
       >
         <GitHubIcon />
