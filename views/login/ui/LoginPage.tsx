@@ -53,7 +53,14 @@ export function LoginPage() {
         </div>
 
         <p className="text-xs text-text-muted text-center">
-          로그인 시 서비스 이용약관에 동의하게 됩니다
+          로그인 시{" "}
+          <a
+            href="/terms"
+            className="underline hover:text-text-secondary transition-colors"
+          >
+            서비스 이용약관
+          </a>
+          에 동의하게 됩니다
         </p>
       </div>
     </div>
