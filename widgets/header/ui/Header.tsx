@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useSyncedUrl } from "@features/workspace/hooks/useSyncedUrl";
 import { UserPresence } from "@features/workspace/ui/UserPresence";
 import { InviteButton } from "@features/workspace/ui/InviteButton";
 import { ConnectionStatus } from "@features/workspace/ui/ConnectionStatus";
-import { RenameWorkspaceModal } from "@features/workspace/ui/RenameWorkspaceModal";
 import { UserMenu } from "@features/auth";
 import { useWorkspaceStore } from "@features/workspace/model/store";
-import { WORKSPACE_ROLES } from "@shared/constants";
+import { WORKSPACE_ROLES, WORKSPACE_NAME_MAX_LENGTH } from "@shared/constants";
+import { useEditableValue } from "@shared/hooks/useEditableValue";
 import { ExternalLinks } from "@shared/ui/ExternalLinks";
 import { PencilIcon } from "@shared/ui/icons/PencilIcon";
 import { EditableUrl } from "./EditableUrl";
@@ -22,8 +21,12 @@ export function Header({ title }: HeaderProps) {
   const { url, setUrl } = useSyncedUrl();
   const { workspaceName, currentUser, syncRenameWorkspace } =
     useWorkspaceStore();
-  const [showRename, setShowRename] = useState(false);
   const isOwner = currentUser?.role === WORKSPACE_ROLES.OWNER;
+  const rename = useEditableValue(workspaceName ?? "", (name) => {
+    if (name !== workspaceName) {
+      syncRenameWorkspace(name);
+    }
+  });
 
   return (
     <header className="h-16 px-6 glass flex items-center relative z-10">
@@ -40,18 +43,31 @@ export function Header({ title }: HeaderProps) {
       </Link>
       {workspaceName && (
         <>
-          <span className="ml-2 text-text-muted">/</span>
+          <span className="ml-4 mr-1 text-text-muted">/</span>
           {isOwner ? (
-            <button
-              onClick={() => setShowRename(true)}
-              className="ml-2 flex items-center gap-1.5 text-sm font-medium text-text-primary truncate max-w-[200px] hover:text-accent transition-colors cursor-pointer group"
-              title="이름 변경"
-            >
-              {workspaceName}
-              <PencilIcon className="w-3 h-3 text-text-muted group-hover:text-accent transition-colors flex-shrink-0" />
-            </button>
+            rename.isEditing ? (
+              <input
+                type="text"
+                value={rename.inputValue}
+                onChange={(e) => rename.setInputValue(e.target.value)}
+                onBlur={rename.submit}
+                onKeyDown={rename.handleKeyDown}
+                maxLength={WORKSPACE_NAME_MAX_LENGTH}
+                autoFocus
+                className="glass-surface text-sm font-medium text-text-primary focus:outline-none focus:border-accent rounded-glass px-3 py-1"
+              />
+            ) : (
+              <button
+                onClick={rename.startEditing}
+                className="flex items-center gap-1.5 text-sm font-medium text-text-primary truncate max-w-[200px] hover:text-accent transition-colors cursor-pointer group rounded-glass px-3 py-1 border border-transparent"
+                title="이름 변경"
+              >
+                {workspaceName}
+                <PencilIcon className="w-3 h-3 text-text-muted group-hover:text-accent transition-colors flex-shrink-0" />
+              </button>
+            )
           ) : (
-            <span className="ml-2 text-sm font-medium text-text-primary truncate max-w-[200px]">
+            <span className="text-sm font-medium text-text-primary truncate max-w-[200px] px-3 py-1">
               {workspaceName}
             </span>
           )}
@@ -60,7 +76,7 @@ export function Header({ title }: HeaderProps) {
 
       {url && (
         <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
-          <div className="glass rounded-glass px-5 py-1.5 w-[90vw] max-w-[380px] glass-hover transition-all">
+          <div className="glass rounded-glass px-5 h-10 flex items-center w-[90vw] max-w-[380px] glass-hover transition-all has-[:focus]:ring-2 has-[:focus]:ring-accent">
             <EditableUrl url={url} onUrlChange={setUrl} />
           </div>
         </div>
@@ -78,13 +94,6 @@ export function Header({ title }: HeaderProps) {
         )}
         <UserMenu />
       </div>
-      {showRename && workspaceName && (
-        <RenameWorkspaceModal
-          currentName={workspaceName}
-          onSubmit={syncRenameWorkspace}
-          onClose={() => setShowRename(false)}
-        />
-      )}
     </header>
   );
 }

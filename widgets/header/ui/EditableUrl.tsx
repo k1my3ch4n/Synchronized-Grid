@@ -32,7 +32,7 @@ export function EditableUrl({ url, onUrlChange }: EditableUrlProps) {
         onBlur={submit}
         onKeyDown={handleKeyDown}
         autoFocus
-        className="bg-transparent px-1 py-0.5 w-full focus:outline-none text-sm text-text-secondary font-mono"
+        className="bg-transparent w-full border-none outline-none focus:outline-none focus:border-none focus-visible:!outline-none text-base text-text-secondary font-mono"
       />
     );
   }
@@ -40,7 +40,7 @@ export function EditableUrl({ url, onUrlChange }: EditableUrlProps) {
   return (
     <button
       onClick={startEditing}
-      className="text-sm truncate w-full flex items-center gap-2 text-text-secondary font-mono group"
+      className="text-base truncate w-full flex items-center gap-2 text-text-secondary font-mono group"
     >
       <span className="truncate">{url}</span>
       <PencilIcon className="w-3 h-3 shrink-0 opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60 transition-opacity" />
