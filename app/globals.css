@@ -8,6 +8,7 @@
   /* Color: Glass */
   --glass-bg: rgba(255, 255, 255, 0.06);
   --glass-bg-hover: rgba(255, 255, 255, 0.1);
+  --glass-bg-solid: #1a1a2e;
   --glass-border: rgba(255, 255, 255, 0.15);
   --glass-border-glow: rgba(255, 255, 255, 0.22);
   --surface: rgba(255, 255, 255, 0.06);

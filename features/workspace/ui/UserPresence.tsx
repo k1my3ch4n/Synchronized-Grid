@@ -30,7 +30,7 @@ export function UserPresence() {
       ))}
 
       <div className="absolute top-full right-0 hidden group-hover:block z-50 pt-2">
-        <div className="glass rounded-lg py-2 px-1 min-w-[220px] shadow-lg">
+        <div className="bg-[var(--glass-bg-solid)] border border-glass-border rounded-lg py-2 px-1 min-w-[220px] shadow-xl">
           {users.map((user) => (
             <UserRow
               key={user.id}
