@@ -68,8 +68,8 @@ export function WorkspaceListPage() {
   return (
     <AuthGuard>
       <main className="page-height flex items-center justify-center">
-        <div className="glass rounded-2xl w-[95%] max-w-[480px] overflow-hidden">
-          <div className="px-7 pt-7 pb-5 border-b border-glass-border flex justify-between items-center">
+        <div className="glass rounded-2xl w-[95%] max-w-[640px] overflow-hidden">
+          <div className="px-7 pt-8 pb-6 border-b border-glass-border flex justify-between items-center">
             <div>
               <h2 className="text-lg font-semibold text-text-primary">
                 워크스페이스
@@ -85,7 +85,7 @@ export function WorkspaceListPage() {
               + 새로 만들기
             </button>
           </div>
-          <div className="px-7 py-6">
+          <div className="px-7 py-8">
             {loading ? (
               <p className="text-sm text-text-muted text-center py-6">
                 불러오는 중...
