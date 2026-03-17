@@ -2,12 +2,14 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // 공개 경로 (인증 불필요)
   const isPublicPath =
+    pathname === "/" ||
     pathname === "/login" ||
+    pathname === "/terms" ||
     pathname.startsWith("/api/auth/") ||
     pathname === "/api/health" ||
     pathname.startsWith("/_next/") ||

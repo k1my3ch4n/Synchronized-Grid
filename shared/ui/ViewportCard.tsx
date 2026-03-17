@@ -10,7 +10,7 @@ interface ViewportCardProps {
 
 const variantStyles: Record<ViewportCardVariant, string> = {
   palette:
-    "p-3 transition-all cursor-grab glass-surface rounded-glass hover:bg-glass-hover hover:border-glass-glow",
+    "p-3 cursor-grab glass-surface rounded-glass hover:bg-glass-hover hover-lift",
   overlay: "p-3 shadow-lg glass rounded-glass",
   header: "px-2 py-0.5 text-text-secondary text-xs font-medium",
 };

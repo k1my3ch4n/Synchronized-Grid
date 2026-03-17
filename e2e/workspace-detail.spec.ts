@@ -80,6 +80,51 @@ test.describe("Workspace Detail & Viewport", () => {
     await expect(page.getByText("삭제할 뷰포트")).not.toBeVisible();
   });
 
+  test("owner can rename workspace inline", async ({ page, request }) => {
+    await page.goto(`/workspace/${workspaceId}`);
+
+    // 소켓 연결 대기
+    await expect(page.getByText("뷰포트 테스트")).toBeVisible({
+      timeout: 10000,
+    });
+
+    // 워크스페이스 이름 클릭하여 편집 모드 진입
+    await page.getByRole("button", { name: "이름 변경" }).click();
+
+    // input이 나타나고 기존 이름이 채워져 있음
+    const renameInput = page.locator('header input[type="text"]');
+    await expect(renameInput).toBeVisible();
+    await expect(renameInput).toHaveValue("뷰포트 테스트");
+
+    // 새 이름 입력 후 Enter
+    await renameInput.fill("변경된 이름");
+    await renameInput.press("Enter");
+
+    // 변경된 이름 표시 확인
+    await expect(page.getByText("변경된 이름")).toBeVisible({ timeout: 5000 });
+  });
+
+  test("rename can be cancelled with Escape", async ({ page }) => {
+    await page.goto(`/workspace/${workspaceId}`);
+
+    await expect(page.getByText("뷰포트 테스트")).toBeVisible({
+      timeout: 10000,
+    });
+
+    // 편집 모드 진입
+    await page.getByRole("button", { name: "이름 변경" }).click();
+    const renameInput = page.locator('header input[type="text"]');
+    await expect(renameInput).toBeVisible();
+
+    // 다른 이름 입력 후 Escape
+    await renameInput.fill("취소될 이름");
+    await renameInput.press("Escape");
+
+    // 원래 이름 유지
+    await expect(page.getByText("뷰포트 테스트")).toBeVisible();
+    await expect(page.getByText("취소될 이름")).not.toBeVisible();
+  });
+
   test.skip("VIEWER cannot change URL or add viewport", async () => {
     // TODO: VIEWER 역할로 접속 시 URL 변경/뷰포트 추가 불가 검증
   });

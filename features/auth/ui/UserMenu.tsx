@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import { useAuthStore } from "../model/store";
@@ -34,13 +35,15 @@ export function UserMenu() {
     <div ref={menuRef} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors overflow-hidden ring-2 ring-transparent hover:ring-accent/50"
+        className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors overflow-hidden ring-2 ring-transparent hover:ring-accent/50 hover-scale"
         title={user.name ?? user.email ?? ""}
       >
         {user.image ? (
-          <img
+          <Image
             src={user.image}
             alt={user.name ?? ""}
+            width={32}
+            height={32}
             className="w-full h-full object-cover"
           />
         ) : (
@@ -59,7 +62,7 @@ export function UserMenu() {
             <p className="text-xs text-text-muted truncate">{user.email}</p>
           </div>
           <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => signOut({ callbackUrl: "/" })}
             className="w-full px-4 py-2.5 text-left text-sm text-text-secondary hover:bg-white/5 transition-colors"
           >
             로그아웃
