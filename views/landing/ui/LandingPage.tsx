@@ -8,9 +8,7 @@ export function LandingPage() {
       <div className="max-w-2xl w-full space-y-16 text-center">
         {/* Hero */}
         <div className="space-y-6">
-          <h1
-            className="text-5xl sm:text-6xl font-bold text-text-primary tracking-tight animate-fade-in-up"
-          >
+          <h1 className="text-5xl sm:text-6xl font-bold text-text-primary tracking-tight animate-fade-in-up">
             프로젝트 싱긋 ( Syngrid )
           </h1>
           <p
@@ -27,7 +25,7 @@ export function LandingPage() {
           >
             <Link
               href="/login"
-              className="glass-btn px-8 py-3 text-base rounded-glass hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]"
+              className="glass-btn px-8 py-3 text-base rounded-glass hover:shadow-[var(--shadow-accent-glow)]"
             >
               시작하기
             </Link>
