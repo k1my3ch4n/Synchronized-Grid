@@ -28,8 +28,8 @@ export function RenameWorkspaceModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="glass rounded-2xl w-[95%] max-w-[420px] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="glass-card rounded-2xl w-[95%] max-w-[420px]">
         <div className="px-7 pt-7 pb-5 border-b border-glass-border">
           <h2 className="text-lg font-semibold text-text-primary">
             워크스페이스 이름 변경
