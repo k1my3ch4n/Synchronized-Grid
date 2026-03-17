@@ -24,9 +24,10 @@ test.describe("Smoke Tests", () => {
     await expect(page).toHaveURL(/\/login/);
   });
 
-  test("unauthenticated access to / redirects to /login", async ({ page }) => {
+  test("unauthenticated access to / shows landing page", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveURL(/\/login/);
+    await expect(page.getByText("프로젝트 싱긋")).toBeVisible();
+    await expect(page.getByRole("link", { name: "시작하기" })).toBeVisible();
   });
 
   test("unauthenticated API request returns 401", async ({ request }) => {
