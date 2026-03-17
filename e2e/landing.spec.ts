@@ -38,15 +38,16 @@ test.describe("Landing Page", () => {
     );
   });
 
-  test("authenticated user accessing / is not blocked", async ({ browser }) => {
+  test("authenticated user accessing / redirects to /workspaces", async ({
+    browser,
+  }) => {
     const context = await browser.newContext({
       storageState: "e2e/.auth/user-a.json",
     });
     const page = await context.newPage();
 
     await page.goto("/");
-    // 인증된 유저도 랜딩 페이지 접근 가능 (리다이렉트 없음)
-    await expect(page.getByText("프로젝트 싱긋")).toBeVisible();
+    await expect(page).toHaveURL(/\/workspaces/);
 
     await context.close();
   });
