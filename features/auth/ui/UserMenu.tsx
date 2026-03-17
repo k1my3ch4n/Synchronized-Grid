@@ -59,7 +59,7 @@ export function UserMenu() {
             <p className="text-xs text-text-muted truncate">{user.email}</p>
           </div>
           <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => signOut({ callbackUrl: "/" })}
             className="w-full px-4 py-2.5 text-left text-sm text-text-secondary hover:bg-white/5 transition-colors"
           >
             로그아웃

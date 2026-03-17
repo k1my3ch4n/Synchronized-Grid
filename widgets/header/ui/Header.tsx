@@ -32,7 +32,7 @@ export function Header({ title }: HeaderProps) {
     <header className="h-16 px-6 glass flex items-center relative z-10">
       <div className="flex items-center min-w-0 max-w-[28vw] shrink-0">
         <Link
-          href="/workspaces"
+          href={workspaceName ? "/workspaces" : "/"}
           className="flex items-center gap-2.5 hover:opacity-80 transition-opacity shrink-0"
         >
           <h1 className="text-lg font-bold tracking-tight text-text-primary">
