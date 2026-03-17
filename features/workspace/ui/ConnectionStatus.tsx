@@ -16,9 +16,11 @@ export function ConnectionStatus() {
 
     const socket = getSocket();
 
-    const handleDisconnect = () => {
+    const handleDisconnect = (reason: string) => {
       setSocketConnected(false);
-      toast.error("서버와의 연결이 끊어졌습니다. 재연결 중...");
+      if (reason !== "io client disconnect") {
+        toast.error("서버와의 연결이 끊어졌습니다. 재연결 중...");
+      }
     };
 
     const handleReconnect = () => {
