@@ -27,7 +27,7 @@ export function LandingPage() {
           >
             <Link
               href="/login"
-              className="glass-btn px-8 py-3 text-base rounded-glass hover-scale hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]"
+              className="glass-btn px-8 py-3 text-base rounded-glass hover:shadow-[0_0_20px_rgba(99,102,241,0.4)]"
             >
               시작하기
             </Link>
