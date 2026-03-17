@@ -32,7 +32,7 @@ export function Header({ title }: HeaderProps) {
     <header className="h-16 px-6 glass flex items-center relative z-10">
       <div className="flex items-center min-w-0 max-w-[28vw] shrink-0">
         <Link
-          href={workspaceName ? "/workspaces" : "/"}
+          href="/workspaces"
           className="flex items-center gap-2.5 hover:opacity-80 transition-opacity shrink-0"
         >
           <h1 className="text-lg font-bold tracking-tight text-text-primary">
@@ -44,7 +44,9 @@ export function Header({ title }: HeaderProps) {
         </Link>
         {workspaceName && (
           <>
-            <span className="ml-2 sm:ml-4 mr-1 text-text-muted shrink-0">/</span>
+            <span className="ml-2 sm:ml-4 mr-1 text-text-muted shrink-0">
+              /
+            </span>
             {isOwner ? (
               rename.isEditing ? (
                 <input
