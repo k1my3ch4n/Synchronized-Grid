@@ -47,3 +47,6 @@ claude.md
 plan.md
 /.claude
 /app/generated/prisma
+
+# binaries
+*.exe
