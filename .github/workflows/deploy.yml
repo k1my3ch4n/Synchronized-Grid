@@ -57,7 +57,14 @@ jobs:
 
           # Start proxy in background
           /tmp/cloud-sql-proxy ${{ secrets.CLOUD_SQL_CONNECTION_NAME }} --port 5432 &
-          sleep 3
+
+          # Wait for proxy to be ready
+          for i in $(seq 1 10); do
+            nc -z localhost 5432 && echo "Cloud SQL Proxy ready" && break
+            echo "Waiting for Cloud SQL Proxy... ($i/10)"
+            sleep 2
+          done
+          nc -z localhost 5432 || { echo "Cloud SQL Proxy failed to start"; exit 1; }
 
           # Run migrations
           npx prisma migrate deploy

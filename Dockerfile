@@ -1,11 +1,12 @@
 # ── Stage 1: Dependencies ──
-FROM node:22.14.0-alpine3.21 AS deps
+ARG NODE_VERSION=22.14.0-alpine3.21
+FROM node:${NODE_VERSION} AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
 # ── Stage 2: Build ──
-FROM node:22.14.0-alpine3.21 AS builder
+FROM node:${NODE_VERSION} AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -14,7 +15,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # ── Stage 3: Production ──
-FROM node:22.14.0-alpine3.21 AS runner
+FROM node:${NODE_VERSION} AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
