@@ -11,7 +11,7 @@ export interface SocketUser {
 }
 
 export function setupSocketAuth(io: SocketIOServer) {
-  const secret = process.env.NEXTAUTH_SECRET;
+  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
 
   if (!secret) {
     throw new Error(

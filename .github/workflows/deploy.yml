@@ -1,0 +1,98 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [main]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: asia-northeast3
+  SERVICE: syngrid
+  REGISTRY: asia-northeast3-docker.pkg.dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGISTRY }} --quiet
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/syngrid/app:${{ github.sha }}
+          docker build -t $IMAGE .
+          docker push $IMAGE
+
+      - name: Setup Node.js (for Prisma migration)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies (for Prisma CLI)
+        run: npm ci
+
+      - name: Run database migrations
+        run: |
+          # Download Cloud SQL Auth Proxy
+          wget -q https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.14.3/cloud-sql-proxy.linux.amd64 -O /tmp/cloud-sql-proxy
+          chmod +x /tmp/cloud-sql-proxy
+
+          # Start proxy in background
+          /tmp/cloud-sql-proxy ${{ secrets.CLOUD_SQL_CONNECTION_NAME }} --port 5432 &
+
+          # Wait for proxy to be ready
+          for i in $(seq 1 10); do
+            nc -z localhost 5432 && echo "Cloud SQL Proxy ready" && break
+            echo "Waiting for Cloud SQL Proxy... ($i/10)"
+            sleep 2
+          done
+          nc -z localhost 5432 || { echo "Cloud SQL Proxy failed to start"; exit 1; }
+
+          # Run migrations
+          npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@localhost:5432/${{ secrets.DB_NAME }}
+
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE }}
+          region: ${{ env.REGION }}
+          image: ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/syngrid/app:${{ github.sha }}
+          flags: |
+            --min-instances=1
+            --max-instances=1
+            --memory=512Mi
+            --cpu=1
+            --timeout=3600
+            --session-affinity
+            --add-cloudsql-instances=${{ secrets.CLOUD_SQL_CONNECTION_NAME }}
+          env_vars: |
+            NODE_ENV=production
+            AUTH_TRUST_HOST=true
+            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+            ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
+          secrets: |
+            DATABASE_URL=DATABASE_URL:latest
+            AUTH_SECRET=AUTH_SECRET:latest
+            NEXTAUTH_SECRET=NEXTAUTH_SECRET:latest
+            GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID:latest
+            GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET:latest

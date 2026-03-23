@@ -23,7 +23,12 @@ export async function proxy(req: NextRequest) {
   }
 
   // NextAuth의 getToken으로 JWT 복호화 (NextAuth v5는 JWE 암호화 사용)
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+  const isSecure = req.nextUrl.protocol === "https:";
+  const cookieName = isSecure
+    ? "__Secure-authjs.session-token"
+    : "authjs.session-token";
+  const token = await getToken({ req, secret, salt: cookieName, cookieName });
   const isLoggedIn = !!token;
 
   // 미인증 API 요청 → 401 반환

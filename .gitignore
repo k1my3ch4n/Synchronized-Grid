@@ -46,4 +46,8 @@ next-env.d.ts
 claude.md
 plan.md
 /.claude
+.mcp.json
 /app/generated/prisma
+
+# binaries
+*.exe

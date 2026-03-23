@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+e2e
+test-results
+playwright-report
+playwright.config.ts
+design-examples
+*.md
+!README.md
+.github
+.claude
+docker-compose.yml
