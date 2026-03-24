@@ -40,16 +40,30 @@ export function useCanvasDnd() {
       const viewport = data.viewport;
       const canvas = canvasRef.current;
       const canvasRect = canvas?.getBoundingClientRect();
+      const initialRect = event.active.rect.current.initial;
 
-      if (canvasRect && canvas && activatorEvent instanceof PointerEvent) {
+      if (
+        canvasRect &&
+        canvas &&
+        initialRect &&
+        activatorEvent instanceof PointerEvent
+      ) {
+        const grabOffsetX = activatorEvent.clientX - initialRect.left;
+        const grabOffsetY = activatorEvent.clientY - initialRect.top;
+
         const x =
           activatorEvent.clientX +
           delta.x -
+          grabOffsetX -
           canvasRect.left +
           canvas.scrollLeft;
 
         const y =
-          activatorEvent.clientY + delta.y - canvasRect.top + canvas.scrollTop;
+          activatorEvent.clientY +
+          delta.y -
+          grabOffsetY -
+          canvasRect.top +
+          canvas.scrollTop;
 
         addViewport({
           presetId: viewport.id,
