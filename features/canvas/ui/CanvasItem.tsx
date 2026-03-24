@@ -8,7 +8,6 @@ import { CanvasItemHeader } from "./CanvasItemHeader";
 import { toast } from "sonner";
 
 import { CANVAS_SCALE, GRID_SIZE } from "@shared/constants";
-import { snapToGrid } from "@shared/lib/grid";
 import { ResizeHandle } from "@shared/ui/ResizeHandle";
 
 interface CanvasItemProps {
@@ -34,8 +33,8 @@ export function CanvasItem({ item }: CanvasItemProps) {
       onResizeEnd: updateSize,
     });
 
-  const cardWidth = snapToGrid(displayWidth * CANVAS_SCALE);
-  const cardHeight = snapToGrid(GRID_SIZE + displayHeight * CANVAS_SCALE);
+  const cardWidth = Math.ceil(displayWidth * CANVAS_SCALE);
+  const cardHeight = Math.ceil(GRID_SIZE + displayHeight * CANVAS_SCALE);
 
   return (
     <div
