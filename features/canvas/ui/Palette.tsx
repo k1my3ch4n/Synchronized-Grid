@@ -1,16 +1,22 @@
 "use client";
 
-import { usePresetStore } from "@entities/viewport";
+import {
+  usePresetStore,
+  CATEGORY_ORDER,
+  CATEGORY_LABELS,
+  groupPresetsByCategory,
+} from "@entities/viewport";
 import { useScrollSyncStore } from "@features/scroll-sync";
-import { PaletteItem } from "./PaletteItem";
+import { PaletteGroup } from "./PaletteGroup";
 import { PaletteAddForm } from "./PaletteAddForm";
 
 export function Palette() {
   const { presets, resetPresets } = usePresetStore();
   const { enabled, toggle } = useScrollSyncStore();
+  const grouped = groupPresetsByCategory(presets);
 
   return (
-    <div className="w-[220px] glass border-r border-glass-border p-4 flex flex-col gap-2">
+    <div className="w-[260px] glass border-r border-glass-border p-4 flex flex-col gap-2">
       <h2 className="text-label font-medium text-text-muted uppercase tracking-[3px] pb-3 border-b border-glass-border mb-1">
         Viewports
       </h2>
@@ -19,9 +25,16 @@ export function Palette() {
           아래에서 뷰포트를 추가하세요
         </p>
       ) : (
-        presets.map((viewport) => (
-          <PaletteItem key={viewport.id} viewport={viewport} />
-        ))
+        <div className="flex flex-col gap-3 overflow-y-auto flex-1">
+          {CATEGORY_ORDER.map((cat) => (
+            <PaletteGroup
+              key={cat}
+              label={CATEGORY_LABELS[cat]}
+              presets={grouped[cat]}
+              defaultOpen={cat !== "custom"}
+            />
+          ))}
+        </div>
       )}
       <PaletteAddForm />
 

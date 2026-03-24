@@ -18,7 +18,14 @@ export const usePresetStore = create<PresetState>()(
 
       addPreset: (preset) =>
         set((state) => ({
-          presets: [...state.presets, { ...preset, id: crypto.randomUUID() }],
+          presets: [
+            ...state.presets,
+            {
+              ...preset,
+              id: crypto.randomUUID(),
+              category: preset.category ?? "custom",
+            },
+          ],
         })),
 
       updatePreset: (id, updates) =>
@@ -37,7 +44,14 @@ export const usePresetStore = create<PresetState>()(
     }),
     {
       name: "syngrid-presets",
+      version: 1,
       partialize: (state) => ({ presets: state.presets }),
+      migrate: (persisted, version) => {
+        if (version === 0) {
+          return { presets: VIEWPORT_PRESETS };
+        }
+        return persisted as { presets: Viewport[] };
+      },
     },
   ),
 );

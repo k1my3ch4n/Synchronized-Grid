@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { usePresetStore } from "@entities/viewport";
+import { usePresetStore, CATEGORY_LABELS } from "@entities/viewport";
+import type { DeviceCategory } from "@shared/types";
 
 export function PaletteAddForm() {
   const { addPreset } = usePresetStore();
@@ -9,6 +10,7 @@ export function PaletteAddForm() {
   const [label, setLabel] = useState("");
   const [width, setWidth] = useState("");
   const [height, setHeight] = useState("");
+  const [category, setCategory] = useState<DeviceCategory>("custom");
 
   const handleSubmit = () => {
     const w = parseInt(width);
@@ -18,10 +20,11 @@ export function PaletteAddForm() {
       return;
     }
 
-    addPreset({ label: label.trim(), width: w, height: h });
+    addPreset({ label: label.trim(), width: w, height: h, category });
     setLabel("");
     setWidth("");
     setHeight("");
+    setCategory("custom");
     setIsOpen(false);
   };
 
@@ -57,6 +60,17 @@ export function PaletteAddForm() {
         autoFocus
         className="w-full px-2 py-1.5 text-xs glass-input rounded-lg"
       />
+      <select
+        value={category}
+        onChange={(e) => setCategory(e.target.value as DeviceCategory)}
+        className="w-full px-2 py-1.5 text-xs glass-input rounded-lg"
+      >
+        {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
       <div className="flex gap-2">
         <input
           type="number"
