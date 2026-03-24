@@ -8,6 +8,7 @@ const pendingSaves = new Map<
   string,
   { timer: NodeJS.Timeout; saveFn: () => Promise<void> }
 >();
+const inFlightSaves = new Map<string, Promise<void>>();
 
 function debouncedSave(
   key: string,
@@ -23,11 +24,16 @@ function debouncedSave(
   const timer = setTimeout(async () => {
     pendingSaves.delete(key);
 
-    try {
-      await saveFn();
-    } catch (err) {
-      logger.error("workspace-persistence", `Save failed for ${key}`, err);
-    }
+    const promise = saveFn()
+      .catch((err) => {
+        logger.error("workspace-persistence", `Save failed for ${key}`, err);
+      })
+      .finally(() => {
+        inFlightSaves.delete(key);
+      });
+
+    inFlightSaves.set(key, promise);
+    await promise;
   }, delay);
 
   pendingSaves.set(key, { timer, saveFn });
@@ -50,12 +56,19 @@ export async function loadWorkspaceFromDB(workspaceId: string) {
   };
 }
 
-export function saveWorkspaceUrl(workspaceId: string, url: string) {
-  debouncedSave(`${workspaceId}:url`, () =>
-    prisma.workspace
-      .update({ where: { id: workspaceId }, data: { url } })
-      .then(() => {}),
-  );
+export async function saveWorkspaceUrl(workspaceId: string, url: string) {
+  try {
+    await prisma.workspace.update({
+      where: { id: workspaceId },
+      data: { url },
+    });
+  } catch (err) {
+    logger.error(
+      "workspace-persistence",
+      `URL save failed for ${workspaceId}`,
+      err,
+    );
+  }
 }
 
 export function saveWorkspaceViewports(
@@ -74,23 +87,27 @@ export function saveWorkspaceViewports(
 
 function flushEntries(keys: string[]) {
   return Promise.all(
-    keys.map((key) => {
+    keys.map(async (key) => {
       const entry = pendingSaves.get(key);
 
-      if (!entry) {
-        return;
+      if (entry) {
+        clearTimeout(entry.timer);
+        pendingSaves.delete(key);
+
+        await entry.saveFn().catch((err) => {
+          logger.error(
+            "workspace-persistence",
+            `Flush save failed for ${key}`,
+            err,
+          );
+        });
       }
 
-      clearTimeout(entry.timer);
-      pendingSaves.delete(key);
-
-      return entry.saveFn().catch((err) => {
-        logger.error(
-          "workspace-persistence",
-          `Flush save failed for ${key}`,
-          err,
-        );
-      });
+      // 타이머가 이미 발동되어 진행 중인 저장도 대기
+      const inflight = inFlightSaves.get(key);
+      if (inflight) {
+        await inflight;
+      }
     }),
   );
 }
