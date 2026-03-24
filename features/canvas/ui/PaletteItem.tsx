@@ -4,6 +4,8 @@ import { CloseButton } from "@shared/ui/CloseButton";
 import { ViewportCard } from "@shared/ui/ViewportCard";
 import { useSyncedCanvas } from "@features/workspace/hooks/useSyncedCanvas";
 import { usePresetStore } from "@entities/viewport";
+import { useCanvasStore } from "@features/canvas/model/store";
+import { GRID_SIZE } from "@shared/constants";
 
 interface PaletteItemProps {
   viewport: Viewport;
@@ -19,10 +21,17 @@ export function PaletteItem({ viewport }: PaletteItemProps) {
     disabled: !canEdit,
   });
 
-  // todo : 0,0 -> 1,1 같은 식으로 등장하는 위치 변경
   const handleViewportClick = () => {
     if (isDragging) {
       return;
+    }
+
+    const existing = useCanvasStore.getState().viewport;
+    const occupied = new Set(existing.map((v) => `${v.x},${v.y}`));
+
+    let step = 0;
+    while (occupied.has(`${step * GRID_SIZE},${step * GRID_SIZE}`)) {
+      step++;
     }
 
     addViewport({
@@ -30,8 +39,8 @@ export function PaletteItem({ viewport }: PaletteItemProps) {
       label: viewport.label,
       width: viewport.width,
       height: viewport.height,
-      x: 0,
-      y: 0,
+      x: step * GRID_SIZE,
+      y: step * GRID_SIZE,
     });
   };
 
