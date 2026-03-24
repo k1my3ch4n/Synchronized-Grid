@@ -76,7 +76,7 @@ export function CanvasItem({ item }: CanvasItemProps) {
       />
 
       <div className="relative overflow-hidden" style={{ flex: 1 }}>
-        <div className="absolute inset-0 z-10" />
+        <div className="absolute inset-0 z-10 pointer-events-none" />
         {isResizing && <div className="absolute inset-0 z-20" />}
         <ViewportFrame
           id={item.id}
