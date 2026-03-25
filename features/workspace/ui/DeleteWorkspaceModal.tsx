@@ -46,7 +46,7 @@ export function DeleteWorkspaceModal({
           <div className="flex gap-3 pt-2">
             <button
               onClick={onClose}
-              className="glass-surface flex-1 px-4 py-3 text-sm rounded-glass text-text-secondary hover:bg-glass-hover transition-colors cursor-pointer"
+              className="glass-surface flex-1 px-4 py-3 text-sm rounded-glass text-text-secondary hover:bg-glass-hover transition-colors"
             >
               취소
             </button>
@@ -54,7 +54,7 @@ export function DeleteWorkspaceModal({
               data-testid="delete-workspace-confirm"
               onClick={handleConfirm}
               disabled={loading}
-              className="flex-1 px-4 py-3 text-sm rounded-glass bg-gd-rose/20 text-gd-rose border border-gd-rose/30 hover:bg-gd-rose/30 transition-colors disabled:opacity-50 cursor-pointer"
+              className="flex-1 px-4 py-3 text-sm rounded-glass bg-gd-rose/20 text-gd-rose border border-gd-rose/30 hover:bg-gd-rose/30 transition-colors disabled:opacity-50"
             >
               {loading ? "삭제 중..." : "삭제"}
             </button>

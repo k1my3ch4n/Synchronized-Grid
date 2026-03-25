@@ -156,7 +156,7 @@ export function UserRow({
                   handleRoleChange(e.target.value as WorkspaceRole)
                 }
                 disabled={loading}
-                className="text-[10px] bg-transparent text-text-muted border border-glass-border rounded px-1 py-0.5 cursor-pointer disabled:opacity-50"
+                className="text-[10px] bg-transparent text-text-muted border border-glass-border rounded px-1 py-0.5 disabled:opacity-50"
               >
                 {ASSIGNABLE_ROLES.map((r) => (
                   <option key={r} value={r}>
@@ -168,7 +168,7 @@ export function UserRow({
             <button
               onClick={handleKick}
               disabled={loading}
-              className="text-[10px] text-red-400 hover:text-red-300 disabled:opacity-50 cursor-pointer"
+              className="text-[10px] text-red-400 hover:text-red-300 disabled:opacity-50"
               title="추방"
             >
               ✕
@@ -183,7 +183,7 @@ export function UserRow({
           <button
             onClick={handleLeave}
             disabled={loading}
-            className="text-[10px] text-red-400 hover:text-red-300 disabled:opacity-50 ml-1 cursor-pointer"
+            className="text-[10px] text-red-400 hover:text-red-300 disabled:opacity-50 ml-1"
             title="나가기"
           >
             나가기

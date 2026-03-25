@@ -34,7 +34,7 @@ export function UrlInput() {
       <button
         type="submit"
         disabled={!canEdit}
-        className="glass-btn px-6 py-2.5 text-sm disabled:opacity-50 cursor-pointer"
+        className="glass-btn px-6 py-2.5 text-sm disabled:opacity-50"
       >
         Load
       </button>

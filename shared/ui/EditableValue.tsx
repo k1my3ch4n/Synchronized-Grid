@@ -41,7 +41,7 @@ export function EditableValue({
     <button
       onClick={startEditing}
       onPointerDown={(e) => e.stopPropagation()}
-      className={`cursor-pointer ${className}`}
+      className={className}
     >
       {value}
     </button>

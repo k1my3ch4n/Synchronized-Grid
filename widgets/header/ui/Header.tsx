@@ -22,6 +22,7 @@ export function Header({ title }: HeaderProps) {
   const { workspaceName, currentUser, syncRenameWorkspace } =
     useWorkspaceStore();
   const isOwner = currentUser?.role === WORKSPACE_ROLES.OWNER;
+
   const rename = useEditableValue(workspaceName ?? "", (name) => {
     if (name !== workspaceName) {
       syncRenameWorkspace(name);
@@ -62,7 +63,7 @@ export function Header({ title }: HeaderProps) {
               ) : (
                 <button
                   onClick={rename.startEditing}
-                  className="flex items-center gap-1.5 text-sm font-medium text-text-primary truncate hover:text-accent transition-colors cursor-pointer group rounded-glass px-3 py-1 border border-transparent min-w-0"
+                  className="flex items-center gap-1.5 text-sm font-medium text-text-primary truncate hover:text-accent transition-colors group rounded-glass px-3 py-1 border border-transparent min-w-0"
                   title="이름 변경"
                 >
                   <span className="truncate">{workspaceName}</span>

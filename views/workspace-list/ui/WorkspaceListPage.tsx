@@ -80,7 +80,7 @@ export function WorkspaceListPage() {
             </div>
             <button
               onClick={() => setShowCreate(true)}
-              className="glass-btn px-4 py-2 text-sm whitespace-nowrap cursor-pointer"
+              className="glass-btn px-4 py-2 text-sm whitespace-nowrap"
             >
               + 새로 만들기
             </button>
