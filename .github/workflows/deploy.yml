@@ -6,7 +6,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  REGION: asia-northeast3
+  REGION: asia-northeast1
   SERVICE: syngrid
   REGISTRY: asia-northeast3-docker.pkg.dev
 
