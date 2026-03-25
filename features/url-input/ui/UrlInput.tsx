@@ -20,18 +20,21 @@ export function UrlInput() {
       onSubmit={handleSubmit}
       className="flex gap-3 p-4 w-[95%] max-w-[500px]"
     >
-      <input
-        type="url"
-        value={inputUrl}
-        onChange={(e) => setInputUrl(e.target.value)}
-        placeholder="https://example.com"
-        disabled={!canEdit}
-        className="flex-1 px-4 py-2.5 glass-input text-sm rounded-glass font-mono disabled:opacity-50"
-      />
+      <label className="flex-1">
+        <span className="sr-only">웹사이트 URL</span>
+        <input
+          type="url"
+          value={inputUrl}
+          onChange={(e) => setInputUrl(e.target.value)}
+          placeholder="https://example.com"
+          disabled={!canEdit}
+          className="w-full px-4 py-2.5 glass-input text-sm rounded-glass font-mono disabled:opacity-50"
+        />
+      </label>
       <button
         type="submit"
         disabled={!canEdit}
-        className="glass-btn px-6 py-2.5 text-sm disabled:opacity-50"
+        className="glass-btn px-6 py-2.5 text-sm disabled:opacity-50 cursor-pointer"
       >
         Load
       </button>

@@ -50,7 +50,7 @@ export default function InvitePage() {
           <p className="text-sm text-red-400">{error}</p>
           <button
             onClick={() => router.push("/workspaces")}
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+            className="text-sm text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
           >
             워크스페이스 목록으로
           </button>

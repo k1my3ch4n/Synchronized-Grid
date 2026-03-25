@@ -28,11 +28,11 @@ export function DeleteWorkspaceModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="glass rounded-2xl w-[95%] max-w-[420px] overflow-hidden">
-        <div className="px-7 pt-7 pb-5 border-b border-glass-border">
+        <header className="px-7 pt-7 pb-5 border-b border-glass-border">
           <h2 className="text-lg font-semibold text-text-primary">
             워크스페이스 삭제
           </h2>
-        </div>
+        </header>
         <div className="px-7 py-6 space-y-4">
           <p className="text-sm text-text-secondary">
             <span className="font-medium text-text-primary">
@@ -46,7 +46,7 @@ export function DeleteWorkspaceModal({
           <div className="flex gap-3 pt-2">
             <button
               onClick={onClose}
-              className="glass-surface flex-1 px-4 py-3 text-sm rounded-glass text-text-secondary hover:bg-glass-hover transition-colors"
+              className="glass-surface flex-1 px-4 py-3 text-sm rounded-glass text-text-secondary hover:bg-glass-hover transition-colors cursor-pointer"
             >
               취소
             </button>
@@ -54,7 +54,7 @@ export function DeleteWorkspaceModal({
               data-testid="delete-workspace-confirm"
               onClick={handleConfirm}
               disabled={loading}
-              className="flex-1 px-4 py-3 text-sm rounded-glass bg-gd-rose/20 text-gd-rose border border-gd-rose/30 hover:bg-gd-rose/30 transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-3 text-sm rounded-glass bg-gd-rose/20 text-gd-rose border border-gd-rose/30 hover:bg-gd-rose/30 transition-colors disabled:opacity-50 cursor-pointer"
             >
               {loading ? "삭제 중..." : "삭제"}
             </button>

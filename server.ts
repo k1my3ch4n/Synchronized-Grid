@@ -7,6 +7,8 @@ import { setupSocketAuth } from "./server/socket-auth";
 import { setIO } from "./server/io";
 import { flushAllPendingSaves } from "./server/workspace-persistence";
 import { logger } from "./server/logger";
+import { handleProxyRequest } from "./server/proxy";
+import { PROXY_PATH } from "./server/proxy-constants";
 import "dotenv/config";
 
 const dev = process.env.NODE_ENV !== "production";
@@ -15,8 +17,23 @@ const app = next({ dev });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
-  const httpServer = createServer((req, res) => {
+  const httpServer = createServer(async (req, res) => {
     const parsedUrl = parse(req.url!, true);
+
+    if (parsedUrl.pathname?.startsWith(PROXY_PATH)) {
+      try {
+        await handleProxyRequest(req, res);
+      } catch (err) {
+        console.error("[proxy] Unhandled error:", err);
+
+        if (!res.headersSent) {
+          res.writeHead(502, { "content-type": "application/json" });
+          res.end(JSON.stringify({ error: "Proxy error" }));
+        }
+      }
+      return;
+    }
+
     handle(req, res, parsedUrl);
   });
 

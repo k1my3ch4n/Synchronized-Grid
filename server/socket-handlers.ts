@@ -90,6 +90,9 @@ export function setupSocketHandlers(io: TypedServer) {
         let active = activeWorkspaces.get(workspaceId);
 
         if (!active) {
+          // 이전 소켓의 disconnect에서 flush가 아직 진행 중일 수 있으므로 대기
+          await flushPendingSave(workspaceId);
+
           const dbWorkspace = await loadWorkspaceFromDB(workspaceId);
 
           if (!dbWorkspace) {
@@ -206,7 +209,7 @@ export function setupSocketHandlers(io: TypedServer) {
       [...active.users.entries()].find(([, u]) => u.userId === userId) ?? null;
 
     // URL 변경
-    socket.on("url:change", ({ url }) => {
+    socket.on("url:change", async ({ url }) => {
       if (!canEdit() || !eventLimiter(socket.id)) {
         return;
       }
@@ -236,7 +239,7 @@ export function setupSocketHandlers(io: TypedServer) {
 
       if (active) {
         active.url = url;
-        saveWorkspaceUrl(currentWorkspaceId!, url);
+        await saveWorkspaceUrl(currentWorkspaceId!, url);
       }
 
       socket.to(currentWorkspaceId!).emit("url:changed", { url });

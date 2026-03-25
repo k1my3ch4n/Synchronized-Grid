@@ -32,9 +32,11 @@ export function ViewportCard({
 
   return (
     <div className={`${variantStyles[variant]} ${className}`}>
-      <div className="flex items-center justify-between">
-        <span className="font-medium text-sm text-text-primary">{label}</span>
-        <span className="text-label text-text-secondary font-mono tabular-nums">
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-medium text-xs text-text-primary truncate">
+          {label}
+        </span>
+        <span className="text-[10px] text-text-secondary font-mono tabular-nums shrink-0">
           {width}×{height}
         </span>
       </div>

@@ -7,7 +7,7 @@ import { useResize } from "../hooks/useResize";
 import { CanvasItemHeader } from "./CanvasItemHeader";
 import { toast } from "sonner";
 
-import { CANVAS_SCALE } from "@shared/constants";
+import { CANVAS_SCALE, GRID_SIZE } from "@shared/constants";
 import { ResizeHandle } from "@shared/ui/ResizeHandle";
 
 interface CanvasItemProps {
@@ -33,6 +33,9 @@ export function CanvasItem({ item }: CanvasItemProps) {
       onResizeEnd: updateSize,
     });
 
+  const cardWidth = Math.ceil(displayWidth * CANVAS_SCALE);
+  const cardHeight = Math.ceil(GRID_SIZE + displayHeight * CANVAS_SCALE);
+
   return (
     <div
       ref={setNodeRef}
@@ -40,8 +43,13 @@ export function CanvasItem({ item }: CanvasItemProps) {
       style={{
         left: item.x,
         top: item.y,
+        width: cardWidth,
+        height: cardHeight,
         zIndex: item.zIndex,
         visibility: isDragging ? "hidden" : "visible",
+        border: "none",
+        boxShadow:
+          "inset 0 0 0 1px var(--glass-border), 0 8px 32px rgba(0,0,0,0.3)",
       }}
       onPointerDownCapture={() => updateZIndex(item.id)}
     >
@@ -66,25 +74,19 @@ export function CanvasItem({ item }: CanvasItemProps) {
         }
       />
 
-      <div
-        className="relative"
-        style={{
-          width: displayWidth * CANVAS_SCALE,
-          height: displayHeight * CANVAS_SCALE,
-        }}
-      >
-        <div className="absolute inset-0 z-10" />
+      <div className="relative overflow-hidden" style={{ flex: 1 }}>
+        <div className="absolute inset-0 z-10 pointer-events-none" />
         {isResizing && <div className="absolute inset-0 z-20" />}
         <ViewportFrame
+          id={item.id}
           url={url}
           width={displayWidth}
           height={displayHeight}
-          label={item.label}
+          label=""
           scale={CANVAS_SCALE}
-          onSizeChange={(w, h) => updateSize(item.id, w, h)}
         />
-        {canEdit && <ResizeHandle onPointerDown={handleResizePointerDown} />}
       </div>
+      {canEdit && <ResizeHandle onPointerDown={handleResizePointerDown} />}
     </div>
   );
 }

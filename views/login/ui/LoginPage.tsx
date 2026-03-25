@@ -16,7 +16,7 @@ export function LoginPage() {
   }, [status, router]);
 
   return (
-    <div className="flex items-center justify-center h-[calc(100vh-64px)]">
+    <main className="flex items-center justify-center h-[calc(100vh-64px)]">
       <div className="glass rounded-2xl p-8 w-full max-w-sm space-y-6 animate-fade-in-up">
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold text-text-primary">싱긋</h1>
@@ -28,7 +28,7 @@ export function LoginPage() {
         <div className="space-y-3">
           <button
             onClick={() => signIn("google", { callbackUrl: "/workspaces" })}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg bg-white text-gray-800 font-medium text-sm hover:bg-gray-100 hover-scale hover:shadow-[var(--shadow-white-hover)]"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg bg-white text-gray-800 font-medium text-sm hover:bg-gray-100 hover-scale hover:shadow-[var(--shadow-white-hover)] cursor-pointer"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5">
               <path
@@ -63,6 +63,6 @@ export function LoginPage() {
           에 동의하게 됩니다
         </p>
       </div>
-    </div>
+    </main>
   );
 }

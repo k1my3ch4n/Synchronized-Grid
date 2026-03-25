@@ -20,7 +20,7 @@ export function CanvasItemHeader({
   onRemove,
 }: CanvasItemHeaderProps) {
   return (
-    <div
+    <header
       {...listeners}
       {...attributes}
       className="flex items-center justify-between px-3 cursor-grab select-none
@@ -34,6 +34,6 @@ export function CanvasItemHeader({
         </span>
       </div>
       {onRemove && <CloseButton onClick={onRemove} />}
-    </div>
+    </header>
   );
 }

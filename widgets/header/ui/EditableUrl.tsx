@@ -40,7 +40,7 @@ export function EditableUrl({ url, onUrlChange }: EditableUrlProps) {
   return (
     <button
       onClick={startEditing}
-      className="text-base truncate w-full flex items-center gap-2 text-text-secondary font-mono group"
+      className="text-base truncate w-full flex items-center gap-2 text-text-secondary font-mono group cursor-pointer"
     >
       <span className="truncate">{url}</span>
       <PencilIcon className="w-3 h-3 shrink-0 opacity-0 group-hover:opacity-60 group-focus-visible:opacity-60 transition-opacity" />

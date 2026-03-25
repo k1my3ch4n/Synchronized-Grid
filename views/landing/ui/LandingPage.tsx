@@ -7,7 +7,7 @@ export function LandingPage() {
     <main className="page-height flex flex-col items-center justify-center px-6">
       <div className="max-w-2xl w-full space-y-16 text-center">
         {/* Hero */}
-        <div className="space-y-6">
+        <section className="space-y-6">
           <h1 className="text-5xl sm:text-6xl font-bold text-text-primary tracking-tight animate-fade-in-up">
             프로젝트 싱긋 ( Syngrid )
           </h1>
@@ -38,10 +38,10 @@ export function LandingPage() {
               GitHub
             </a>
           </div>
-        </div>
+        </section>
 
         {/* Features */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
+        <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
           {LANDING_FEATURES.map((feature, index) => (
             <div
               key={feature.title}
@@ -56,7 +56,7 @@ export function LandingPage() {
               </p>
             </div>
           ))}
-        </div>
+        </section>
       </div>
     </main>
   );

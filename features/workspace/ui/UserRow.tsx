@@ -148,24 +148,27 @@ export function UserRow({
       <div className="flex items-center gap-1.5 shrink-0">
         {canManage ? (
           <>
-            <select
-              value={user.role}
-              onChange={(e) =>
-                handleRoleChange(e.target.value as WorkspaceRole)
-              }
-              disabled={loading}
-              className="text-[10px] bg-transparent text-text-muted border border-glass-border rounded px-1 py-0.5 cursor-pointer disabled:opacity-50"
-            >
-              {ASSIGNABLE_ROLES.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
+            <label>
+              <span className="sr-only">{user.name} 역할 변경</span>
+              <select
+                value={user.role}
+                onChange={(e) =>
+                  handleRoleChange(e.target.value as WorkspaceRole)
+                }
+                disabled={loading}
+                className="text-[10px] bg-transparent text-text-muted border border-glass-border rounded px-1 py-0.5 cursor-pointer disabled:opacity-50"
+              >
+                {ASSIGNABLE_ROLES.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+            </label>
             <button
               onClick={handleKick}
               disabled={loading}
-              className="text-[10px] text-red-400 hover:text-red-300 disabled:opacity-50"
+              className="text-[10px] text-red-400 hover:text-red-300 disabled:opacity-50 cursor-pointer"
               title="추방"
             >
               ✕
@@ -180,7 +183,7 @@ export function UserRow({
           <button
             onClick={handleLeave}
             disabled={loading}
-            className="text-[10px] text-red-400 hover:text-red-300 disabled:opacity-50 ml-1"
+            className="text-[10px] text-red-400 hover:text-red-300 disabled:opacity-50 ml-1 cursor-pointer"
             title="나가기"
           >
             나가기
