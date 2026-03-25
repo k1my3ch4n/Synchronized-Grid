@@ -16,7 +16,7 @@ export function Palette() {
   const grouped = groupPresetsByCategory(presets);
 
   return (
-    <div className="w-[260px] glass border-r border-glass-border p-4 flex flex-col gap-2">
+    <aside className="w-[260px] glass border-r border-glass-border p-4 flex flex-col gap-2">
       <h2 className="text-label font-medium text-text-muted uppercase tracking-[3px] pb-3 border-b border-glass-border mb-1">
         Viewports
       </h2>
@@ -69,6 +69,6 @@ export function Palette() {
           <span>스크롤 동기화 {enabled ? "ON" : "OFF"}</span>
         </button>
       </div>
-    </div>
+    </aside>
   );
 }
