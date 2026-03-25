@@ -42,7 +42,7 @@ export function PaletteAddForm() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full p-3 text-xs rounded-glass border border-dashed border-glass-border text-text-muted text-center transition-all hover:border-accent hover:text-accent hover:bg-accent/5"
+        className="w-full p-3 text-xs rounded-glass border border-dashed border-glass-border text-text-muted text-center transition-all hover:border-accent hover:text-accent hover:bg-accent/5 cursor-pointer"
       >
         + Add Preset
       </button>
@@ -92,13 +92,13 @@ export function PaletteAddForm() {
       <div className="flex gap-2">
         <button
           onClick={handleSubmit}
-          className="flex-1 text-xs p-1.5 glass-btn rounded-lg"
+          className="flex-1 text-xs p-1.5 glass-btn rounded-lg cursor-pointer"
         >
           OK
         </button>
         <button
           onClick={() => setIsOpen(false)}
-          className="flex-1 text-xs p-1.5 glass-btn-secondary rounded-lg"
+          className="flex-1 text-xs p-1.5 glass-btn-secondary rounded-lg cursor-pointer"
         >
           Cancel
         </button>

@@ -40,7 +40,7 @@ export function Palette() {
 
       <button
         onClick={resetPresets}
-        className="w-full p-2 text-xs text-text-muted hover:text-gd-rose transition-colors"
+        className="w-full p-2 text-xs text-text-muted hover:text-gd-rose transition-colors cursor-pointer"
       >
         기본 프리셋으로 초기화
       </button>
@@ -48,7 +48,7 @@ export function Palette() {
       <div className="mt-auto pt-3 border-t border-glass-border">
         <button
           onClick={toggle}
-          className={`w-full flex items-center gap-2 px-3 py-2 rounded-glass text-label transition-colors ${
+          className={`w-full flex items-center gap-2 px-3 py-2 rounded-glass text-label transition-colors cursor-pointer ${
             enabled
               ? "bg-accent/20 text-accent border border-accent/30"
               : "bg-white/[0.03] text-text-muted border border-glass-border hover:bg-white/[0.06]"

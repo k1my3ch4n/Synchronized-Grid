@@ -60,14 +60,14 @@ export function CreateWorkspaceModal({
           <div className="flex gap-3 pt-2">
             <button
               onClick={onClose}
-              className="glass-surface flex-1 px-4 py-3 text-sm rounded-glass text-text-secondary hover:bg-glass-hover transition-colors"
+              className="glass-surface flex-1 px-4 py-3 text-sm rounded-glass text-text-secondary hover:bg-glass-hover transition-colors cursor-pointer"
             >
               취소
             </button>
             <button
               onClick={handleSubmit}
               disabled={loading || !name.trim()}
-              className="glass-btn flex-1 px-4 py-3 text-sm disabled:opacity-50"
+              className="glass-btn flex-1 px-4 py-3 text-sm disabled:opacity-50 cursor-pointer"
             >
               {loading ? "생성 중..." : "생성"}
             </button>

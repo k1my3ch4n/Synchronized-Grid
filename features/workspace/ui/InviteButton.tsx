@@ -15,7 +15,7 @@ export function InviteButton() {
     <button
       onClick={copyInviteLink}
       disabled={loading}
-      className="glass-surface px-3 py-1.5 text-xs rounded-glass text-text-secondary hover:text-text-primary hover:bg-glass-hover hover-scale disabled:opacity-50"
+      className="glass-surface px-3 py-1.5 text-xs rounded-glass text-text-secondary hover:text-text-primary hover:bg-glass-hover hover-scale disabled:opacity-50 cursor-pointer"
     >
       {loading ? "생성 중..." : copied ? "링크 복사됨!" : "초대"}
     </button>

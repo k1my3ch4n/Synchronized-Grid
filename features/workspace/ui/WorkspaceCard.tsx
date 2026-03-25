@@ -36,7 +36,7 @@ export function WorkspaceCard({
           <button
             onClick={handleInvite}
             disabled={loading}
-            className="text-xs text-text-muted hover:text-accent transition-colors px-2 py-1 rounded disabled:opacity-50"
+            className="text-xs text-text-muted hover:text-accent transition-colors px-2 py-1 rounded disabled:opacity-50 cursor-pointer"
           >
             {loading ? "생성 중..." : copied ? "복사됨!" : "초대 링크"}
           </button>
@@ -47,7 +47,7 @@ export function WorkspaceCard({
                 e.stopPropagation();
                 onDelete(workspace.id);
               }}
-              className="text-xs text-text-muted hover:text-gd-rose transition-colors px-2 py-1 rounded"
+              className="text-xs text-text-muted hover:text-gd-rose transition-colors px-2 py-1 rounded cursor-pointer"
             >
               삭제
             </button>

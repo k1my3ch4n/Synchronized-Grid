@@ -25,7 +25,7 @@ export function PaletteGroup({
     <div>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-1 py-1.5 text-label text-text-muted uppercase tracking-wider hover:text-text-secondary transition-colors"
+        className="w-full flex items-center justify-between px-1 py-1.5 text-label text-text-muted uppercase tracking-wider hover:text-text-secondary transition-colors cursor-pointer"
       >
         <div className="flex items-center gap-1.5">
           <svg

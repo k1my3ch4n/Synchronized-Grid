@@ -165,7 +165,7 @@ export function UserRow({
             <button
               onClick={handleKick}
               disabled={loading}
-              className="text-[10px] text-red-400 hover:text-red-300 disabled:opacity-50"
+              className="text-[10px] text-red-400 hover:text-red-300 disabled:opacity-50 cursor-pointer"
               title="추방"
             >
               ✕
@@ -180,7 +180,7 @@ export function UserRow({
           <button
             onClick={handleLeave}
             disabled={loading}
-            className="text-[10px] text-red-400 hover:text-red-300 disabled:opacity-50 ml-1"
+            className="text-[10px] text-red-400 hover:text-red-300 disabled:opacity-50 ml-1 cursor-pointer"
             title="나가기"
           >
             나가기
