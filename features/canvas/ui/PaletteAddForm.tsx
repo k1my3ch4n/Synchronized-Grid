@@ -51,43 +51,55 @@ export function PaletteAddForm() {
 
   return (
     <div className="p-3 glass-surface rounded-glass flex flex-col gap-2">
-      <input
-        type="text"
-        placeholder="Label"
-        value={label}
-        onChange={(e) => setLabel(e.target.value)}
-        onKeyDown={handleKeyDown}
-        autoFocus
-        className="w-full px-2 py-1.5 text-xs glass-input rounded-lg"
-      />
-      <select
-        value={category}
-        onChange={(e) => setCategory(e.target.value as DeviceCategory)}
-        className="w-full px-2 py-1.5 text-xs glass-input rounded-lg"
-      >
-        {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
-          <option key={value} value={value}>
-            {label}
-          </option>
-        ))}
-      </select>
+      <label className="flex flex-col gap-1">
+        <span className="sr-only">프리셋 이름</span>
+        <input
+          type="text"
+          placeholder="Label"
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          onKeyDown={handleKeyDown}
+          autoFocus
+          className="w-full px-2 py-1.5 text-xs glass-input rounded-lg"
+        />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className="sr-only">카테고리</span>
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value as DeviceCategory)}
+          className="w-full px-2 py-1.5 text-xs glass-input rounded-lg"
+        >
+          {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </label>
       <div className="flex gap-2">
-        <input
-          type="number"
-          placeholder="W"
-          value={width}
-          onChange={(e) => setWidth(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="w-1/2 px-2 py-1.5 text-xs glass-input rounded-lg"
-        />
-        <input
-          type="number"
-          placeholder="H"
-          value={height}
-          onChange={(e) => setHeight(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="w-1/2 px-2 py-1.5 text-xs glass-input rounded-lg"
-        />
+        <label className="w-1/2">
+          <span className="sr-only">너비</span>
+          <input
+            type="number"
+            placeholder="W"
+            value={width}
+            onChange={(e) => setWidth(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="w-full px-2 py-1.5 text-xs glass-input rounded-lg"
+          />
+        </label>
+        <label className="w-1/2">
+          <span className="sr-only">높이</span>
+          <input
+            type="number"
+            placeholder="H"
+            value={height}
+            onChange={(e) => setHeight(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="w-full px-2 py-1.5 text-xs glass-input rounded-lg"
+          />
+        </label>
       </div>
       <div className="flex gap-2">
         <button
