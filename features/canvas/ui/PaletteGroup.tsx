@@ -22,7 +22,7 @@ export function PaletteGroup({
   }
 
   return (
-    <div>
+    <section>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between px-1 py-1.5 text-label text-text-muted uppercase tracking-wider hover:text-text-secondary transition-colors cursor-pointer"
@@ -48,6 +48,6 @@ export function PaletteGroup({
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }
