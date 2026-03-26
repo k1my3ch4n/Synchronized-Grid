@@ -4,11 +4,13 @@ import { requireAuth } from "@/lib/auth-helpers";
 
 type RouteParams = { params: Promise<{ token: string }> };
 
-type InviteWithWorkspace = Awaited<
-  ReturnType<typeof prisma.workspaceInvite.findUnique>
+type InviteWithWorkspace = NonNullable<
+  Awaited<ReturnType<typeof prisma.workspaceInvite.findUnique>>
 >;
 
-function validateInvite(invite: InviteWithWorkspace) {
+function validateInvite(
+  invite: InviteWithWorkspace | null,
+): NextResponse | null {
   if (!invite) {
     return NextResponse.json(
       { error: "유효하지 않은 초대 링크입니다" },
@@ -56,18 +58,18 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     });
 
     const validationError = validateInvite(invite);
-    if (validationError) return validationError;
+    if (validationError || !invite) return validationError!;
 
-    const inviter = invite!.createdById
+    const inviter = invite.createdById
       ? await prisma.user.findUnique({
-          where: { id: invite!.createdById },
+          where: { id: invite.createdById },
           select: { name: true, image: true },
         })
       : null;
 
     return NextResponse.json({
-      workspaceName: invite!.workspace.name,
-      memberCount: invite!.workspace._count.members,
+      workspaceName: invite.workspace.name,
+      memberCount: invite.workspace._count.members,
       inviterName: inviter?.name ?? null,
       inviterImage: inviter?.image ?? null,
     });
@@ -87,13 +89,13 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     });
 
     const validationError = validateInvite(invite);
-    if (validationError) return validationError;
+    if (validationError || !invite) return validationError!;
 
     // 이미 멤버인지 확인
     const existingMember = await prisma.workspaceMember.findUnique({
       where: {
         workspaceId_userId: {
-          workspaceId: invite!.workspaceId,
+          workspaceId: invite.workspaceId,
           userId: user.id!,
         },
       },
@@ -102,7 +104,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     if (existingMember) {
       return NextResponse.json({
         alreadyMember: true,
-        workspaceId: invite!.workspaceId,
+        workspaceId: invite.workspaceId,
       });
     }
 
@@ -110,20 +112,20 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     await prisma.$transaction([
       prisma.workspaceMember.create({
         data: {
-          workspaceId: invite!.workspaceId,
+          workspaceId: invite.workspaceId,
           userId: user.id!,
-          role: invite!.role,
+          role: invite.role,
         },
       }),
       prisma.workspaceInvite.update({
-        where: { id: invite!.id },
+        where: { id: invite.id },
         data: { useCount: { increment: 1 } },
       }),
     ]);
 
     return NextResponse.json({
       joined: true,
-      workspaceId: invite!.workspaceId,
+      workspaceId: invite.workspaceId,
     });
   } catch (error) {
     return handleAuthError(error);
