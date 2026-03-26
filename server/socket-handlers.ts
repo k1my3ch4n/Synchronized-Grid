@@ -111,30 +111,34 @@ export function setupSocketHandlers(io: TypedServer) {
         const socketUser = (socket.data as { user?: SocketUser }).user;
         const userName = socketUser?.name || `User-${socket.id.slice(0, 4)}`;
 
-        // DB에서 멤버 역할 조회
-        let role: WorkspaceRole = WORKSPACE_ROLES.VIEWER;
-        if (socketUser?.id) {
-          const workspace = await prisma.workspace.findUnique({
-            where: { id: workspaceId },
-            select: { ownerId: true },
+        // DB에서 멤버 역할 조회 — 멤버가 아니면 입장 거부
+        if (!socketUser?.id) {
+          return callback({ error: "Authentication required" });
+        }
+
+        let role: WorkspaceRole;
+        const workspace = await prisma.workspace.findUnique({
+          where: { id: workspaceId },
+          select: { ownerId: true },
+        });
+
+        if (workspace?.ownerId === socketUser.id) {
+          role = WORKSPACE_ROLES.OWNER;
+        } else {
+          const member = await prisma.workspaceMember.findUnique({
+            where: {
+              workspaceId_userId: {
+                workspaceId,
+                userId: socketUser.id,
+              },
+            },
           });
 
-          if (workspace?.ownerId === socketUser.id) {
-            role = WORKSPACE_ROLES.OWNER;
-          } else {
-            const member = await prisma.workspaceMember.findUnique({
-              where: {
-                workspaceId_userId: {
-                  workspaceId,
-                  userId: socketUser.id,
-                },
-              },
-            });
-
-            if (member) {
-              role = member.role as WorkspaceRole;
-            }
+          if (!member) {
+            return callback({ error: "Not a member of this workspace" });
           }
+
+          role = member.role as WorkspaceRole;
         }
 
         const user: WorkspaceUser = {
@@ -474,7 +478,10 @@ export function setupSocketHandlers(io: TypedServer) {
             newRole: WORKSPACE_ROLES.EDITOR,
           });
         } else {
-          ctx.active.users.set(targetSocketId, { ...targetUser, role: newRole });
+          ctx.active.users.set(targetSocketId, {
+            ...targetUser,
+            role: newRole,
+          });
 
           io.to(ctx.workspaceId).emit("member:role-changed", {
             userId,
@@ -482,11 +489,7 @@ export function setupSocketHandlers(io: TypedServer) {
           });
         }
       } catch (err) {
-        logger.error(
-          "socket-handlers",
-          "member:role-change failed",
-          err,
-        );
+        logger.error("socket-handlers", "member:role-change failed", err);
       }
 
       logger.info("socket-handlers", "member:role-change", {
