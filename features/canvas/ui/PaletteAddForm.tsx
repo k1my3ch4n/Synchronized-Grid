@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePresetStore, CATEGORY_LABELS } from "@entities/viewport";
 import type { DeviceCategory } from "@shared/types";
 import { VIEWPORT_MIN_SIZE, VIEWPORT_MAX_SIZE } from "@shared/constants";
+import { toast } from "sonner";
 
 export function PaletteAddForm() {
   const { addPreset } = usePresetStore();
@@ -17,7 +18,13 @@ export function PaletteAddForm() {
     const w = parseInt(width);
     const h = parseInt(height);
 
-    if (!label.trim() || isNaN(w) || isNaN(h)) {
+    if (!label.trim()) {
+      toast.error("프리셋 이름을 입력해주세요");
+      return;
+    }
+
+    if (isNaN(w) || isNaN(h)) {
+      toast.error("유효한 너비와 높이를 입력해주세요");
       return;
     }
 
