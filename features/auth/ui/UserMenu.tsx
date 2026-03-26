@@ -4,6 +4,7 @@ import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import { useAuthStore } from "../model/store";
+import { Z_INDEX } from "@shared/constants";
 
 export function UserMenu() {
   const user = useAuthStore((s) => s.user);
@@ -54,7 +55,7 @@ export function UserMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-10 w-56 bg-[var(--glass-bg-solid)] border border-glass-border rounded-lg shadow-xl z-40 overflow-hidden">
+        <div className={`absolute right-0 top-10 w-56 bg-[var(--glass-bg-solid)] border border-glass-border rounded-lg shadow-xl ${Z_INDEX.HEADER_DROPDOWN} overflow-hidden`}>
           <div className="px-4 py-3 border-b border-white/10">
             <p className="text-sm font-medium text-text-primary truncate">
               {user.name}
