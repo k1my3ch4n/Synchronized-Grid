@@ -98,6 +98,44 @@ const BRIDGE_SCRIPT = `<script data-proxy-bridge>
     return origReplaceState.call(this, state, title, patchUrl(url));
   };
 
+  // Patch fetch & XHR to route relative requests through proxy
+  var BASE_URL = document.querySelector('meta[name="proxy-base-url"]');
+  var proxyBase = BASE_URL ? BASE_URL.getAttribute('content') : '';
+
+  if(proxyBase){
+    var origFetch = window.fetch;
+    window.fetch = function(input, init){
+      if(typeof input === 'string' && input.startsWith('/') && !input.startsWith('/api/proxy')){
+        input = '/api/proxy?url=' + encodeURIComponent(proxyBase + input);
+      }
+      return origFetch.call(this, input, init);
+    };
+
+    var origXhrOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(method, url){
+      if(typeof url === 'string' && url.startsWith('/') && !url.startsWith('/api/proxy')){
+        url = '/api/proxy?url=' + encodeURIComponent(proxyBase + url);
+      }
+      return origXhrOpen.apply(this, arguments);
+    };
+
+    // Patch dynamic script/link insertion
+    var origCreateElement = document.createElement;
+    document.createElement = function(tag){
+      var el = origCreateElement.call(this, tag);
+      if(tag.toLowerCase() === 'script' || tag.toLowerCase() === 'link'){
+        var origSetAttr = el.setAttribute.bind(el);
+        el.setAttribute = function(name, value){
+          if((name === 'src' || name === 'href') && typeof value === 'string' && value.startsWith('/') && !value.startsWith('/api/proxy')){
+            value = '/api/proxy?url=' + encodeURIComponent(proxyBase + value);
+          }
+          return origSetAttr(name, value);
+        };
+      }
+      return el;
+    };
+  }
+
   var frameId = null;
   var programmatic = false;
   var lastScrollY = -1;
@@ -170,19 +208,28 @@ export function rewriteHtml(html: string, baseUrl: string): string {
       `${open}${rewriteCssUrls(css, baseUrl)}${close}`,
   );
 
-  // 5. Restore <script> blocks (untouched)
-  safe = safe.replace(
-    /<!--__SCRIPT_(\d+)__-->/g,
-    (_match, idx) => scripts[parseInt(idx)],
-  );
+  // 5. Restore <script> blocks — rewrite src attribute on the opening tag only
+  safe = safe.replace(/<!--__SCRIPT_(\d+)__-->/g, (_match, idx) => {
+    const script = scripts[parseInt(idx)];
+    return script.replace(
+      /(<script[^>]*?\bsrc\s*=\s*)(["'])([^"']*?)\2/i,
+      (_m: string, prefix: string, quote: string, url: string) => {
+        const rewritten = proxyUrl(url.trim(), baseUrl);
+        return `${prefix}${quote}${rewritten}${quote}`;
+      },
+    );
+  });
 
-  // 6. Inject bridge script before </head> or </body>
+  // 6. Inject base-url meta tag and bridge script
+  const origin = new URL(baseUrl).origin;
+  const metaTag = `<meta name="proxy-base-url" content="${origin}">`;
+
   if (/<\/head>/i.test(safe)) {
-    safe = safe.replace(/<\/head>/i, `${BRIDGE_SCRIPT}</head>`);
+    safe = safe.replace(/<\/head>/i, `${metaTag}${BRIDGE_SCRIPT}</head>`);
   } else if (/<\/body>/i.test(safe)) {
-    safe = safe.replace(/<\/body>/i, `${BRIDGE_SCRIPT}</body>`);
+    safe = safe.replace(/<\/body>/i, `${metaTag}${BRIDGE_SCRIPT}</body>`);
   } else {
-    safe += BRIDGE_SCRIPT;
+    safe += metaTag + BRIDGE_SCRIPT;
   }
 
   return safe;
