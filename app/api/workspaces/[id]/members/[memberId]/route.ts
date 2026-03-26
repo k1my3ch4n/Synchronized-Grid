@@ -16,7 +16,9 @@ async function findMember(workspaceId: string, memberId: string) {
     where: { id: memberId },
   });
 
-  if (byId && byId.workspaceId === workspaceId) return byId;
+  if (byId) {
+    return byId.workspaceId === workspaceId ? byId : null;
+  }
 
   // userId로 조회 (소켓에서 userId를 전달하는 경우)
   const byUserId = await prisma.workspaceMember.findUnique({
