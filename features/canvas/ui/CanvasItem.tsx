@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 import { CANVAS_SCALE, GRID_SIZE } from "@shared/constants";
 import { ResizeHandle } from "@shared/ui/ResizeHandle";
+import { useCanvasStore } from "../model/store";
 
 interface CanvasItemProps {
   item: CanvasViewport;
@@ -18,6 +19,8 @@ export function CanvasItem({ item }: CanvasItemProps) {
   const { url } = useUrlStore();
   const { canEdit, addViewport, removeViewport, updateSize, updateZIndex } =
     useSyncedCanvas();
+  const isSelected = useCanvasStore((s) => s.selectedViewportId === item.id);
+  const selectViewport = useCanvasStore((s) => s.selectViewport);
 
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: item.id,
@@ -48,9 +51,11 @@ export function CanvasItem({ item }: CanvasItemProps) {
         zIndex: item.zIndex,
         visibility: isDragging ? "hidden" : "visible",
         border: "none",
-        boxShadow:
-          "inset 0 0 0 1px var(--glass-border), 0 8px 32px rgba(0,0,0,0.3)",
+        boxShadow: isSelected
+          ? "inset 0 0 0 2px var(--accent), 0 8px 32px rgba(0,0,0,0.3)"
+          : "inset 0 0 0 1px var(--glass-border), 0 8px 32px rgba(0,0,0,0.3)",
       }}
+      onClick={() => selectViewport(item.id)}
       onPointerDownCapture={() => updateZIndex(item.id)}
     >
       <CanvasItemHeader
