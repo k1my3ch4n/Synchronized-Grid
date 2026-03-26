@@ -18,10 +18,6 @@ export async function proxy(req: NextRequest) {
   // 초대 링크는 미인증 사용자도 볼 수 있어야 함
   const isInvitePath = pathname.startsWith("/invite/");
 
-  if (isPublicPath || isInvitePath) {
-    return NextResponse.next();
-  }
-
   // NextAuth의 getToken으로 JWT 복호화 (NextAuth v5는 JWE 암호화 사용)
   const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
   const isSecure = req.nextUrl.protocol === "https:";
@@ -30,6 +26,15 @@ export async function proxy(req: NextRequest) {
     : "authjs.session-token";
   const token = await getToken({ req, secret, salt: cookieName, cookieName });
   const isLoggedIn = !!token;
+
+  // 인증된 사용자가 루트 접근 시 워크스페이스로 리다이렉트
+  if (isLoggedIn && pathname === "/") {
+    return NextResponse.redirect(new URL("/workspaces", req.nextUrl.origin));
+  }
+
+  if (isPublicPath || isInvitePath) {
+    return NextResponse.next();
+  }
 
   // 미인증 API 요청 → 401 반환
   if (!isLoggedIn && pathname.startsWith("/api/")) {
@@ -41,11 +46,6 @@ export async function proxy(req: NextRequest) {
     const loginUrl = new URL("/login", req.nextUrl.origin);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
-  }
-
-  // 루트 → 워크스페이스
-  if (pathname === "/") {
-    return NextResponse.redirect(new URL("/workspaces", req.nextUrl.origin));
   }
 
   return NextResponse.next();

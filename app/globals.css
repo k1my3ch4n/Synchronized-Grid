@@ -8,6 +8,7 @@
   /* Color: Glass */
   --glass-bg: rgba(255, 255, 255, 0.06);
   --glass-bg-hover: rgba(255, 255, 255, 0.1);
+  --glass-bg-solid: #1a1a2e;
   --glass-border: rgba(255, 255, 255, 0.15);
   --glass-border-glow: rgba(255, 255, 255, 0.22);
   --surface: rgba(255, 255, 255, 0.06);
@@ -103,7 +104,6 @@
   border: none;
   border-radius: 10px;
   color: white;
-  cursor: pointer;
   font-weight: 600;
   transition: all 0.2s;
 }
@@ -123,7 +123,6 @@
   border: 1px solid var(--glass-border);
   border-radius: 10px;
   color: var(--text-secondary);
-  cursor: pointer;
   font-weight: 500;
   transition: all 0.2s;
 }
@@ -132,6 +131,13 @@
   background: var(--glass-bg-hover);
   border-color: var(--glass-border-glow);
   color: var(--text-primary);
+}
+
+/* Interactive elements: default cursor */
+button,
+select,
+[role="button"] {
+  cursor: pointer;
 }
 
 body {

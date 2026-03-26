@@ -28,7 +28,7 @@ export function LoginPage() {
         <div className="space-y-3">
           <button
             onClick={() => signIn("google", { callbackUrl: "/workspaces" })}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg bg-white text-gray-800 font-medium text-sm hover:bg-gray-100 hover-scale hover:shadow-[var(--shadow-white-hover)] cursor-pointer"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg bg-white text-gray-800 font-medium text-sm hover:bg-gray-100 hover-scale hover:shadow-[var(--shadow-white-hover)]"
           >
             <svg viewBox="0 0 24 24" className="w-5 h-5">
               <path

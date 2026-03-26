@@ -22,6 +22,7 @@ export function Header({ title }: HeaderProps) {
   const { workspaceName, currentUser, syncRenameWorkspace } =
     useWorkspaceStore();
   const isOwner = currentUser?.role === WORKSPACE_ROLES.OWNER;
+
   const rename = useEditableValue(workspaceName ?? "", (name) => {
     if (name !== workspaceName) {
       syncRenameWorkspace(name);
@@ -32,7 +33,7 @@ export function Header({ title }: HeaderProps) {
     <header className="h-16 px-6 glass flex items-center relative z-10">
       <div className="flex items-center min-w-0 max-w-[28vw] shrink-0">
         <Link
-          href={workspaceName ? "/workspaces" : "/"}
+          href="/workspaces"
           className="flex items-center gap-2.5 hover:opacity-80 transition-opacity shrink-0"
         >
           <h1 className="text-lg font-bold tracking-tight text-text-primary">
@@ -44,7 +45,9 @@ export function Header({ title }: HeaderProps) {
         </Link>
         {workspaceName && (
           <>
-            <span className="ml-2 sm:ml-4 mr-1 text-text-muted shrink-0">/</span>
+            <span className="ml-2 sm:ml-4 mr-1 text-text-muted shrink-0">
+              /
+            </span>
             {isOwner ? (
               rename.isEditing ? (
                 <input
@@ -60,7 +63,7 @@ export function Header({ title }: HeaderProps) {
               ) : (
                 <button
                   onClick={rename.startEditing}
-                  className="flex items-center gap-1.5 text-sm font-medium text-text-primary truncate hover:text-accent transition-colors cursor-pointer group rounded-glass px-3 py-1 border border-transparent min-w-0"
+                  className="flex items-center gap-1.5 text-sm font-medium text-text-primary truncate hover:text-accent transition-colors group rounded-glass px-3 py-1 border border-transparent min-w-0"
                   title="이름 변경"
                 >
                   <span className="truncate">{workspaceName}</span>

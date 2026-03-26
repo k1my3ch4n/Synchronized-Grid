@@ -3,12 +3,14 @@
 import { DndContext } from "@dnd-kit/core";
 import { Palette, Canvas } from "@features/canvas";
 import { useCanvasDnd } from "../hooks/useCanvasDnd";
+import { useCanvasKeyboard } from "../hooks/useCanvasKeyboard";
 import { snapToGridModifier } from "../lib/snapToGrid";
 import { CanvasOverlay } from "./CanvasOverlay";
 import { useScrollSync } from "@features/scroll-sync";
 
 export function CanvasEditor() {
   useScrollSync();
+  useCanvasKeyboard();
 
   const {
     sensors,

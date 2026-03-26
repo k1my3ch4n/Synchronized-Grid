@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { usePresetStore, CATEGORY_LABELS } from "@entities/viewport";
 import type { DeviceCategory } from "@shared/types";
+import { VIEWPORT_MIN_SIZE, VIEWPORT_MAX_SIZE } from "@shared/constants";
+import { toast } from "sonner";
 
 export function PaletteAddForm() {
   const { addPreset } = usePresetStore();
@@ -16,11 +18,20 @@ export function PaletteAddForm() {
     const w = parseInt(width);
     const h = parseInt(height);
 
-    if (!label.trim() || isNaN(w) || isNaN(h) || w <= 0 || h <= 0) {
+    if (!label.trim()) {
+      toast.error("프리셋 이름을 입력해주세요");
       return;
     }
 
-    addPreset({ label: label.trim(), width: w, height: h, category });
+    if (isNaN(w) || isNaN(h)) {
+      toast.error("유효한 너비와 높이를 입력해주세요");
+      return;
+    }
+
+    const clampedW = Math.min(VIEWPORT_MAX_SIZE, Math.max(VIEWPORT_MIN_SIZE, w));
+    const clampedH = Math.min(VIEWPORT_MAX_SIZE, Math.max(VIEWPORT_MIN_SIZE, h));
+
+    addPreset({ label: label.trim(), width: clampedW, height: clampedH, category });
     setLabel("");
     setWidth("");
     setHeight("");
@@ -42,7 +53,7 @@ export function PaletteAddForm() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full p-3 text-xs rounded-glass border border-dashed border-glass-border text-text-muted text-center transition-all hover:border-accent hover:text-accent hover:bg-accent/5 cursor-pointer"
+        className="w-full p-3 text-xs rounded-glass border border-dashed border-glass-border text-text-muted text-center transition-all hover:border-accent hover:text-accent hover:bg-accent/5"
       >
         + Add Preset
       </button>
@@ -81,10 +92,12 @@ export function PaletteAddForm() {
         <label className="w-1/2">
           <span className="sr-only">너비</span>
           <input
-            type="number"
-            placeholder="W"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            placeholder="W (너비)"
             value={width}
-            onChange={(e) => setWidth(e.target.value)}
+            onChange={(e) => setWidth(e.target.value.replace(/\D/g, ""))}
             onKeyDown={handleKeyDown}
             className="w-full px-2 py-1.5 text-xs glass-input rounded-lg"
           />
@@ -92,10 +105,12 @@ export function PaletteAddForm() {
         <label className="w-1/2">
           <span className="sr-only">높이</span>
           <input
-            type="number"
-            placeholder="H"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            placeholder="H (높이)"
             value={height}
-            onChange={(e) => setHeight(e.target.value)}
+            onChange={(e) => setHeight(e.target.value.replace(/\D/g, ""))}
             onKeyDown={handleKeyDown}
             className="w-full px-2 py-1.5 text-xs glass-input rounded-lg"
           />
@@ -104,13 +119,13 @@ export function PaletteAddForm() {
       <div className="flex gap-2">
         <button
           onClick={handleSubmit}
-          className="flex-1 text-xs p-1.5 glass-btn rounded-lg cursor-pointer"
+          className="flex-1 text-xs p-1.5 glass-btn rounded-lg"
         >
           OK
         </button>
         <button
           onClick={() => setIsOpen(false)}
-          className="flex-1 text-xs p-1.5 glass-btn-secondary rounded-lg cursor-pointer"
+          className="flex-1 text-xs p-1.5 glass-btn-secondary rounded-lg"
         >
           Cancel
         </button>

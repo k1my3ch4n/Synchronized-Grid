@@ -40,7 +40,7 @@ export function WorkspaceDetailPage() {
         <p className="text-sm text-red-400">{error}</p>
         <button
           onClick={() => window.history.back()}
-          className="text-sm text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
+          className="text-sm text-text-secondary hover:text-text-primary transition-colors"
         >
           ← 돌아가기
         </button>

@@ -3,7 +3,7 @@
 import { useWorkspaceStore } from "../model/store";
 import { useWorkspaceContext } from "../hooks/useWorkspaceContext";
 import { UserRow } from "./UserRow";
-import { WORKSPACE_ROLES } from "@shared/constants";
+import { WORKSPACE_ROLES, Z_INDEX } from "@shared/constants";
 
 export function UserPresence() {
   const { users, currentUser } = useWorkspaceStore();
@@ -29,8 +29,8 @@ export function UserPresence() {
         </div>
       ))}
 
-      <div className="absolute top-full right-0 hidden group-hover:block z-50 pt-2">
-        <div className="glass rounded-lg py-2 px-1 min-w-[220px] shadow-lg">
+      <div className={`absolute top-full right-0 hidden group-hover:block ${Z_INDEX.HEADER_POPOVER} pt-2`}>
+        <div className="bg-[var(--glass-bg-solid)] border border-glass-border rounded-lg py-2 px-1 min-w-[220px] shadow-xl">
           {users.map((user) => (
             <UserRow
               key={user.id}

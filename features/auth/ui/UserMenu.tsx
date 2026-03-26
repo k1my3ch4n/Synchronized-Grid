@@ -4,6 +4,7 @@ import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
 import { useAuthStore } from "../model/store";
+import { Z_INDEX } from "@shared/constants";
 
 export function UserMenu() {
   const user = useAuthStore((s) => s.user);
@@ -35,7 +36,7 @@ export function UserMenu() {
     <div ref={menuRef} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors overflow-hidden ring-2 ring-transparent hover:ring-accent/50 hover-scale cursor-pointer"
+        className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors overflow-hidden ring-2 ring-transparent hover:ring-accent/50 hover-scale"
         title={user.name ?? user.email ?? ""}
       >
         {user.image ? (
@@ -54,7 +55,7 @@ export function UserMenu() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-10 w-56 glass rounded-lg border border-white/10 shadow-xl z-50 overflow-hidden">
+        <div className={`absolute right-0 top-10 w-56 bg-[var(--glass-bg-solid)] border border-glass-border rounded-lg shadow-xl ${Z_INDEX.HEADER_DROPDOWN} overflow-hidden`}>
           <div className="px-4 py-3 border-b border-white/10">
             <p className="text-sm font-medium text-text-primary truncate">
               {user.name}
@@ -63,7 +64,7 @@ export function UserMenu() {
           </div>
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
-            className="w-full px-4 py-2.5 text-left text-sm text-text-secondary hover:bg-white/5 transition-colors cursor-pointer"
+            className="w-full px-4 py-2.5 text-left text-sm text-text-secondary hover:bg-white/5 transition-colors"
           >
             로그아웃
           </button>

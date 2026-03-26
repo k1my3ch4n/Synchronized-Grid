@@ -1,4 +1,5 @@
 import { PROXY_PATH } from "./proxy-constants";
+import { BRIDGE_SCRIPT } from "./bridge-script";
 
 function proxyUrl(value: string, baseUrl: string): string {
   if (
@@ -76,75 +77,6 @@ function rewriteCssUrls(content: string, baseUrl: string): string {
   );
 }
 
-const BRIDGE_SCRIPT = `<script data-proxy-bridge>
-(function(){
-  // Patch history API — proxied pages run on localhost but try to push original-origin URLs
-  var origPushState = history.pushState;
-  var origReplaceState = history.replaceState;
-  function patchUrl(url){
-    if(!url) return url;
-    try {
-      var u = new URL(url, location.href);
-      if(u.origin !== location.origin){
-        return u.pathname + u.search + u.hash;
-      }
-    } catch(e){}
-    return url;
-  }
-  history.pushState = function(state, title, url){
-    return origPushState.call(this, state, title, patchUrl(url));
-  };
-  history.replaceState = function(state, title, url){
-    return origReplaceState.call(this, state, title, patchUrl(url));
-  };
-
-  var frameId = null;
-  var programmatic = false;
-  var lastScrollY = -1;
-
-  window.addEventListener('message',function(e){
-    var d = e.data;
-    if(!d) return;
-    if(d.type==='proxy:init'){
-      frameId = d.frameId;
-    }
-    if(d.type==='proxy:scrollTo'){
-      var max = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      if(max <= 0) return;
-      programmatic = true;
-      window.scrollTo({top:d.ratio * max,behavior:'instant'});
-      requestAnimationFrame(function(){ programmatic = false; });
-    }
-  });
-
-  function onScroll(){
-    if(programmatic) return;
-    if(window.scrollY !== lastScrollY){
-      lastScrollY = window.scrollY;
-      window.parent.postMessage({
-        type:'proxy:scroll',
-        frameId:frameId,
-        scrollX:window.scrollX,
-        scrollY:window.scrollY,
-        scrollHeight:document.documentElement.scrollHeight,
-        clientHeight:document.documentElement.clientHeight
-      },'*');
-    }
-  }
-
-  window.addEventListener('scroll',onScroll,{passive:true});
-  new ResizeObserver(function(){
-    window.parent.postMessage({
-      type:'proxy:resize',
-      frameId:frameId,
-      width:document.documentElement.scrollWidth,
-      height:document.documentElement.scrollHeight
-    },'*');
-  }).observe(document.documentElement);
-  window.addEventListener('load',onScroll);
-})();
-</script>`;
-
 export function rewriteHtml(html: string, baseUrl: string): string {
   // 1. Protect <script> blocks — extract and replace with placeholders
   const scripts: string[] = [];
@@ -170,19 +102,28 @@ export function rewriteHtml(html: string, baseUrl: string): string {
       `${open}${rewriteCssUrls(css, baseUrl)}${close}`,
   );
 
-  // 5. Restore <script> blocks (untouched)
-  safe = safe.replace(
-    /<!--__SCRIPT_(\d+)__-->/g,
-    (_match, idx) => scripts[parseInt(idx)],
-  );
+  // 5. Restore <script> blocks — rewrite src attribute on the opening tag only
+  safe = safe.replace(/<!--__SCRIPT_(\d+)__-->/g, (_match, idx) => {
+    const script = scripts[parseInt(idx)];
+    return script.replace(
+      /(<script[^>]*?\bsrc\s*=\s*)(["'])([^"']*?)\2/i,
+      (_m: string, prefix: string, quote: string, url: string) => {
+        const rewritten = proxyUrl(url.trim(), baseUrl);
+        return `${prefix}${quote}${rewritten}${quote}`;
+      },
+    );
+  });
 
-  // 6. Inject bridge script before </head> or </body>
+  // 6. Inject base-url meta tag and bridge script
+  const origin = new URL(baseUrl).origin;
+  const metaTag = `<meta name="proxy-base-url" content="${origin}">`;
+
   if (/<\/head>/i.test(safe)) {
-    safe = safe.replace(/<\/head>/i, `${BRIDGE_SCRIPT}</head>`);
+    safe = safe.replace(/<\/head>/i, `${metaTag}${BRIDGE_SCRIPT}</head>`);
   } else if (/<\/body>/i.test(safe)) {
-    safe = safe.replace(/<\/body>/i, `${BRIDGE_SCRIPT}</body>`);
+    safe = safe.replace(/<\/body>/i, `${metaTag}${BRIDGE_SCRIPT}</body>`);
   } else {
-    safe += BRIDGE_SCRIPT;
+    safe += metaTag + BRIDGE_SCRIPT;
   }
 
   return safe;

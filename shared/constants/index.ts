@@ -37,6 +37,12 @@ export const VIEWPORT_MAX_POSITION = 10000;
 export const VIEWPORT_MAX_ZINDEX = 10000;
 export const VIEWPORT_LABEL_MAX_LENGTH = 100;
 
+// ─── z-index 레이어 ───
+export const Z_INDEX = {
+  HEADER_DROPDOWN: "z-40",
+  HEADER_POPOVER: "z-[60]",
+} as const;
+
 // ─── 외부 링크 ───
 export const GITHUB_URL =
   "https://github.com/k1my3ch4n/Synchronized-Grid";

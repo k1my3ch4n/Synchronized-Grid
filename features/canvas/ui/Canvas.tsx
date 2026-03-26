@@ -11,7 +11,7 @@ import { RemoteCursors } from "@features/workspace/ui/RemoteCursors";
 import { getSocket } from "@shared/lib/socket";
 
 export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
-  const { viewport } = useCanvasStore();
+  const { viewport, selectViewport } = useCanvasStore();
   const { isInWorkspace } = useWorkspaceContext();
 
   const throttledEmit = useMemo(
@@ -54,6 +54,9 @@ export const Canvas = forwardRef<HTMLDivElement>(function Canvas(_, ref) {
   return (
     <div
       ref={setRefs}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) selectViewport(null);
+      }}
       onPointerMove={handlePointerMove}
       className={`flex-1 relative overflow-auto transition-colors ${
         isOver ? "bg-accent/5" : ""

@@ -3,15 +3,18 @@ import { CanvasViewport } from "@shared/types";
 
 interface CanvasState {
   viewport: CanvasViewport[];
+  selectedViewportId: string | null;
   addViewport: (viewport: Omit<CanvasViewport, "id" | "zIndex">) => void;
   updatePosition: (id: string, x: number, y: number) => void;
   removeViewport: (id: string) => void;
   updateSize: (id: string, width: number, height: number) => void;
   updateZIndex: (id: string) => void;
+  selectViewport: (id: string | null) => void;
 }
 
 export const useCanvasStore = create<CanvasState>((set) => ({
   viewport: [],
+  selectedViewportId: null,
 
   addViewport: (viewport) =>
     set((state) => {
@@ -37,6 +40,8 @@ export const useCanvasStore = create<CanvasState>((set) => ({
   removeViewport: (id) =>
     set((state) => ({
       viewport: state.viewport.filter((v) => v.id !== id),
+      selectedViewportId:
+        state.selectedViewportId === id ? null : state.selectedViewportId,
     })),
 
   updateSize: (id, width, height) =>
@@ -56,4 +61,6 @@ export const useCanvasStore = create<CanvasState>((set) => ({
         ),
       };
     }),
+
+  selectViewport: (id) => set({ selectedViewportId: id }),
 }));
