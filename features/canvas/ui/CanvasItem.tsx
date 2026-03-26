@@ -5,7 +5,7 @@ import { useSyncedCanvas } from "@features/workspace/hooks/useSyncedCanvas";
 import { useUrlStore } from "@features/url-input";
 import { useResize } from "../hooks/useResize";
 import { CanvasItemHeader } from "./CanvasItemHeader";
-import { toast } from "sonner";
+import { showViewportDeletedToast } from "../lib/toast";
 
 import { CANVAS_SCALE, GRID_SIZE } from "@shared/constants";
 import { ResizeHandle } from "@shared/ui/ResizeHandle";
@@ -68,12 +68,7 @@ export function CanvasItem({ item }: CanvasItemProps) {
           canEdit
             ? () => {
                 removeViewport(item.id);
-                toast(`"${item.label}" 뷰포트가 삭제되었습니다`, {
-                  action: {
-                    label: "되돌리기",
-                    onClick: () => addViewport(item),
-                  },
-                });
+                showViewportDeletedToast(item, () => addViewport(item));
               }
             : undefined
         }

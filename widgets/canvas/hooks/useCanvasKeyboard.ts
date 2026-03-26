@@ -1,21 +1,8 @@
 import { useEffect } from "react";
 import { useCanvasStore } from "@features/canvas/model/store";
 import { useSyncedCanvas } from "@features/workspace/hooks/useSyncedCanvas";
-import { toast } from "sonner";
-
-function isFormElement(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) {
-    return false;
-  }
-  const tag = target.tagName;
-
-  return (
-    tag === "INPUT" ||
-    tag === "TEXTAREA" ||
-    tag === "SELECT" ||
-    target.isContentEditable
-  );
-}
+import { showViewportDeletedToast } from "@features/canvas/lib/toast";
+import { isFormElement } from "@shared/lib/dom";
 
 export function useCanvasKeyboard() {
   const { canEdit, removeViewport, addViewport } = useSyncedCanvas();
@@ -42,12 +29,7 @@ export function useCanvasKeyboard() {
         const item = viewport.find((v) => v.id === selectedViewportId);
         if (item) {
           removeViewport(item.id);
-          toast(`"${item.label}" 뷰포트가 삭제되었습니다`, {
-            action: {
-              label: "되돌리기",
-              onClick: () => addViewport(item),
-            },
-          });
+          showViewportDeletedToast(item, () => addViewport(item));
         }
       }
     };
