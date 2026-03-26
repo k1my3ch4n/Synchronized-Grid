@@ -95,7 +95,7 @@ export function PaletteAddForm() {
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
-            placeholder="W"
+            placeholder="W (너비)"
             value={width}
             onChange={(e) => setWidth(e.target.value.replace(/\D/g, ""))}
             onKeyDown={handleKeyDown}
@@ -108,7 +108,7 @@ export function PaletteAddForm() {
             type="text"
             inputMode="numeric"
             pattern="[0-9]*"
-            placeholder="H"
+            placeholder="H (높이)"
             value={height}
             onChange={(e) => setHeight(e.target.value.replace(/\D/g, ""))}
             onKeyDown={handleKeyDown}
