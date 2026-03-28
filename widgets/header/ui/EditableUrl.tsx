@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useEditableValue } from "@shared/hooks/useEditableValue";
-import { PencilIcon } from "@shared/ui/icons/PencilIcon";
+import { PencilIcon } from "@shared/ui/icons";
 
 interface EditableUrlProps {
   url: string;

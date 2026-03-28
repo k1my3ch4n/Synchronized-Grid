@@ -2,7 +2,22 @@
 
 > 하나의 URL을 여러 디바이스 뷰포트로 동시에 확인하고, 팀원과 실시간으로 공유하세요.
 
-<!-- 📸 [스크린샷 1] 메인 캔버스 전체 화면 — 여러 디바이스 뷰포트(iPhone, iPad, Desktop)가 배치된 모습. 좌측 팔레트 패널 포함 -->
+<div align="center">
+
+<a href='https://syngrid.k1my3ch4n.xyz' target="_blank">
+   <img src='https://img.shields.io/badge/Syngrid-site-skyblue?style=for-the-badge&labelColor=4C566A'>
+</a>
+
+<a href='https://syngrid.notion.site/Syngrid-32f193d73b2381c0bb27c5f245e23129?pvs=74' target="_blank">
+   <img src='https://img.shields.io/badge/Syngrid-notion-blue?style=for-the-badge&labelColor=4C566A'>
+</a>
+
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" alt="rainbow" />
+
+</div>
+
+![메인 캔버스 1](https://github.com/user-attachments/assets/60b27547-011f-4e16-993c-f1803b5f3d87)
+![메인 캔버스 2](https://github.com/user-attachments/assets/40cdf7b3-5433-4a88-b3a0-1d0c5522247b)
 
 ## 프로젝트 소개
 
@@ -18,7 +33,7 @@
 
 ## 주요 기능
 
-<!-- 📸 [스크린샷 2] 실시간 협업 — 2명 이상 접속 상태, 커서 표시, 뷰포트 동기화 모습 -->
+![멀티 마우스](https://github.com/user-attachments/assets/12df77f0-1925-4b0b-9f42-833bdde51796)
 
 - **멀티 뷰포트 캔버스** — 다양한 디바이스 크기의 뷰포트를 캔버스에 자유롭게 배치
 - **실시간 협업** — Socket.IO 기반 커서 공유, 뷰포트 동기화, 스크롤 동기화
@@ -28,20 +43,20 @@
 - **워크스페이스** — Google OAuth 인증, 초대 링크(확인 페이지), 역할 기반 권한 관리
 - **키보드 단축키** — Delete 삭제, Escape 선택 해제
 
-<!-- 📸 [스크린샷 3] 드래그&드롭 — 팔레트에서 캔버스로 뷰포트를 드래그하는 모습 (실제 크기 프리뷰 표시) -->
+![드래그 앤 드롭](https://github.com/user-attachments/assets/22a319b2-4874-4152-82ee-bf121ba54dc4)
 
 ## 기술 스택
 
-| 영역 | 기술 |
-|------|------|
-| **Frontend** | Next.js 16, React 19, TypeScript, Tailwind CSS 4, Zustand |
-| **Backend** | Custom Node.js Server, Socket.IO, Prisma ORM |
-| **Database** | PostgreSQL (Cloud SQL) |
-| **Auth** | NextAuth.js v5 (Google OAuth, JWT) |
-| **Infra** | GCP Cloud Run, Docker, GitHub Actions CI/CD |
-| **Testing** | Playwright E2E |
-| **Architecture** | Feature-Sliced Design (FSD) |
-| **AI** | Claude Code (페어 프로그래밍) |
+| 영역             | 기술                                                      |
+| ---------------- | --------------------------------------------------------- |
+| **Frontend**     | Next.js 16, React 19, TypeScript, Tailwind CSS 4, Zustand |
+| **Backend**      | Custom Node.js Server, Socket.IO, Prisma ORM              |
+| **Database**     | PostgreSQL (Cloud SQL)                                    |
+| **Auth**         | NextAuth.js v5 (Google OAuth, JWT)                        |
+| **Infra**        | GCP Cloud Run, Docker, GitHub Actions CI/CD               |
+| **Testing**      | Playwright E2E                                            |
+| **Architecture** | Feature-Sliced Design (FSD)                               |
+| **AI**           | Claude Code (페어 프로그래밍)                             |
 
 ## 아키텍처
 
@@ -58,52 +73,6 @@ Server (Custom Node.js)
 ├── Prisma ────────── 워크스페이스, 멤버, 초대 관리
 └── NextAuth ──────── Google OAuth 인증
 ```
-
-## 로컬 실행
-
-### 사전 준비
-
-- Node.js 20+
-- Docker & Docker Compose
-- Google OAuth 클라이언트 ID/Secret
-
-### 설치
-
-```bash
-# 저장소 클론
-git clone https://github.com/k1my3ch4n/Synchronized-Grid.git
-cd Synchronized-Grid
-
-# 의존성 설치
-npm install
-
-# 환경변수 설정
-cp .env.example .env
-```
-
-`.env` 파일을 열어 아래 값을 설정하세요:
-
-| 변수 | 설명 |
-|------|------|
-| `DATABASE_URL` | 기본값 그대로 사용 가능 |
-| `NEXTAUTH_SECRET` | `openssl rand -base64 32`로 생성 |
-| `GOOGLE_CLIENT_ID` | Google OAuth 클라이언트 ID |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth 클라이언트 Secret |
-
-### 실행
-
-```bash
-# PostgreSQL 실행
-docker compose up -d
-
-# DB 마이그레이션
-npx prisma migrate dev --name init
-
-# 개발 서버 실행
-npm run dev
-```
-
-`http://localhost:3000`으로 접속합니다.
 
 ## 프로젝트 구조
 
@@ -131,8 +100,3 @@ GitHub Actions를 통해 `main` 브랜치 푸시 시 자동 배포됩니다.
 ```
 Push to main → Docker Build → GCP Artifact Registry → Cloud Run Deploy
 ```
-
-## 링크
-
-- **서비스**: https://syngrid.k1my3ch4n.xyz
-- **GitHub**: https://github.com/k1my3ch4n/Synchronized-Grid

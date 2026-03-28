@@ -10,7 +10,7 @@ import { useWorkspaceStore } from "@features/workspace/model/store";
 import { WORKSPACE_ROLES, WORKSPACE_NAME_MAX_LENGTH } from "@shared/constants";
 import { useEditableValue } from "@shared/hooks/useEditableValue";
 import { ExternalLinks } from "@shared/ui/ExternalLinks";
-import { PencilIcon } from "@shared/ui/icons/PencilIcon";
+import { PencilIcon } from "@shared/ui/icons";
 import { EditableUrl } from "./EditableUrl";
 
 interface HeaderProps {
