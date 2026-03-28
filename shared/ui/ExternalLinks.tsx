@@ -1,4 +1,4 @@
-import { GITHUB_URL } from "@shared/constants";
+import { GITHUB_URL, NOTION_URL } from "@shared/constants";
 
 function GitHubIcon() {
   return (
@@ -20,6 +20,15 @@ export function ExternalLinks() {
   return (
     <>
       <a
+        href={NOTION_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-text-muted hover:text-text-primary transition-colors hover-scale"
+        aria-label="Notion"
+      >
+        <NotionIcon />
+      </a>
+      <a
         href={GITHUB_URL}
         target="_blank"
         rel="noopener noreferrer"
@@ -28,17 +37,6 @@ export function ExternalLinks() {
       >
         <GitHubIcon />
       </a>
-      {/* TODO: Notion URL 확정 후 활성화
-      <a
-        href={NOTION_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-text-muted hover:text-text-primary transition-colors"
-        aria-label="Notion"
-      >
-        <NotionIcon />
-      </a>
-      */}
     </>
   );
 }
