@@ -42,6 +42,7 @@ if (process.env.E2E_TEST === "true") {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   trustHost: true,
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
