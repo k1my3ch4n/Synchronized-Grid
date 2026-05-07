@@ -2,7 +2,17 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
+const CANONICAL_HOST = "syngrid.k1my3ch4n.xyz";
+
 export async function proxy(req: NextRequest) {
+  const host = req.headers.get("host") ?? "";
+  if (host !== CANONICAL_HOST && host.endsWith(".run.app")) {
+    const url = req.nextUrl.clone();
+    url.host = CANONICAL_HOST;
+    url.port = "";
+    return NextResponse.redirect(url, 301);
+  }
+
   const { pathname } = req.nextUrl;
 
   // 공개 경로 (인증 불필요)
