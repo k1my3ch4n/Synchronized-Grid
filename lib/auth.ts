@@ -49,6 +49,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   pages: {
     signIn: "/login",
   },
+  ...(process.env.NODE_ENV === "production" && {
+    cookies: {
+      pkceCodeVerifier: {
+        name: "__Secure-authjs.pkce.code_verifier",
+        options: {
+          httpOnly: true,
+          sameSite: "lax" as const,
+          path: "/",
+          secure: true,
+        },
+      },
+    },
+  }),
   callbacks: {
     jwt({ token, user }) {
       if (user) {
