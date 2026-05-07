@@ -3,13 +3,13 @@ ARG NODE_VERSION=22.14.0-alpine3.21
 FROM node:${NODE_VERSION} AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --fetch-retries=5 --fetch-retry-mintimeout=10000
 
 # ── Stage 2: Build ──
 FROM node:${NODE_VERSION} AS builder
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --fetch-retries=5 --fetch-retry-mintimeout=10000
 COPY . .
 RUN npx prisma generate
 RUN npm run build
