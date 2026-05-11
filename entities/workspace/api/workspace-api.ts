@@ -1,3 +1,4 @@
+import { dbAwareFetch } from "@/lib/db-aware-fetch";
 import type { WorkspaceResponse } from "@shared/types";
 
 async function handleResponse<T>(response: Response): Promise<T> {
@@ -10,7 +11,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
 }
 
 export async function fetchWorkspaces(): Promise<WorkspaceResponse[]> {
-  const res = await fetch("/api/workspaces");
+  const res = await dbAwareFetch("/api/workspaces");
 
   return handleResponse<WorkspaceResponse[]>(res);
 }
@@ -18,7 +19,7 @@ export async function fetchWorkspaces(): Promise<WorkspaceResponse[]> {
 export async function createWorkspace(data: {
   name: string;
 }): Promise<WorkspaceResponse> {
-  const res = await fetch("/api/workspaces", {
+  const res = await dbAwareFetch("/api/workspaces", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -28,7 +29,7 @@ export async function createWorkspace(data: {
 }
 
 export async function deleteWorkspace(id: string): Promise<void> {
-  const res = await fetch(`/api/workspaces/${id}`, { method: "DELETE" });
+  const res = await dbAwareFetch(`/api/workspaces/${id}`, { method: "DELETE" });
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
