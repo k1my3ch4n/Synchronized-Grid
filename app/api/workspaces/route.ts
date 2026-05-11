@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth-helpers";
+import { isNeonQuotaError } from "@/lib/neon-errors";
 import { WORKSPACE_NAME_MAX_LENGTH, WORKSPACE_ROLES } from "@shared/constants";
 
 export async function GET() {
@@ -26,8 +27,17 @@ export async function GET() {
     }));
 
     return NextResponse.json(result);
-  } catch {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } catch (error) {
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    if (isNeonQuotaError(error)) {
+      return NextResponse.json(
+        { error: "DB unavailable", code: "QUOTA_EXCEEDED" },
+        { status: 503 },
+      );
+    }
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
 

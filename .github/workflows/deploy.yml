@@ -50,26 +50,10 @@ jobs:
         run: npm ci
 
       - name: Run database migrations
-        run: |
-          # Download Cloud SQL Auth Proxy
-          wget -q https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.14.3/cloud-sql-proxy.linux.amd64 -O /tmp/cloud-sql-proxy
-          chmod +x /tmp/cloud-sql-proxy
-
-          # Start proxy in background
-          /tmp/cloud-sql-proxy ${{ secrets.CLOUD_SQL_CONNECTION_NAME }} --port 5432 &
-
-          # Wait for proxy to be ready
-          for i in $(seq 1 10); do
-            nc -z localhost 5432 && echo "Cloud SQL Proxy ready" && break
-            echo "Waiting for Cloud SQL Proxy... ($i/10)"
-            sleep 2
-          done
-          nc -z localhost 5432 || { echo "Cloud SQL Proxy failed to start"; exit 1; }
-
-          # Run migrations
-          npx prisma migrate deploy
+        run: npx prisma migrate deploy
         env:
-          DATABASE_URL: postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@localhost:5432/${{ secrets.DB_NAME }}
+          DATABASE_URL: ${{ secrets.NEON_DIRECT_URL }}
+          DIRECT_URL: ${{ secrets.NEON_DIRECT_URL }}
 
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
@@ -84,7 +68,6 @@ jobs:
             --cpu=1
             --timeout=3600
             --session-affinity
-            --add-cloudsql-instances=${{ secrets.CLOUD_SQL_CONNECTION_NAME }}
           env_vars: |
             NODE_ENV=production
             AUTH_TRUST_HOST=true
