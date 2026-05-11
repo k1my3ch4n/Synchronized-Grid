@@ -51,9 +51,9 @@
 | ---------------- | --------------------------------------------------------- |
 | **Frontend**     | Next.js 16, React 19, TypeScript, Tailwind CSS 4, Zustand |
 | **Backend**      | Custom Node.js Server, Socket.IO, Prisma ORM              |
-| **Database**     | PostgreSQL (Cloud SQL)                                    |
+| **Database**     | PostgreSQL (~~Cloud SQL~~ → Neon Serverless)              |
 | **Auth**         | NextAuth.js v5 (Google OAuth, JWT)                        |
-| **Infra**        | GCP Cloud Run, Docker, GitHub Actions CI/CD               |
+| **Infra**        | GCP Cloud Run, ~~Cloud SQL~~ Neon, Docker, GitHub Actions CI/CD |
 | **Testing**      | Playwright E2E                                            |
 | **Architecture** | Feature-Sliced Design (FSD)                               |
 | **AI**           | Claude Code (페어 프로그래밍)                             |
@@ -100,3 +100,15 @@ GitHub Actions를 통해 `main` 브랜치 푸시 시 자동 배포됩니다.
 ```
 Push to main → Docker Build → GCP Artifact Registry → Cloud Run Deploy
 ```
+
+## 변경 이력
+
+### Database: GCP Cloud SQL → Neon Serverless
+
+GCP Cloud SQL은 인스턴스가 항시 가동되어 유휴 상태에서도 비용이 발생했습니다.
+Neon Serverless PostgreSQL로 전환하여 Auto-suspend 기능으로 유휴 비용을 절감했습니다.
+
+- Prisma `directUrl` 설정으로 마이그레이션과 쿼리 연결 분리
+- Cold start 감지 시 "연결 중..." 토스트 알림 (1.5초 초과 시)
+- 10초 이상 지연 시 새로고침 유도 토스트
+- 무료 플랜 한도 초과 시 안내 토스트
